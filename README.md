@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Public Ledger
 
-## Getting Started
+An unofficial public voting platform for UK citizens — giving the public a direct, transparent voice on government and societal issues.
 
-First, run the development server:
+## What is The Public Ledger?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The Public Ledger is an open platform where British citizens can vote on the issues that matter to them — from government policy to societal concerns. It exists to provide a realistic, data-driven snapshot of what the public actually wants from those in power, without waiting for official polls or elections.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Regular votes are scheduled on a range of topics. As participation grows, the platform aims to reduce the reliance on traditional polling by providing more frequent, direct insight into public opinion.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Scheduled votes** are published on a regular basis covering government and societal topics
+- **Your vote is anonymous** — participation is private, results are public
+- **All results are recorded on a blockchain**, making them verifiable and tamper-proof
+- **The entire codebase is publicly visible** — full transparency, no black boxes
 
-## Learn More
+## Who Can Vote?
 
-To learn more about Next.js, take a look at the following resources:
+The Public Ledger is currently available to **UK residents only**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To participate, you must be a British citizen and verify your identity through one of our trusted verification partners. This ensures every vote counts once and counts legitimately.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Transparency
 
-## Deploy on Vercel
+This project is built on the principle of openness:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- The full source code is available in this repository
+- All vote results are published on-chain and publicly accessible
+- No hidden logic, no opaque algorithms
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## The Name
+
+The Public Ledger takes its name from one of the world's longest-running newspapers. Founded in London in 1760 by John Newbery, the original *Public Ledger* published commodity prices alongside political, commercial, and societal news and commentary — making public information freely available at a time when it was tightly controlled. It was London's fourth daily newspaper, born in an era when the press was beginning to find its independence from political patronage.
+
+The original publication eventually folded in the late 20th century, unable to adapt to a changing world. This platform borrows its name and spirit: the idea that public information — including what the public actually thinks — should be open, recorded, and accessible to all.
+
+## Contributing
+
+Want to help build The Public Ledger? Contributions are welcome — whether that's code, design, ideas, or feedback.
+
+Reach out to get involved.
+
+## Sponsorship
+
+If you believe in what The Public Ledger is trying to do, consider supporting the project financially. See the [sponsorship issue](https://github.com/nicholastickle/the-public-ledger/issues/1) for details on how to help.
