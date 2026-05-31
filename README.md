@@ -8,6 +8,14 @@ The Public Ledger is an open platform where British citizens can vote on the iss
 
 Regular votes are scheduled on a range of topics. As participation grows, the platform aims to reduce the reliance on traditional polling by providing more frequent, direct insight into public opinion.
 
+## Guiding Principles
+
+- **Transparency** — All voting results are recorded on-chain and publicly available
+- **Verification** — One verified person, one vote per issue
+- **Neutrality** — The platform has no political affiliation or opinion. We show only what the public thinks
+- **Privacy** — All voters and votes are anonymous. Identity verification data is never used, sold, or profited on
+- **Open Source** — The entire codebase shall be open source to give full transparency on the data processing and scoring engines
+
 ## How It Works
 
 - **Scheduled votes** are published on a regular basis covering government and societal topics
@@ -19,15 +27,7 @@ Regular votes are scheduled on a range of topics. As participation grows, the pl
 
 The Public Ledger is currently available to **UK residents only**.
 
-To participate, you must be a British citizen and verify your identity through one of our trusted verification partners. This ensures every vote counts once and counts legitimately.
-
-## Transparency
-
-This project is built on the principle of openness:
-
-- The full source code is available in this repository
-- All vote results are published on-chain and publicly accessible
-- No hidden logic, no opaque algorithms
+To participate, you must be a British citizen aged 18 or over, and verify your identity through one of our trusted verification partners. This ensures every vote counts once and counts legitimately.
 
 ## The Name
 
