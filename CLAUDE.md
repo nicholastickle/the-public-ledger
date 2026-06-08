@@ -86,8 +86,8 @@ FastAPI + Python 3.12, async throughout. All business logic lives in `backend/se
 - **Python style:** `async`/`await` throughout; type hints on every function; `logger = logging.getLogger(__name__)` — never `print()`.
 - **Pydantic models:** every request body and response shape gets a Pydantic model defined in the relevant `api/v1/` file.
 - **Dependency injection:** FastAPI `Depends()` for auth and rate-limiting; services are initialised once in `main.py` startup and stored on `app.state`.
-- **Non-blocking writes:** use `asyncio.ensure_future()` for fire-and-forget DB persistence in the hot path — do not `await` them.
-- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run on startup via `SUPABASE_DB_URL`. Next migration number: 001 until the first one is written.
+- **Non-blocking writes:** use `asyncio.create_task()` for fire-and-forget DB persistence in the hot path — do not `await` them.
+- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run as a dedicated step before the server starts — not in the lifespan handler — to avoid races when multiple instances restart simultaneously. On Fly.io, wire this up as a `release_command`. Next migration number: 001 until the first one is written.
 - **Admin routes:** require `is_admin=True` on the user row — no middleware flag.
 - **Error handling:** `HTTPException` for client errors; `logger.exception()` for unexpected errors; Sentry for production tracking.
 - **New API endpoint checklist:** add router file in `api/v1/`, Pydantic models in the same file, register router in `main.py`, add service method in `services/`, add migration if schema changes.
@@ -197,23 +197,23 @@ The FastAPI backend lives entirely in `backend/`. Next.js API routes (`src/app/a
 
 ### Auth
 
-Use Supabase Auth (passwordless email OTP or OAuth) managed via the Supabase Python SDK. Sessions are HTTP-only cookies. CSRF protection: cookie + request header token. JWT fallback for programmatic API clients.
+Use Supabase Auth directly — it handles OTP, OAuth, JWTs, and session management out of the box via the Supabase Python SDK. Do not build a custom OTP or session system; call `supabase.auth.*` methods instead. The Next.js API route at `src/app/api/auth/` sets the session cookie after Supabase issues a JWT; the FastAPI backend verifies it on each request using `dependencies.py`.
 
-### Service layer pattern (from Anchorbase)
+### Service layer
 
-Each service is a class injected via `app.state`:
+Start simple: route handlers can call the Supabase SDK directly for straightforward queries. Extract a service class only when logic is complex enough to warrant it — don't create `services/` files as boilerplate. When a service is needed, wire it via `app.state`:
 
 ```python
 # services/example.py
 class ExampleService:
-    def __init__(self, db: DataStore, ...):
-        self.db = db
+    def __init__(self, supabase: Client):
+        self.supabase = supabase
 
-    async def do_something(self, user_email: str) -> SomeResult:
+    async def do_something(self, user_id: str) -> SomeResult:
         ...
 ```
 
-Services are wired together in `main.py`'s lifespan and stored on `app.state`. Route handlers access them via `request.app.state.example`.
+Services are initialised once in `main.py`'s lifespan and accessed via `request.app.state.example`.
 
 ### Streaming responses
 
@@ -236,13 +236,21 @@ After any change to a component, page, or global CSS:
 
 Frontend runs on Vercel (pushing to `main` triggers a production deploy; PR branches get previews). Backend runs as a separate service — hosting TBD (Fly.io is the default choice; update this section once decided).
 
+When hosting on Fly.io, run migrations as a release command so they complete before any new instance starts:
+
+```toml
+# fly.toml
+[deploy]
+  release_command = "python -m backend.migrate"
+```
+
 | Service | Purpose | Key env vars |
 |---|---|---|
 | Vercel | Frontend hosting + CI/CD | — |
 | Supabase | Postgres database + Auth | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (migrations only — deployment secret, not in `.env`) |
 | FastAPI (backend) | Python API server | `ENVIRONMENT`, `CORS_ORIGINS` |
 
-[Expand this table as services are added — include auth provider, storage, email, analytics once wired up.]
+[Expand this table as services are added — include storage, email, analytics once wired up.]
 
 ## Environment variables
 
