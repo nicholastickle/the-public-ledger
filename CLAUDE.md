@@ -18,28 +18,87 @@ The Public Ledger — [description TBD]. Built with Next.js 16 (App Router), Typ
 
 ## Commands
 
+### Frontend (Next.js)
 ```bash
 npm run dev         # Dev server at localhost:3000
 npm run build       # Production build
 npm run start       # Production server
 npm run lint        # ESLint
 npm run type-check  # TypeScript — tsc --noEmit
-npm run test        # Full suite — add Vitest + Husky when test infra is wired up
+npm run test        # Full suite (Vitest + Husky — wire up when test infra is added)
+```
+
+### Backend (FastAPI)
+```bash
+cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+cd backend && python -m pytest tests/ -q
 ```
 
 ## Architecture
+
+### Monorepo layout
+
+```
+the-public-ledger/
+├── src/app/              # Next.js 16 frontend (App Router)
+│   ├── components/       # UI components, organised by feature section
+│   ├── data/             # Static content — no CMS
+│   ├── api/              # Next.js API routes (auth cookies, thin proxies only)
+│   ├── lib/              # Shared frontend utilities
+│   └── types/            # TypeScript types
+├── backend/              # FastAPI Python backend
+│   ├── main.py           # App entry point — registers routers, startup/shutdown
+│   ├── core/
+│   │   ├── config.py     # Pydantic BaseSettings — all env vars validated here
+│   │   └── dependencies.py  # FastAPI Depends() helpers (auth, rate limit)
+│   ├── api/
+│   │   └── v1/           # Route handlers — one file per resource
+│   ├── services/         # Business logic — one class per domain
+│   ├── migrations/       # SQL files: 001_description.sql, 002_…, etc.
+│   ├── tests/            # Python unit + integration tests
+│   └── requirements.txt
+├── __tests__/            # Frontend tests (Vitest)
+│   ├── api/
+│   ├── components/
+│   ├── data/
+│   └── utils/
+└── package.json          # Frontend deps
+```
+
+### Frontend conventions
 
 App Router + TypeScript throughout. No pages directory.
 
 `src/app/page.tsx` and route `page.tsx` files import components only — no inline JSX. Sections are components under `src/app/components/`. Data is fetched at the page level and passed as props; components never fetch their own data. Push `"use client"` as deep into the tree as possible.
 
-Content and data live in `src/app/data/` — no CMS for content. API routes (`src/app/api/`) handle all backend logic.
+Static content lives in `src/app/data/` — no CMS. Next.js API routes (`src/app/api/`) are thin: they handle auth cookie management and act as a proxy to the FastAPI backend where needed; they do not contain business logic.
 
 `src/app/sitemap.ts` generates the sitemap. After any change that adds, removes, or renames a page or route, check whether it needs updating.
 
 `src/app/llms.txt/route.ts` — add this route when the site is substantive enough to warrant an agent-readable summary.
 
 Theme (dark/light) — not implemented yet. Add a `theme` cookie + server-side read in `src/app/layout.tsx` when needed. DESIGN.md is light-mode only; dark-mode tokens are not defined.
+
+### Backend conventions
+
+FastAPI + Python 3.12, async throughout. All business logic lives in `backend/services/` — route handlers in `backend/api/v1/` should be thin: validate the request, call a service method, return the response.
+
+- **Python style:** `async`/`await` throughout; type hints on every function; `logger = logging.getLogger(__name__)` — never `print()`.
+- **Pydantic models:** every request body and response shape gets a Pydantic model defined in the relevant `api/v1/` file.
+- **Dependency injection:** FastAPI `Depends()` for auth and rate-limiting; services are initialised once in `main.py` startup and stored on `app.state`.
+- **Non-blocking writes:** use `asyncio.ensure_future()` for fire-and-forget DB persistence in the hot path — do not `await` them.
+- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run on startup via `SUPABASE_DB_URL`. Next migration number: 001 until the first one is written.
+- **Admin routes:** require `is_admin=True` on the user row — no middleware flag.
+- **Error handling:** `HTTPException` for client errors; `logger.exception()` for unexpected errors; Sentry for production tracking.
+- **New API endpoint checklist:** add router file in `api/v1/`, Pydantic models in the same file, register router in `main.py`, add service method in `services/`, add migration if schema changes.
+
+### Database (Supabase / Postgres)
+
+- **Application queries:** Supabase Python SDK (row-level security enforced per user).
+- **Migrations:** direct psycopg2 connection via `SUPABASE_DB_URL` (set as a deployment secret, not in `.env`).
+- Table naming: snake_case, plural (e.g. `users`, `documents`, `query_logs`).
+- Every table needs `created_at TIMESTAMPTZ DEFAULT now()`.
+- RLS policies enforce ownership; the service role key (`SUPABASE_SERVICE_ROLE_KEY`) is only used server-side in the FastAPI app — never exposed to the browser.
 
 ## Design System & Tailwind v4
 
@@ -121,7 +180,44 @@ All external links must include `target="_blank"` and `rel="noopener noreferrer"
 
 ## Backend
 
-API routes live at `src/app/api/`. [Expand this section as the backend is built out — include: database driver/ORM, auth provider, key services, migration workflow, connection pooling notes.]
+The FastAPI backend lives entirely in `backend/`. Next.js API routes (`src/app/api/`) are for frontend concerns only (auth cookies, lightweight proxies) — they do not contain business logic.
+
+### Directory structure
+
+| Path | Purpose |
+|---|---|
+| `backend/main.py` | FastAPI app factory, lifespan handler, router registration |
+| `backend/core/config.py` | `Settings` class (Pydantic BaseSettings) — single source for all env vars |
+| `backend/core/dependencies.py` | `get_current_user`, rate-limit `Depends()` helpers |
+| `backend/api/v1/` | Route handlers — one file per resource (e.g. `auth.py`, `documents.py`) |
+| `backend/services/` | Business logic classes — one file per domain |
+| `backend/migrations/` | Numbered SQL files: `001_description.sql`, `002_…` |
+| `backend/tests/` | Pytest unit + integration tests |
+| `backend/requirements.txt` | Python dependencies |
+
+### Auth
+
+Use Supabase Auth (passwordless email OTP or OAuth) managed via the Supabase Python SDK. Sessions are HTTP-only cookies. CSRF protection: cookie + request header token. JWT fallback for programmatic API clients.
+
+### Service layer pattern (from Anchorbase)
+
+Each service is a class injected via `app.state`:
+
+```python
+# services/example.py
+class ExampleService:
+    def __init__(self, db: DataStore, ...):
+        self.db = db
+
+    async def do_something(self, user_email: str) -> SomeResult:
+        ...
+```
+
+Services are wired together in `main.py`'s lifespan and stored on `app.state`. Route handlers access them via `request.app.state.example`.
+
+### Streaming responses
+
+Use FastAPI `StreamingResponse` with SSE format (`data: {...}\n\n`) for any long-running operation. Frontend consumes via `ReadableStream` or `EventSource`.
 
 After any new service, third-party integration, or environment variable is added, update this section and the Infrastructure table.
 
@@ -138,13 +234,15 @@ After any change to a component, page, or global CSS:
 
 ## Infrastructure
 
-The site runs on Vercel. Pushing to `main` triggers a production deployment. PR branches get preview deployments automatically.
+Frontend runs on Vercel (pushing to `main` triggers a production deploy; PR branches get previews). Backend runs as a separate service — hosting TBD (Fly.io is the default choice; update this section once decided).
 
 | Service | Purpose | Key env vars |
 |---|---|---|
-| Vercel | Hosting + CI/CD | — |
+| Vercel | Frontend hosting + CI/CD | — |
+| Supabase | Postgres database + Auth | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (migrations only — deployment secret, not in `.env`) |
+| FastAPI (backend) | Python API server | `ENVIRONMENT`, `CORS_ORIGINS` |
 
-[Expand this table as services are added — mirror the format used in nicholas-tickle CLAUDE.md.]
+[Expand this table as services are added — include auth provider, storage, email, analytics once wired up.]
 
 ## Environment variables
 
@@ -154,11 +252,19 @@ Add a `.env.example` file with all required variables (values redacted) when the
 
 ## Unit tests
 
-When test infrastructure is added (Vitest recommended — same setup as nicholas-tickle):
+### Frontend (Vitest — same setup as nicholas-tickle)
 
 - Utilities → `__tests__/utils/`
 - Client components → `__tests__/components/`
-- API route logic → `__tests__/api/`
+- Next.js API route logic → `__tests__/api/`
 - New data collections → integrity checks in `__tests__/data/integrity.test.ts`
 
 Wire Vitest into `npm run test` and add a Husky pre-push hook so tests run on every push.
+
+### Backend (Pytest)
+
+- Route handlers → `backend/tests/api/`
+- Service logic → `backend/tests/services/`
+- Utilities → `backend/tests/utils/`
+
+Run with `cd backend && python -m pytest tests/ -q`. Add `pytest-asyncio` for async service tests.
