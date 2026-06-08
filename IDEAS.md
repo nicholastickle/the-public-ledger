@@ -111,3 +111,37 @@ This is the long game. The platform needs to become the default source of verifi
 - **Referral with purpose** — "Invite a friend to vote — your constituency's result is stronger with more verified voices." Referrals framed as civic duty convert better than discount-based referrals.
 - **Open source community** — contributors to the codebase become platform advocates. A healthy GitHub presence and a welcoming contribution process builds a distributed base of people who have personal investment in the platform's success.
 - **Email alerts on issues users care about** — "A new vote has opened on NHS funding, which you said you care about." High-relevance notifications drive re-engagement without feeling like spam.
+
+---
+
+## AI Agent Looping Ideas
+
+Ideas for applications that leverage AI agent loops — where an agent runs continuously or cyclically to automate high-volume, time-sensitive, or labour-intensive tasks.
+
+### Perpetual Research & Knowledge Base Building
+
+An agent continuously monitors sources (academic papers, news, forums, competitor sites) and distils findings into a structured, searchable knowledge base. The loop runs indefinitely: discover → read → synthesise → file → repeat.
+
+### Autonomous Blog Generation & SEO Management
+
+An agent identifies trending topics and keyword gaps, writes and publishes posts, monitors rankings, and iterates on underperforming content — all without human intervention.
+
+### Porting Software to Other Languages
+
+An agent takes a codebase in one language and systematically rewrites it in another, running tests after each module to verify correctness, then iterating on failures until the full port is green.
+
+### Data Harvesting & Web Scraping
+
+An agent crawls target sites on a schedule, extracts structured data, deduplicates and validates it, and writes to a database — handling pagination, rate limits, and schema changes automatically.
+
+### Drop Sniping & Shopping Bots
+
+An agent monitors product pages, stock APIs, and release calendars, then executes purchases at the moment inventory appears — sub-second response loops optimised for latency.
+
+### Social Media & Forum Management
+
+An agent monitors mentions, replies to comments, drafts and schedules posts, escalates edge cases to a human, and tracks engagement metrics — running a continuous content and community loop.
+
+### & Much More
+
+The pattern generalises to any domain where the work is repetitive, high-volume, time-sensitive, or too broad for a human to monitor continuously. The agent loop is the primitive; the application layer is unlimited.
