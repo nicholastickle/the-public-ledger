@@ -223,14 +223,17 @@ After any new service, third-party integration, or environment variable is added
 
 ## UI testing
 
-A Puppeteer MCP server is configured — `puppeteer_navigate`, `puppeteer_screenshot`, and `puppeteer_click` are available in every session.
+A Puppeteer MCP server is configured in `.mcp.json`. Tools available: `mcp__puppeteer__puppeteer_navigate`, `mcp__puppeteer__puppeteer_screenshot`, `mcp__puppeteer__puppeteer_click`, `mcp__puppeteer__puppeteer_fill`, `mcp__puppeteer__puppeteer_evaluate`.
 
-After any change to a component, page, or global CSS:
+**Mandatory after any change to a component, page, or global CSS:**
 
-1. Ensure the dev server is running (`npm run dev` in the background if not already).
-2. Call `puppeteer_navigate` to `http://localhost:3000` (and any affected sub-pages).
-3. Call `puppeteer_screenshot` to capture each changed section.
-4. Inspect the screenshot for visual regressions before marking the task complete.
+1. Start the dev server in the background if not already running: `npm run dev`
+2. Wait ~3 seconds for it to be ready, then navigate: `mcp__puppeteer__puppeteer_navigate` → `http://localhost:3000`
+3. Screenshot every changed section: `mcp__puppeteer__puppeteer_screenshot`
+4. Inspect the screenshot visually — check layout, colours, spacing against DESIGN.md tokens
+5. Iterate until the output matches the design intent before marking the task complete
+
+Use `--no-sandbox` is already handled by the server; the bundled Chromium at `/root/.cache/puppeteer/chrome/` is used automatically via `PUPPETEER_EXECUTABLE_PATH` in `.mcp.json`.
 
 ## Infrastructure
 
