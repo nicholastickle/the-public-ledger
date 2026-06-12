@@ -263,14 +263,25 @@ Add a `.env.example` file with all required variables (values redacted) when the
 
 ## Unit tests
 
-### Frontend (Vitest — same setup as nicholas-tickle)
+**Every new piece of code must ship with a test.** No exceptions. A utility, a component, an API route, a service method — all get a test file before the work is considered done. Husky runs the full frontend test suite on every `git commit` and blocks the commit if any test fails.
 
+### Frontend (Vitest)
+
+- `npm run test` — watch mode for development
+- `npm run test:run` — single-pass (used by the pre-commit hook)
+- Config: `vitest.config.ts` / `vitest.setup.ts`
+
+File placement:
 - Utilities → `__tests__/utils/`
 - Client components → `__tests__/components/`
 - Next.js API route logic → `__tests__/api/`
 - New data collections → integrity checks in `__tests__/data/integrity.test.ts`
 
-Wire Vitest into `npm run test` and add a Husky pre-push hook so tests run on every push.
+Test conventions:
+- Use `@testing-library/react` for component tests
+- Use `@testing-library/jest-dom` matchers (automatically imported via `vitest.setup.ts`)
+- Test the public behaviour, not implementation details
+- One `describe` block per file, one `it` per behaviour
 
 ### Backend (Pytest)
 
