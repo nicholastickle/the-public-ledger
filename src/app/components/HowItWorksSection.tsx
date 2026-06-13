@@ -1,27 +1,27 @@
 const STEPS = [
   {
     number: '01',
-    title: 'Create an account.',
+    title: 'Browse active bills.',
     description:
-      'Sign up in seconds and fund your wallet. No barriers for small amounts — just connect and go.',
+      'Find legislation that parliament is currently debating. Each bill includes a plain-English summary and the official parliamentary record.',
   },
   {
     number: '02',
-    title: 'Pick your market.',
+    title: 'Read, then decide.',
     description:
-      'Browse hundreds of open markets across politics, sports, crypto, science, and global events.',
+      'Review the key arguments on both sides. Cast your YES or NO vote to register your position as a citizen.',
   },
   {
     number: '03',
-    title: 'Trade and cash out.',
+    title: 'See public vs parliament.',
     description:
-      "Buy YES or NO shares at current market prices. If you're right when the event resolves, you earn.",
+      'Watch live as citizen votes are tallied. When parliament divides, see exactly how public opinion compared to your elected representatives.',
   },
 ];
 
 export default function HowItWorksSection() {
   return (
-    <section className="bg-canvas-soft py-5xl">
+    <section className="bg-canvas-soft py-3xl md:py-5xl">
       <div className="max-w-[1400px] mx-auto px-lg">
         {/* Header */}
         <div className="text-center max-w-[36rem] mx-auto mb-4xl">
@@ -29,25 +29,23 @@ export default function HowItWorksSection() {
             How It Works
           </div>
           <h2 className="text-display-lg font-semibold text-ink">
-            Start trading in minutes.
+            Your voice alongside parliament.
           </h2>
         </div>
 
-        {/* Steps grid */}
+        {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
           {STEPS.map((step) => (
             <div
               key={step.number}
               className="bg-canvas rounded-lg p-xl shadow-level-2 relative overflow-hidden"
             >
-              {/* Large background step number for depth */}
               <div
                 className="absolute -top-4 -right-2 font-semibold leading-none select-none pointer-events-none text-canvas-soft-2"
                 style={{ fontSize: '120px' }}
               >
                 {step.number}
               </div>
-
               <div className="relative">
                 <div className="text-caption-mono font-mono text-mute mb-md">
                   STEP {step.number}
@@ -61,10 +59,9 @@ export default function HowItWorksSection() {
           ))}
         </div>
 
-        {/* CTA */}
         <div className="flex justify-center mt-4xl">
-          <a href="/signup" className="btn-primary">
-            Get Started Free
+          <a href="/bills" className="btn-primary">
+            Browse Active Bills
           </a>
         </div>
       </div>

@@ -1,46 +1,47 @@
 'use client';
 
 import { useState } from 'react';
-import type { Market, MarketCategory } from '../types';
-import MarketCard from './MarketCard';
+import type { Bill, BillCategory } from '../types';
+import BillCard from './BillCard';
 
-type TabValue = 'all' | MarketCategory;
+type TabValue = 'all' | BillCategory;
 
 const TABS: { label: string; value: TabValue }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Politics', value: 'politics' },
-  { label: 'Sports', value: 'sports' },
-  { label: 'Crypto', value: 'crypto' },
-  { label: 'Science', value: 'science' },
-  { label: 'Culture', value: 'culture' },
-  { label: 'World', value: 'world' },
+  { label: 'All Bills', value: 'all' },
+  { label: 'Health', value: 'health' },
+  { label: 'Economy', value: 'economy' },
+  { label: 'Housing', value: 'housing' },
+  { label: 'Environment', value: 'environment' },
+  { label: 'Education', value: 'education' },
+  { label: 'Justice', value: 'justice' },
+  { label: 'Immigration', value: 'immigration' },
 ];
 
 interface Props {
-  markets: Market[];
+  bills: Bill[];
 }
 
-export default function MarketsExplorer({ markets }: Props) {
+export default function BillsExplorer({ bills }: Props) {
   const [activeTab, setActiveTab] = useState<TabValue>('all');
 
   const filtered =
-    activeTab === 'all' ? markets : markets.filter((m) => m.category === activeTab);
+    activeTab === 'all' ? bills : bills.filter((b) => b.category === activeTab);
 
   return (
-    <section className="bg-canvas-soft py-5xl">
+    <section className="bg-canvas-soft py-3xl md:py-5xl">
       <div className="max-w-[1400px] mx-auto px-lg">
         {/* Section header */}
         <div className="flex items-end justify-between mb-2xl">
           <div>
             <div className="text-caption-mono font-mono text-mute uppercase tracking-widest mb-xs">
-              LIVE MARKETS
+              ACTIVE VOTES
             </div>
             <h2 className="text-display-lg font-semibold text-ink">
-              Browse open markets.
+              Cast your shadow vote.
             </h2>
           </div>
-          <a href="/markets" className="btn-secondary hidden sm:inline-flex">
-            View all →
+          <a href="/bills" className="btn-secondary hidden sm:inline-flex">
+            All bills →
           </a>
         </div>
 
@@ -61,16 +62,16 @@ export default function MarketsExplorer({ markets }: Props) {
           ))}
         </div>
 
-        {/* Market grid */}
+        {/* Bills grid */}
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-            {filtered.map((market) => (
-              <MarketCard key={market.id} market={market} />
+            {filtered.map((bill) => (
+              <BillCard key={bill.id} bill={bill} />
             ))}
           </div>
         ) : (
           <div className="text-center py-4xl text-mute text-body-md">
-            No markets in this category yet.
+            No bills in this category yet.
           </div>
         )}
       </div>

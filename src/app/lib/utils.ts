@@ -1,16 +1,15 @@
-export function formatVolume(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n}`;
+export function formatVotes(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+  return `${n}`;
 }
 
-export function formatMarketEnd(isoDate: string): string {
-  const diffDays = Math.ceil(
-    (new Date(isoDate).getTime() - Date.now()) / 86_400_000,
-  );
-  if (diffDays <= 0) return 'Ended';
-  if (diffDays < 30) return `${diffDays}d left`;
-  return `${Math.floor(diffDays / 30)}mo left`;
+export function formatBillDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 export function formatTimeAgo(isoDate: string): string {

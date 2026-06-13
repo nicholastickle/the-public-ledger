@@ -10,21 +10,21 @@ describe('NavBar', () => {
 
   it('renders primary nav links', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: 'Markets' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Politics' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Crypto' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sports' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Health' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Economy' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Housing' })).toBeInTheDocument();
   });
 
-  it('renders Sign In and Sign Up CTAs', () => {
+  it('renders Sign In and Register to Vote CTAs', () => {
     render(<NavBar />);
     expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
   });
 
-  it('Sign Up links to /signup', () => {
+  it('Register to Vote links to /signup', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Register to Vote' })).toHaveAttribute(
       'href',
       '/signup',
     );

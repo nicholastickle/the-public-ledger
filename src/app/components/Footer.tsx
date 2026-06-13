@@ -2,14 +2,14 @@ import Link from 'next/link';
 
 const COLUMNS = [
   {
-    heading: 'MARKETS',
+    heading: 'BILLS',
     links: [
-      { label: 'Politics', href: '/politics' },
-      { label: 'Sports', href: '/sports' },
-      { label: 'Crypto', href: '/crypto' },
-      { label: 'Science', href: '/science' },
-      { label: 'Culture', href: '/culture' },
-      { label: 'World', href: '/world' },
+      { label: 'All bills', href: '/bills' },
+      { label: 'Health & Care', href: '/health' },
+      { label: 'Economy', href: '/economy' },
+      { label: 'Housing', href: '/housing' },
+      { label: 'Environment', href: '/environment' },
+      { label: 'Justice', href: '/justice' },
     ],
   },
   {
@@ -17,9 +17,9 @@ const COLUMNS = [
     links: [
       { label: 'How it works', href: '/how-it-works' },
       { label: 'FAQ', href: '/faq' },
-      { label: 'API Docs', href: '/api-docs' },
+      { label: 'Parliament API', href: '/api-docs' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Market data', href: '/data' },
+      { label: 'Voting data', href: '/data' },
     ],
   },
   {
@@ -48,7 +48,8 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-body-sm text-body max-w-[20rem] leading-relaxed">
-              Open prediction markets for global events. Trade on what you know.
+              Shadow parliament voting for every UK citizen. Your voice on the
+              bills that shape the country.
             </p>
           </div>
 
@@ -73,13 +74,13 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom: copyright */}
+        {/* Bottom */}
         <div className="pt-lg border-t border-hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm">
           <p className="text-caption text-mute">
             © {new Date().getFullYear()} The Public Ledger. All rights reserved.
           </p>
           <p className="text-caption font-mono text-mute">
-            Prediction markets involve risk. Trade responsibly.
+            Not affiliated with the UK Parliament or any political party.
           </p>
         </div>
       </div>

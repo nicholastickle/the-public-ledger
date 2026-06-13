@@ -1,39 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import { formatVolume, formatMarketEnd, formatTimeAgo } from '@/app/lib/utils';
+import { formatVotes, formatBillDate, formatTimeAgo } from '@/app/lib/utils';
 
-describe('formatVolume', () => {
+describe('formatVotes', () => {
   it('formats millions with one decimal', () => {
-    expect(formatVolume(1_000_000)).toBe('$1.0M');
-    expect(formatVolume(2_400_000)).toBe('$2.4M');
-    expect(formatVolume(4_200_000)).toBe('$4.2M');
+    expect(formatVotes(1_000_000)).toBe('1.0M');
+    expect(formatVotes(2_400_000)).toBe('2.4M');
   });
 
   it('formats thousands with no decimal', () => {
-    expect(formatVolume(100_000)).toBe('$100K');
-    expect(formatVolume(50_000)).toBe('$50K');
-    expect(formatVolume(1_000)).toBe('$1K');
+    expect(formatVotes(100_000)).toBe('100K');
+    expect(formatVotes(50_000)).toBe('50K');
+    expect(formatVotes(1_000)).toBe('1K');
   });
 
   it('formats sub-thousand amounts as-is', () => {
-    expect(formatVolume(500)).toBe('$500');
-    expect(formatVolume(0)).toBe('$0');
+    expect(formatVotes(500)).toBe('500');
+    expect(formatVotes(0)).toBe('0');
   });
 });
 
-describe('formatMarketEnd', () => {
-  it('returns "Ended" for past dates', () => {
-    expect(formatMarketEnd('2020-01-01')).toBe('Ended');
-    expect(formatMarketEnd('2000-06-15')).toBe('Ended');
+describe('formatBillDate', () => {
+  it('formats a date in en-GB locale', () => {
+    expect(formatBillDate('2025-03-18')).toBe('18 Mar 2025');
   });
 
-  it('returns days remaining for dates within 30 days', () => {
-    const future = new Date(Date.now() + 10 * 86_400_000).toISOString();
-    expect(formatMarketEnd(future)).toBe('10d left');
-  });
-
-  it('returns months remaining for dates beyond 30 days', () => {
-    const future = new Date(Date.now() + 90 * 86_400_000).toISOString();
-    expect(formatMarketEnd(future)).toBe('3mo left');
+  it('handles year boundaries correctly', () => {
+    expect(formatBillDate('2026-01-01')).toBe('1 Jan 2026');
   });
 });
 

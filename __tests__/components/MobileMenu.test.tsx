@@ -10,29 +10,29 @@ describe('MobileMenu', () => {
 
   it('does not show nav links before the menu is opened', () => {
     render(<MobileMenu />);
-    expect(screen.queryByRole('link', { name: 'Markets' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Bills' })).not.toBeInTheDocument();
   });
 
   it('shows nav links after clicking the hamburger', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    expect(screen.getByRole('link', { name: 'Markets' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Politics' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Crypto' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Health' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Economy' })).toBeInTheDocument();
   });
 
-  it('shows Sign Up and Sign In CTAs when menu is open', () => {
+  it('shows Register to Vote and Sign In CTAs when menu is open', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
   });
 
   it('closes the menu when a nav link is clicked', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    fireEvent.click(screen.getByRole('link', { name: 'Sports' }));
-    expect(screen.queryByRole('link', { name: 'Markets' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Housing' }));
+    expect(screen.queryByRole('link', { name: 'Bills' })).not.toBeInTheDocument();
   });
 
   it('toggles aria-expanded on the button', () => {

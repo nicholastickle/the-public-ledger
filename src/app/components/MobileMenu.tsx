@@ -4,12 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const NAV_LINKS = [
-  { label: 'Markets', href: '/markets' },
-  { label: 'Politics', href: '/politics' },
-  { label: 'Sports', href: '/sports' },
-  { label: 'Crypto', href: '/crypto' },
-  { label: 'Science', href: '/science' },
-  { label: 'Culture', href: '/culture' },
+  { label: 'Bills', href: '/bills' },
+  { label: 'Health', href: '/health' },
+  { label: 'Economy', href: '/economy' },
+  { label: 'Housing', href: '/housing' },
+  { label: 'Environment', href: '/environment' },
+  { label: 'Justice', href: '/justice' },
 ];
 
 export default function MobileMenu() {
@@ -55,7 +55,7 @@ export default function MobileMenu() {
               className="btn-primary justify-center"
               onClick={() => setOpen(false)}
             >
-              Sign Up
+              Register to Vote
             </Link>
             <Link
               href="/login"

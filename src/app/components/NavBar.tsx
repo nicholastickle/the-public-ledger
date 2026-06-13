@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import MobileMenu from './MobileMenu';
 
-const NAV_LINKS = [
-  { label: 'Markets', href: '/markets' },
-  { label: 'Politics', href: '/politics' },
-  { label: 'Sports', href: '/sports' },
-  { label: 'Crypto', href: '/crypto' },
-  { label: 'Science', href: '/science' },
-  { label: 'Culture', href: '/culture' },
+export const NAV_LINKS = [
+  { label: 'Bills', href: '/bills' },
+  { label: 'Health', href: '/health' },
+  { label: 'Economy', href: '/economy' },
+  { label: 'Housing', href: '/housing' },
+  { label: 'Environment', href: '/environment' },
+  { label: 'Justice', href: '/justice' },
 ];
 
 export default function NavBar() {
@@ -22,7 +22,7 @@ export default function NavBar() {
           </span>
         </Link>
 
-        {/* Desktop nav links — only at lg+ where there's enough room */}
+        {/* Desktop nav links */}
         <div className="hidden lg:flex items-center gap-xxs flex-1">
           {NAV_LINKS.map((link) => (
             <Link
@@ -41,7 +41,7 @@ export default function NavBar() {
             Sign In
           </Link>
           <Link href="/signup" className="btn-primary-sm">
-            Sign Up
+            Register to Vote
           </Link>
         </div>
 

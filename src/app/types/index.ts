@@ -1,21 +1,29 @@
-export type MarketCategory = 'politics' | 'sports' | 'crypto' | 'science' | 'culture' | 'world';
+export type BillCategory =
+  | 'health'
+  | 'economy'
+  | 'housing'
+  | 'environment'
+  | 'education'
+  | 'justice'
+  | 'immigration';
 
-export interface Market {
+export interface Bill {
   id: string;
+  title: string;
   question: string;
-  category: MarketCategory;
-  yesPrice: number;
-  noPrice: number;
-  volume: number;
-  endsAt: string;
+  category: BillCategory;
+  yesPercent: number;
+  noPercent: number;
+  totalVotes: number;
+  debateDate: string;
   featured?: boolean;
+  parliamentVote?: 'passed' | 'rejected' | 'pending';
 }
 
 export interface ActivityItem {
   id: string;
   user: string;
   position: 'YES' | 'NO';
-  market: string;
-  amount: number;
+  bill: string;
   timestamp: string;
 }

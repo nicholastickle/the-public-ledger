@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'The Public Ledger — Prediction Markets',
+  title: 'The Public Ledger — Shadow Parliament Voting',
   description:
-    'Trade on real-world events with open prediction markets. Politics, sports, crypto, science, and more.',
+    'Cast your shadow vote on the same bills parliament is debating. See how public opinion compares to your elected representatives.',
 };
 
 export default function RootLayout({

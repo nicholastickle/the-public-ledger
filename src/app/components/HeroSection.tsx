@@ -1,14 +1,13 @@
-import type { Market } from '../types';
-import MarketCard from './MarketCard';
+import type { Bill } from '../types';
+import BillCard from './BillCard';
 
 interface Props {
-  featuredMarkets: Market[];
+  featuredBills: Bill[];
 }
 
-export default function HeroSection({ featuredMarkets }: Props) {
+export default function HeroSection({ featuredBills }: Props) {
   return (
     <section className="relative bg-canvas overflow-hidden">
-      {/* Atmospheric gradient backdrop */}
       <div className="absolute inset-0 hero-atmosphere pointer-events-none" />
 
       <div className="relative max-w-[1400px] mx-auto px-lg pt-4xl sm:pt-5xl lg:pt-section pb-4xl">
@@ -17,7 +16,7 @@ export default function HeroSection({ featuredMarkets }: Props) {
           <div className="inline-flex items-center gap-xs bg-canvas-soft text-body text-body-sm rounded-full px-sm py-xs shadow-level-1">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
             <span className="font-mono text-caption-mono uppercase tracking-widest">
-              Live Prediction Markets
+              Shadow Parliament · Live
             </span>
           </div>
         </div>
@@ -25,29 +24,29 @@ export default function HeroSection({ featuredMarkets }: Props) {
         {/* Headline */}
         <div className="text-center max-w-[42rem] mx-auto mb-xl">
           <h1 className="text-display-xl font-semibold text-ink mb-md">
-            Trade on the world&apos;s events.
+            Your shadow vote on every bill.
           </h1>
           <p className="text-body-lg text-body">
-            The Public Ledger is an open prediction market where anyone can trade
-            on politics, sports, crypto, and more. Powered by real money.
-            Governed by the crowd.
+            The Public Ledger lets every citizen cast a shadow vote on the same
+            legislation parliament is debating. See how public opinion compares
+            — bill by bill.
           </p>
         </div>
 
         {/* CTAs */}
         <div className="flex flex-wrap items-center justify-center gap-sm mb-4xl">
-          <a href="/signup" className="btn-primary">
-            Start Trading
+          <a href="/bills" className="btn-primary">
+            Browse Bills
           </a>
-          <a href="/markets" className="btn-secondary">
-            Browse Markets
+          <a href="/signup" className="btn-secondary">
+            Cast Your Vote
           </a>
         </div>
 
-        {/* Featured markets grid */}
+        {/* Featured bills */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-          {featuredMarkets.map((market) => (
-            <MarketCard key={market.id} market={market} variant="featured" />
+          {featuredBills.map((bill) => (
+            <BillCard key={bill.id} bill={bill} variant="featured" />
           ))}
         </div>
       </div>

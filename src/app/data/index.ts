@@ -1,1 +1,1 @@
-export { markets, featuredMarkets, activityFeed } from './markets';
+export { bills, featuredBills, activityFeed } from './bills';
