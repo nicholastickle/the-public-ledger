@@ -11,7 +11,7 @@ export default function HeroSection({ featuredMarkets }: Props) {
       {/* Atmospheric gradient backdrop */}
       <div className="absolute inset-0 hero-atmosphere pointer-events-none" />
 
-      <div className="relative max-w-[1400px] mx-auto px-lg pt-section pb-4xl">
+      <div className="relative max-w-[1400px] mx-auto px-lg pt-4xl sm:pt-5xl lg:pt-section pb-4xl">
         {/* Eyebrow */}
         <div className="flex justify-center mb-lg">
           <div className="inline-flex items-center gap-xs bg-canvas-soft text-body text-body-sm rounded-full px-sm py-xs shadow-level-1">
@@ -35,7 +35,7 @@ export default function HeroSection({ featuredMarkets }: Props) {
         </div>
 
         {/* CTAs */}
-        <div className="flex items-center justify-center gap-sm mb-4xl">
+        <div className="flex flex-wrap items-center justify-center gap-sm mb-4xl">
           <a href="/signup" className="btn-primary">
             Start Trading
           </a>

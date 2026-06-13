@@ -39,9 +39,9 @@ export default function Footer() {
     <footer className="bg-canvas border-t border-hairline py-4xl">
       <div className="max-w-[1400px] mx-auto px-lg">
         {/* Top: brand + nav columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-xl mb-4xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-xl mb-4xl">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="sm:col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-xs mb-md">
               <span className="text-body-sm font-semibold text-ink">
                 The Public Ledger

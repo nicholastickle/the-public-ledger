@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import MobileMenu from './MobileMenu';
 
 const NAV_LINKS = [
   { label: 'Markets', href: '/markets' },
@@ -13,6 +14,7 @@ export default function NavBar() {
   return (
     <header className="sticky top-0 z-50 bg-canvas border-b border-hairline">
       <nav className="max-w-[1400px] mx-auto px-lg h-16 flex items-center gap-lg">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-xs flex-shrink-0">
           <LedgerIcon />
           <span className="text-body-sm font-semibold text-ink tracking-tight">
@@ -20,7 +22,8 @@ export default function NavBar() {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-xxs flex-1">
+        {/* Desktop nav links — only at lg+ where there's enough room */}
+        <div className="hidden lg:flex items-center gap-xxs flex-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -32,13 +35,19 @@ export default function NavBar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-xs ml-auto">
+        {/* Desktop CTAs */}
+        <div className="hidden lg:flex items-center gap-xs">
           <Link href="/login" className="btn-secondary-sm">
             Sign In
           </Link>
           <Link href="/signup" className="btn-primary-sm">
             Sign Up
           </Link>
+        </div>
+
+        {/* Hamburger for mobile + tablet */}
+        <div className="lg:hidden ml-auto">
+          <MobileMenu />
         </div>
       </nav>
     </header>
