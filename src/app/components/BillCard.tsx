@@ -13,10 +13,67 @@ const CATEGORY_LABELS: Record<BillCategory, string> = {
 
 interface Props {
   bill: Bill;
-  variant?: 'default' | 'featured';
+  variant?: 'default' | 'featured' | 'feed';
 }
 
 export default function BillCard({ bill, variant = 'default' }: Props) {
+  if (variant === 'feed') {
+    return (
+      <article className="bg-canvas rounded-lg flex flex-col shadow-level-2 hover:shadow-level-3 transition-shadow overflow-hidden border border-hairline">
+        <div className="flex flex-col gap-md p-lg">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-sm">
+            <span className="text-caption-mono font-mono text-mute uppercase tracking-wider">
+              {CATEGORY_LABELS[bill.category]}
+            </span>
+            <ParliamentBadge vote={bill.parliamentVote} />
+          </div>
+
+          {/* Question */}
+          <h3 className="text-body-md font-medium text-ink leading-snug">
+            {bill.question}
+          </h3>
+
+          {/* YES / NO action buttons — Polymarket style */}
+          <div className="grid grid-cols-2 gap-sm">
+            <a
+              href={`/bills/${bill.id}?vote=yes`}
+              className="flex flex-col items-center gap-xxs bg-link/10 hover:bg-link/15 border border-link/25 rounded-md py-md transition-colors"
+            >
+              <span className="text-caption-mono font-mono text-link uppercase tracking-wider">
+                Yes
+              </span>
+              <span className="text-display-sm font-semibold text-link">
+                {bill.yesPercent}%
+              </span>
+            </a>
+            <a
+              href={`/bills/${bill.id}?vote=no`}
+              className="flex flex-col items-center gap-xxs bg-highlight-pink/10 hover:bg-highlight-pink/15 border border-highlight-pink/25 rounded-md py-md transition-colors"
+            >
+              <span className="text-caption-mono font-mono text-highlight-pink uppercase tracking-wider">
+                No
+              </span>
+              <span className="text-display-sm font-semibold text-highlight-pink">
+                {bill.noPercent}%
+              </span>
+            </a>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-lg py-sm border-t border-hairline">
+          <span className="text-caption font-mono text-mute">
+            {formatVotes(bill.totalVotes)} votes cast
+          </span>
+          <span className="text-caption font-mono text-mute">
+            Debate {formatBillDate(bill.debateDate)}
+          </span>
+        </div>
+      </article>
+    );
+  }
+
   const isFeatured = variant === 'featured';
 
   return (

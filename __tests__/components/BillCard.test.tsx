@@ -59,3 +59,43 @@ describe('BillCard', () => {
     expect(screen.getByText(/parliament rejected/i)).toBeInTheDocument();
   });
 });
+
+describe('BillCard feed variant', () => {
+  it('renders YES and NO action links', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.getByRole('link', { name: /yes/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /no/i })).toBeInTheDocument();
+  });
+
+  it('YES link points to the bill vote page', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.getByRole('link', { name: /yes/i })).toHaveAttribute(
+      'href',
+      '/bills/test-bill?vote=yes',
+    );
+  });
+
+  it('NO link points to the bill vote page', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.getByRole('link', { name: /no/i })).toHaveAttribute(
+      'href',
+      '/bills/test-bill?vote=no',
+    );
+  });
+
+  it('shows YES and NO percentages in feed variant', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.getByText('65%')).toBeInTheDocument();
+    expect(screen.getByText('35%')).toBeInTheDocument();
+  });
+
+  it('shows vote count in feed variant', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.getByText('100K votes cast')).toBeInTheDocument();
+  });
+
+  it('does not render a Vote → link in feed variant', () => {
+    render(<BillCard bill={mockBill} variant="feed" />);
+    expect(screen.queryByRole('link', { name: /vote →/i })).not.toBeInTheDocument();
+  });
+});
