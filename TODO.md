@@ -21,10 +21,7 @@ This file is for Claude Code to reference between sessions. It tracks outstandin
 
 ## Setup & Infrastructure
 
-- [ ] Review the Nicholas Tickle code repo and update this repo to reflect relevant principles and patterns
-- [ ] Implement a Puppeteer MCP so Claude Code can inspect and verify UI changes in the browser
 - [ ] Introduce ShadCN components into the design system
-- [ ] Deploy to Vercel
 
 ---
 
