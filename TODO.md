@@ -106,7 +106,16 @@ This file is for Claude Code to reference between sessions. It tracks outstandin
 - [ ] Breaking alerts for major votes, emergency legislation, and budget announcements
 
 ### Bill & Legislation Tracker
-- [ ] Full lifecycle tracking from First Reading through to Royal Assent or rejection
+- [x] Database schema — `bills`, `bill_stages`, `bill_stage_sittings`, `parliamentary_divisions` tables (`001_bill_tracking.sql`)
+- [x] Migration runner (`backend/migrate.py`) — run before server start; wire as Fly.io `release_command`
+- [ ] **Run migration** — connect `SUPABASE_DB_URL` and run `python -m migrate` to apply `001_bill_tracking.sql` to production Supabase
+- [x] `ParliamentClient` — async HTTP wrapper for Parliament Bills API + Commons/Lords Votes APIs
+- [x] `BillSyncService` — upserts bills and stages from Parliament API; RSS poll every 5 min + nightly full sync
+- [x] `DivisionSyncService` — matches Commons/Lords division results to bill stages via title + date search
+- [x] `APScheduler` — RSS poll every 5 min, nightly full sync at 02:00
+- [x] REST API — `GET /api/v1/bills`, `GET /api/v1/bills/{id}`, `GET /api/v1/bills/{id}/stages`, `POST /admin/sync`
+- [ ] Frontend — `/bills` list page with status filter tabs (Active / Completed / Defeated / Withdrawn)
+- [ ] Frontend — `/bills/[id]` detail page with stage timeline + division Aye/No results
 - [ ] Laws and regulations library
 
 ### AI Summaries

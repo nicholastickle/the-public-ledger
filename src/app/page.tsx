@@ -5,9 +5,13 @@ import BillsExplorer from './components/BillsExplorer';
 import LiveFeedSection from './components/LiveFeedSection';
 import HowItWorksSection from './components/HowItWorksSection';
 import Footer from './components/Footer';
-import { featuredBills, bills, activityFeed } from './data';
+import { activityFeed } from './data';
+import { fetchBills } from './lib/api';
 
-export default function Home() {
+export default async function Home() {
+  const bills = await fetchBills({ status: 'active', take: 9 });
+  const featuredBills = bills.slice(0, 3);
+
   return (
     <>
       <NavBar />

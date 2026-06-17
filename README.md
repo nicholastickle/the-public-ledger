@@ -35,6 +35,26 @@ The Public Ledger takes its name from one of the world's longest-running newspap
 
 The original publication eventually folded in the late 20th century, unable to adapt to a changing world. This platform borrows its name and spirit: the idea that public information — including what the public actually thinks — should be open, recorded, and accessible to all.
 
+## Tech Stack
+
+- **Frontend** — Next.js 16 (App Router), TypeScript, Tailwind CSS v4, hosted on Vercel
+- **Backend** — FastAPI (Python 3.12), APScheduler for background sync jobs
+- **Database** — Supabase (Postgres + Auth)
+- **Data** — UK Parliament Bills API, Commons Votes API, Lords Votes API (all public, no key required)
+
+### Running locally
+
+```bash
+# Frontend
+npm run dev
+
+# Backend
+cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Migrations (requires SUPABASE_DB_URL)
+cd backend && python -m migrate
+```
+
 ## Contributing
 
 Want to help build The Public Ledger? Contributions are welcome — whether that's code, design, ideas, or feedback.
