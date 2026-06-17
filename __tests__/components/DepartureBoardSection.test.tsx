@@ -22,7 +22,7 @@ const COMMITTEE_BILL      = billAt({ id: 103, short_title: 'Committee Stage Bill
 describe('DepartureBoardSection', () => {
   it('renders the section heading', () => {
     render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getByText(/Bills before/i)).toBeInTheDocument();
+    expect(screen.getByText(/The Billboard/i)).toBeInTheDocument();
   });
 
   it('shows DEMO badge and footer message when no live bills provided', () => {
@@ -52,13 +52,12 @@ describe('DepartureBoardSection', () => {
     expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/bills');
   });
 
-  it('shows column headers: Bill, Shadow, Parliament, Vote, Updated', () => {
+  it('shows column headers: Bill, Public Vote, Gov. Division, Vote', () => {
     render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getByText('Bill')).toBeInTheDocument();
-    expect(screen.getByText('Shadow')).toBeInTheDocument();
-    expect(screen.getByText('Parliament')).toBeInTheDocument();
+    expect(screen.getAllByText('Bill').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Public Vote').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Gov. Division').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Vote').length).toBeGreaterThan(0);
-    expect(screen.getByText('Updated')).toBeInTheDocument();
   });
 
   it('shows "Vote →" button for bills at First or Second Reading', () => {
