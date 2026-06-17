@@ -1,6 +1,5 @@
 import NavBar from './components/NavBar';
 import HeroSection from './components/HeroSection';
-import StatsSection from './components/StatsSection';
 import DepartureBoardSection from './components/DepartureBoardSection';
 import LiveFeedSection from './components/LiveFeedSection';
 import HowItWorksSection from './components/HowItWorksSection';
@@ -17,7 +16,6 @@ export default async function Home() {
       <NavBar />
       <main>
         <HeroSection featuredBills={featuredBills} />
-        <StatsSection />
         <DepartureBoardSection bills={bills} />
         <LiveFeedSection activity={activityFeed} />
         <HowItWorksSection />
