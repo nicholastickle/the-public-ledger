@@ -214,13 +214,12 @@ export default function HeroSection({ featuredBills }: Props) {
                 <p className="text-body-md mb-xl" style={{ color: '#4A3C2A', lineHeight: '1.72', maxWidth: '500px' }}>
                   Cast your shadow vote on the same legislation Parliament
                   is debating. See how public opinion compares to your
-                  elected representatives — bill by bill, vote by vote.
+                  elected representatives.
                 </p>
 
                 <OrnamentalDivider />
 
                 <div className="flex flex-wrap gap-sm mt-xl">
-                  <Link href="/bills" className="btn-ledger-primary">Browse the Bills →</Link>
                   <a href="/signup" className="btn-ledger-secondary">Cast Your Vote</a>
                 </div>
               </div>
