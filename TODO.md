@@ -108,6 +108,7 @@ This file is for Claude Code to reference between sessions. It tracks outstandin
 ### Bill & Legislation Tracker
 - [x] Database schema — `bills`, `bill_stages`, `bill_stage_sittings`, `parliamentary_divisions` tables (`001_bill_tracking.sql`)
 - [x] Migration runner (`backend/migrate.py`) — run before server start; wire as Fly.io `release_command`
+- [ ] **Run migration** — connect `SUPABASE_DB_URL` and run `python -m migrate` to apply `001_bill_tracking.sql` to production Supabase
 - [x] `ParliamentClient` — async HTTP wrapper for Parliament Bills API + Commons/Lords Votes APIs
 - [x] `BillSyncService` — upserts bills and stages from Parliament API; RSS poll every 5 min + nightly full sync
 - [x] `DivisionSyncService` — matches Commons/Lords division results to bill stages via title + date search

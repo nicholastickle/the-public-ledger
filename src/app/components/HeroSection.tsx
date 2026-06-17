@@ -1,8 +1,8 @@
-import type { Bill } from '../types';
-import BillCard from './BillCard';
+import type { ParliamentBill } from '../types/parliament';
+import ParliamentBillCard from './ParliamentBillCard';
 
 interface Props {
-  featuredBills: Bill[];
+  featuredBills: ParliamentBill[];
 }
 
 export default function HeroSection({ featuredBills }: Props) {
@@ -44,11 +44,17 @@ export default function HeroSection({ featuredBills }: Props) {
         </div>
 
         {/* Featured bills */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-          {featuredBills.map((bill) => (
-            <BillCard key={bill.id} bill={bill} variant="featured" />
-          ))}
-        </div>
+        {featuredBills.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+            {featuredBills.map((bill) => (
+              <ParliamentBillCard key={bill.id} bill={bill} variant="featured" />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-xl text-mute text-body-md">
+            Live bill data will appear here once the database is connected.
+          </div>
+        )}
       </div>
     </section>
   );
