@@ -14,6 +14,7 @@ interface BillVotes {
   shadowNoes: number;
   parliamentAyes?: number;
   parliamentNoes?: number;
+  secondReadingDate?: string | null;
 }
 
 interface StageGroup {
@@ -51,6 +52,12 @@ const DEMO_BILLS: ParliamentBill[] = [
 ];
 
 const DEMO_VOTES: Record<number, BillVotes> = {
+  // Bills at First/Second Reading — vote open, second reading date known or TBD
+  2:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-07-08' },   // Planning Bill (~3 weeks)
+  6:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-06-24' },   // Border Security (~1 week)
+  10: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-06-22' },   // Terminal Illness (5 days)
+  14: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },            // Bank Resolution — TBD
+  // Bills past Second Reading — shadow vote recorded
   1:  { shadowAyes: 18400, shadowNoes:  6200, parliamentAyes: 324, parliamentNoes: 218 },
   3:  { shadowAyes:  9100, shadowNoes: 12300, parliamentAyes: 298, parliamentNoes: 241 },
   4:  { shadowAyes: 14200, shadowNoes:  3800, parliamentAyes: 312, parliamentNoes: 187 },
@@ -147,6 +154,22 @@ function clip(s: string | null, n: number): string {
   return s.length > n ? s.slice(0, n - 1) + '…' : s;
 }
 
+function fmtCountdown(dateStr: string | null | undefined): string {
+  if (!dateStr) return 'closes TBD';
+  const diff = new Date(dateStr).getTime() - Date.now();
+  if (diff <= 0) return 'vote closed';
+  const days = Math.floor(diff / 86_400_000);
+  if (days >= 14) {
+    const d = new Date(dateStr);
+    return `closes ${d.getDate()} ${d.toLocaleString('en-GB', { month: 'short' })}`;
+  }
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+  if (days > 0) return `closes in ${days}d ${hours}h`;
+  const mins = Math.floor((diff % 3_600_000) / 60_000);
+  if (hours > 0) return `closes in ${hours}h`;
+  return `closes in ${mins}m`;
+}
+
 /* ── Vote cells ─────────────────────────────────────────────────────────── */
 
 /** Second-reading public shadow vote with ✓ next to winning side */
@@ -155,7 +178,9 @@ function ShadowVoteCell({ votes, isOpen }: { votes?: BillVotes; isOpen: boolean 
     return (
       <div className="flex flex-col items-end gap-xxs">
         <span className="font-mono" style={{ color: '#D4AF37', fontSize: '10px', letterSpacing: '0.06em' }}>Voting open</span>
-        <span className="font-mono" style={{ color: '#B8960C', fontSize: '9px', opacity: 0.45 }}>2nd Reading</span>
+        <span className="font-mono" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '9px', opacity: 0.55 }}>
+          {fmtCountdown(votes?.secondReadingDate)}
+        </span>
       </div>
     );
   }
