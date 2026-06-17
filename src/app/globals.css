@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@keyframes ledger-pulse {
+  0%, 100% { opacity: var(--pulse-from, 0.55); }
+  50%       { opacity: var(--pulse-to,   0.25); }
+}
+
+@keyframes ledger-shimmer {
+  0%, 100% { background-position: 200% center; }
+  50%       { background-position: -200% center; }
+}
+
 /* ── Design tokens (DESIGN.md → Tailwind v4 utilities) ──────────────
    Every variable in this @theme block generates a Tailwind utility.
    --color-*    → bg-*, text-*, border-*, ring-*
