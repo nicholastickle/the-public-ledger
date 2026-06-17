@@ -38,6 +38,15 @@
   --color-cyan-deep:       #29bc9b;
   --color-highlight-pink:  #ff0080;
 
+  /* Victorian palette — Ledger Book hero */
+  --color-parchment:       #FAF6ED;
+  --color-parchment-dark:  #EDE3C8;
+  --color-forest-green:    #1B4332;
+  --color-forest-green-2:  #2D6A4F;
+  --color-aged-gold:       #B8960C;
+  --color-aged-gold-light: #D4AF37;
+  --color-seal-red:        #8B1A1A;
+
   /* Typography ─────────────────────────────────────────────────────── */
   /* Each text-* utility sets font-size, line-height, and letter-spacing.
      Font weight is NOT included — apply font-semibold / font-medium /
@@ -116,6 +125,7 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-playfair);
 }
 
 /* Page defaults ────────────────────────────────────────────────────── */
@@ -289,5 +299,141 @@ body {
   }
   .link:hover {
     color: var(--color-link-deep);
+  }
+
+  /* ── Victorian Ledger Book components ────────────────────────────── */
+
+  /* Parchment background with ruled gold ledger lines */
+  .ledger-bg {
+    background-color: var(--color-parchment);
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 47px,
+        rgba(184, 150, 12, 0.18) 47px,
+        rgba(184, 150, 12, 0.18) 48px
+      );
+  }
+
+  /* Ornate gold border frame */
+  .ledger-frame {
+    border: 2px solid var(--color-aged-gold);
+    box-shadow:
+      inset 0 0 0 4px rgba(184, 150, 12, 0.12),
+      inset 0 0 0 6px rgba(184, 150, 12, 0.06),
+      0 4px 24px rgba(27, 67, 50, 0.12),
+      0 1px 3px rgba(27, 67, 50, 0.08);
+    position: relative;
+  }
+
+  /* Playfair Display headline */
+  .ledger-headline {
+    font-family: var(--font-display), Georgia, "Times New Roman", serif;
+    color: var(--color-forest-green);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  /* Victorian divider rule */
+  .ledger-rule {
+    border: none;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-aged-gold) 20%,
+      var(--color-aged-gold) 80%,
+      transparent
+    );
+    position: relative;
+  }
+  .ledger-rule::before {
+    content: '◆';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-aged-gold);
+    font-size: 10px;
+    background: var(--color-parchment);
+    padding: 0 8px;
+    line-height: 1;
+  }
+
+  /* Victorian eyebrow tag */
+  .ledger-eyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-forest-green);
+    background: rgba(27, 67, 50, 0.08);
+    border: 1px solid rgba(27, 67, 50, 0.2);
+    border-radius: 2px;
+    padding: 4px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Bill ledger entry card */
+  .ledger-entry {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(184, 150, 12, 0.3);
+    border-left: 3px solid var(--color-forest-green);
+    padding: 16px 20px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .ledger-entry:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(184, 150, 12, 0.5);
+  }
+
+  /* Victorian CTA button */
+  .btn-ledger-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--color-forest-green);
+    color: #FAF6ED;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 0 28px;
+    height: 48px;
+    border: 1px solid rgba(184, 150, 12, 0.4);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease;
+    border-radius: 2px;
+  }
+  .btn-ledger-primary:hover {
+    background-color: var(--color-forest-green-2);
+  }
+
+  .btn-ledger-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: transparent;
+    color: var(--color-forest-green);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 0 28px;
+    height: 48px;
+    border: 1px solid var(--color-aged-gold);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease;
+    border-radius: 2px;
+  }
+  .btn-ledger-secondary:hover {
+    background-color: rgba(184, 150, 12, 0.08);
   }
 }

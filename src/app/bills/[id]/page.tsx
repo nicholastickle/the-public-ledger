@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
@@ -35,9 +36,9 @@ export default async function BillDetailPage({
         <div className="max-w-[900px] mx-auto px-lg py-3xl">
           {/* Breadcrumb */}
           <div className="mb-lg">
-            <a href="/bills" className="link text-body-sm">
+            <Link href="/bills" className="link text-body-sm">
               ← All Bills
-            </a>
+            </Link>
           </div>
 
           {/* Bill header */}

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
 import ParliamentBillCard from './ParliamentBillCard';
 
@@ -19,9 +20,9 @@ export default function BillsExplorer({ bills }: Props) {
               Bills before Parliament.
             </h2>
           </div>
-          <a href="/bills" className="btn-secondary hidden sm:inline-flex">
+          <Link href="/bills" className="btn-secondary hidden sm:inline-flex">
             All bills →
-          </a>
+          </Link>
         </div>
 
         {/* Bills grid */}
@@ -38,9 +39,9 @@ export default function BillsExplorer({ bills }: Props) {
         )}
 
         <div className="mt-xl sm:hidden">
-          <a href="/bills" className="btn-secondary w-full text-center">
+          <Link href="/bills" className="btn-secondary w-full text-center">
             All bills →
-          </a>
+          </Link>
         </div>
       </div>
     </section>

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const STEPS = [
   {
     number: '01',
@@ -60,9 +62,9 @@ export default function HowItWorksSection() {
         </div>
 
         <div className="flex justify-center mt-4xl">
-          <a href="/bills" className="btn-primary">
+          <Link href="/bills" className="btn-primary">
             Browse Active Bills
-          </a>
+          </Link>
         </div>
       </div>
     </section>
