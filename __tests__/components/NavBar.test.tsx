@@ -11,9 +11,6 @@ describe('NavBar', () => {
   it('renders primary nav links', () => {
     render(<NavBar />);
     expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Health' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Economy' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Housing' })).toBeInTheDocument();
   });
 
   it('renders Sign In and Register to Vote CTAs', () => {

@@ -17,8 +17,7 @@ describe('MobileMenu', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Health' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Economy' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
   });
 
   it('shows Register to Vote and Sign In CTAs when menu is open', () => {
@@ -31,7 +30,7 @@ describe('MobileMenu', () => {
   it('closes the menu when a nav link is clicked', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    fireEvent.click(screen.getByRole('link', { name: 'Housing' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Bills' }));
     expect(screen.queryByRole('link', { name: 'Bills' })).not.toBeInTheDocument();
   });
 

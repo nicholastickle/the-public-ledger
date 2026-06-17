@@ -32,7 +32,7 @@ export default async function BillsPage({
             <h1 className="text-display-lg font-semibold text-ink">
               Parliamentary Bills
             </h1>
-            <p className="text-body-lg text-body mt-sm max-w-xl">
+            <p className="text-body-lg text-body mt-sm max-w-[36rem]">
               Track every bill making its way through Parliament — from First Reading to Royal Assent.
             </p>
           </div>
