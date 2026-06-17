@@ -251,7 +251,8 @@ When hosting on Fly.io, run migrations as a release command so they complete bef
 |---|---|---|
 | Vercel | Frontend hosting + CI/CD | — |
 | Supabase | Postgres database + Auth | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (migrations only — deployment secret, not in `.env`) |
-| FastAPI (backend) | Python API server | `ENVIRONMENT`, `CORS_ORIGINS` |
+| FastAPI (backend) | Python API server — APScheduler runs RSS poll (every 5 min) + nightly full sync | `ENVIRONMENT`, `CORS_ORIGINS` |
+| UK Parliament APIs | Bills, stages, Commons/Lords divisions — public REST APIs, no key required | — |
 
 [Expand this table as services are added — include storage, email, analytics once wired up.]
 
