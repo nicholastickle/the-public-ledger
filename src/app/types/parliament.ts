@@ -40,3 +40,16 @@ export interface ParliamentBillStage {
 }
 
 export type BillStatus = 'active' | 'completed' | 'defeated' | 'withdrawn';
+
+export interface ParliamentRegulation {
+  id: number;
+  title: string;
+  enabling_act: string | null;
+  procedure: 'affirmative' | 'negative' | 'super-affirmative' | 'none';
+  laid_date: string | null;
+  made_date: string | null;
+  deadline: string | null;
+  status: 'pending' | 'approved' | 'made' | 'annulled' | 'withdrawn';
+  house: 'Commons' | 'Lords' | 'Both' | null;
+  last_update: string | null;
+}

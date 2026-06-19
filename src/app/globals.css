@@ -367,6 +367,28 @@ body {
     box-shadow: inset 0 0 0 1px var(--color-hairline-strong);
   }
 
+  /* ledger footer nav links */
+  .ledger-footer-link {
+    color: #5A4A32;
+    transition: color 0.12s ease;
+  }
+  .ledger-footer-link:hover {
+    color: var(--color-forest-green);
+  }
+
+  /* search input in NavBar */
+  .ledger-search-input {
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ledger-search-input::placeholder {
+    color: rgba(27, 67, 50, 0.35);
+  }
+  .ledger-search-input:focus {
+    border-color: rgba(184, 150, 12, 0.6) !important;
+    box-shadow: 0 0 0 2px rgba(184, 150, 12, 0.1);
+  }
+
   /* link: inline body-copy links */
   .link {
     color: var(--color-link);

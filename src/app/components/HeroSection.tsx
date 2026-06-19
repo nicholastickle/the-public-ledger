@@ -1,8 +1,12 @@
-import type { ParliamentBill } from '../types/parliament';
+import type { ParliamentBill, ParliamentRegulation } from '../types/parliament';
 import Link from 'next/link';
+import HeroBillsFlank from './HeroBillsFlank';
+import HeroRegulationsFlank from './HeroRegulationsFlank';
 
 interface Props {
   featuredBills: ParliamentBill[];
+  bills?: ParliamentBill[];
+  regulations?: ParliamentRegulation[];
 }
 
 function UnionJackSeal({ size = 120 }: { size?: number }) {
@@ -161,10 +165,16 @@ function BillStatusBadge({ bill }: { bill: ParliamentBill }) {
   return <span className="font-mono text-xs uppercase tracking-wider" style={{ color: '#B8960C' }}>Active</span>;
 }
 
-export default function HeroSection({ featuredBills }: Props) {
+export default function HeroSection({ featuredBills, bills = [], regulations = [] }: Props) {
   return (
     <section className="ledger-bg overflow-hidden">
-      <div className="max-w-[1360px] mx-auto px-md sm:px-xl lg:px-3xl py-2xl lg:py-4xl">
+      <div className="max-w-[1800px] mx-auto px-md sm:px-xl lg:px-3xl py-2xl lg:py-4xl">
+        <div className="2xl:grid 2xl:grid-cols-[260px_1fr_260px] 2xl:gap-lg 2xl:items-stretch">
+
+          {/* Left flank — bills */}
+          <div className="hidden 2xl:block">
+            <HeroBillsFlank bills={bills} />
+          </div>
 
         {/* Main ledger frame */}
         <div className="ledger-frame relative">
@@ -325,6 +335,13 @@ export default function HeroSection({ featuredBills }: Props) {
             </div>
           </div>
         </div>
+
+          {/* Right flank — regulations */}
+          <div className="hidden 2xl:block">
+            <HeroRegulationsFlank regulations={regulations} />
+          </div>
+
+        </div>{/* xl:grid */}
       </div>
     </section>
   );

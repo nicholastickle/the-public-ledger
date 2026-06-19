@@ -2,21 +2,26 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import HowItWorksModal from './HowItWorksModal';
 
 const NAV_LINKS = [
-  { label: 'Bills', href: '/bills' },
+  { label: 'Bills',        href: '/bills' },
+  { label: 'Regulations',  href: '/regulations' },
+  { label: 'Elections',    href: '/elections' },
 ];
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false);
 
   return (
     <>
+      <HowItWorksModal isOpen={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
-        className="flex items-center justify-center w-9 h-9 cursor-pointer transition-colors"
+        className="flex items-center justify-center w-9 h-9 cursor-pointer transition-colors flex-shrink-0"
         style={{
           color: 'var(--color-forest-green)',
           borderRadius: '2px',
@@ -37,8 +42,9 @@ export default function MobileMenu() {
 
       {open && (
         <div
-          className="fixed inset-x-0 top-16 bottom-0 z-40 flex flex-col overflow-y-auto"
+          className="fixed inset-x-0 bottom-0 z-40 flex flex-col overflow-y-auto"
           style={{
+            top: '96px',
             background: 'var(--color-parchment)',
             backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 47px, rgba(184,150,12,0.12) 47px, rgba(184,150,12,0.12) 48px)',
             borderTop: '1px solid rgba(184,150,12,0.35)',
@@ -57,6 +63,13 @@ export default function MobileMenu() {
                 {link.label}
               </Link>
             ))}
+            <button
+              className="ledger-nav-link text-left"
+              style={{ fontSize: '15px', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer', width: '100%' }}
+              onClick={() => { setOpen(false); setHowItWorksOpen(true); }}
+            >
+              How it works
+            </button>
           </nav>
 
           {/* Decorative centre element */}
@@ -83,10 +96,10 @@ export default function MobileMenu() {
             style={{ borderTop: '1px solid rgba(184,150,12,0.35)' }}
           >
             <Link href="/signup" className="btn-ledger-primary justify-center" onClick={() => setOpen(false)}>
-              Register to Vote
+              Sign Up
             </Link>
             <Link href="/login" className="btn-ledger-secondary justify-center" onClick={() => setOpen(false)}>
-              Sign In
+              Log In
             </Link>
           </div>
         </div>

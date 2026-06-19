@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
-import { formatTimeAgo } from '../lib/utils';
 
 interface Props {
   bills: ParliamentBill[];
@@ -24,13 +23,13 @@ interface StageGroup {
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
-const ROW_H_MOBILE   = 60;
+const ROW_H_MOBILE   = 68;
 const VISIBLE_MOBILE = 8;
 const TICK_MS        = 3800;
 
 // grid per half-panel: pip | bill+stage | 2nd rdg vote | gov division | vote/status
-const PANEL_GRID = '12px 1fr 76px 76px 64px';
-const PANEL_GAP  = '0 10px';
+const PANEL_GRID = '16px 1fr 110px 110px 88px';
+const PANEL_GAP  = '0 14px';
 
 /* ── Demo data ─────────────────────────────────────────────────────────── */
 
@@ -177,23 +176,23 @@ function ShadowVoteCell({ votes, isOpen }: { votes?: BillVotes; isOpen: boolean 
   if (isOpen) {
     return (
       <div className="flex flex-col items-end gap-xxs">
-        <span className="font-mono" style={{ color: '#D4AF37', fontSize: '10px', letterSpacing: '0.06em' }}>Voting open</span>
-        <span className="font-mono" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '9px', opacity: 0.55 }}>
+        <span className="font-mono" style={{ color: '#D4AF37', fontSize: '12px', letterSpacing: '0.06em' }}>Voting open</span>
+        <span className="font-mono" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '11px', opacity: 0.55 }}>
           {fmtCountdown(votes?.secondReadingDate)}
         </span>
       </div>
     );
   }
   if (!votes) {
-    return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '10px' }}>—</span>;
+    return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '12px' }}>—</span>;
   }
   const ayeWins = votes.shadowAyes >= votes.shadowNoes;
   return (
     <div className="flex flex-col items-end gap-xxs">
-      <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '10px', letterSpacing: '0.02em' }}>
+      <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '12px', letterSpacing: '0.02em' }}>
         {ayeWins ? '✓ ' : ''}↑ {fmtVotes(votes.shadowAyes)}
       </span>
-      <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '10px', letterSpacing: '0.02em' }}>
+      <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '12px', letterSpacing: '0.02em' }}>
         {!ayeWins ? '✓ ' : ''}↓ {fmtVotes(votes.shadowNoes)}
       </span>
     </div>
@@ -201,21 +200,42 @@ function ShadowVoteCell({ votes, isOpen }: { votes?: BillVotes; isOpen: boolean 
 }
 
 /** Government division at the bill's current stage with ✓ next to winning side */
-function GovDivisionCell({ votes }: { votes?: BillVotes }) {
-  if (!votes?.parliamentAyes) {
-    return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '10px' }}>—</span>;
+function GovDivisionCell({ votes, bill }: { votes?: BillVotes; bill: ParliamentBill }) {
+  if (votes?.parliamentAyes) {
+    const ayeWins = votes.parliamentAyes >= (votes.parliamentNoes ?? 0);
+    return (
+      <div className="flex flex-col items-end gap-xxs">
+        <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '12px', letterSpacing: '0.02em' }}>
+          {ayeWins ? '✓ ' : ''}{votes.parliamentAyes} Aye
+        </span>
+        <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '12px', letterSpacing: '0.02em' }}>
+          {!ayeWins ? '✓ ' : ''}{votes.parliamentNoes} No
+        </span>
+      </div>
+    );
   }
-  const ayeWins = votes.parliamentAyes >= (votes.parliamentNoes ?? 0);
-  return (
-    <div className="flex flex-col items-end gap-xxs">
-      <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '10px', letterSpacing: '0.02em' }}>
-        {ayeWins ? '✓ ' : ''}{votes.parliamentAyes} Aye
+
+  const stage = (bill.current_stage_name ?? '').toLowerCase();
+  const isFirstReading  = stage.includes('first reading');
+  const isSecondReading = stage.includes('second reading');
+
+  if (isFirstReading) {
+    return (
+      <span className="font-mono text-right block" style={{ color: '#FAF6ED', fontSize: '10px', opacity: 0.35, letterSpacing: '0.04em', lineHeight: 1.4 }}>
+        No vote at<br />first reading
       </span>
-      <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '10px', letterSpacing: '0.02em' }}>
-        {!ayeWins ? '✓ ' : ''}{votes.parliamentNoes} No
+    );
+  }
+
+  if (isSecondReading) {
+    return (
+      <span className="font-mono text-right block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.06em', lineHeight: 1.4 }}>
+        Vote<br />pending
       </span>
-    </div>
-  );
+    );
+  }
+
+  return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '12px' }}>—</span>;
 }
 
 /* ── Panel sub-component ────────────────────────────────────────────────── */
@@ -227,22 +247,22 @@ function PanelColumnHeaders() {
       style={{
         gridTemplateColumns: PANEL_GRID,
         gap: PANEL_GAP,
-        height: 34,
-        borderBottom: '1px solid rgba(184,150,12,0.18)',
-        background: 'rgba(184,150,12,0.055)',
+        height: 48,
+        borderBottom: '1px solid rgba(184,150,12,0.25)',
+        background: 'rgba(27,67,50,0.45)',
       }}
     >
       <div />
-      <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '9px', letterSpacing: '0.2em' }}>Bill</span>
+      <span className="font-mono uppercase" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.18em' }}>Bill</span>
       <div className="text-right">
-        <span className="font-mono uppercase block" style={{ color: '#B8960C', fontSize: '9px', letterSpacing: '0.16em' }}>Public Vote</span>
-        <span className="font-mono block" style={{ color: '#B8960C', fontSize: '8px', opacity: 0.5, letterSpacing: '0.1em' }}>2nd Reading</span>
+        <span className="font-mono uppercase block" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.14em' }}>Public Vote</span>
+        <span className="font-mono block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.08em' }}>2nd Reading</span>
       </div>
       <div className="text-right">
-        <span className="font-mono uppercase block" style={{ color: '#B8960C', fontSize: '9px', letterSpacing: '0.16em' }}>Gov. Division</span>
-        <span className="font-mono block" style={{ color: '#B8960C', fontSize: '8px', opacity: 0.5, letterSpacing: '0.1em' }}>at current stage</span>
+        <span className="font-mono uppercase block" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.14em' }}>Gov. Vote</span>
+        <span className="font-mono block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.08em' }}>Current stage</span>
       </div>
-      <span className="font-mono uppercase text-right" style={{ color: '#B8960C', fontSize: '9px', letterSpacing: '0.2em' }}>Vote</span>
+      <span className="font-mono uppercase text-right" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.18em' }}>Status</span>
     </div>
   );
 }
@@ -254,16 +274,16 @@ function StageGroupHeader({ stage, count, first }: { stage: string; count: numbe
         borderBottom: '1px solid rgba(184,150,12,0.12)',
         borderTop: first ? undefined : '1px solid rgba(184,150,12,0.08)',
         background: 'rgba(184,150,12,0.035)',
-        padding: '4px 12px',
+        padding: '6px 16px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
       }}
     >
-      <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '9px', letterSpacing: '0.22em' }}>
+      <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.2em' }}>
         {stage}
       </span>
-      <span className="font-mono" style={{ color: '#B8960C', fontSize: '9px', opacity: 0.38 }}>
+      <span className="font-mono" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.38 }}>
         · {count}
       </span>
     </div>
@@ -288,7 +308,7 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
         gridTemplateColumns: PANEL_GRID,
         gap: PANEL_GAP,
         height: rowH,
-        padding: '0 12px',
+        padding: '0 16px',
         borderBottom: '1px solid rgba(184,150,12,0.08)',
         transition: 'background 0.15s ease',
       }}
@@ -303,11 +323,11 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
 
       {/* Bill + stage */}
       <div className="min-w-0">
-        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '13px', lineHeight: '1.3' }}>
-          {clip(bill.short_title ?? bill.long_title, 60)}
+        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '15px', lineHeight: '1.3' }}>
+          {clip(bill.short_title ?? bill.long_title, 70)}
         </p>
-        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55, marginTop: '1px' }}>
-          {clip(bill.current_stage_name, 40)}
+        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.6, marginTop: '3px' }}>
+          {clip(bill.current_stage_name, 50)}
         </p>
       </div>
 
@@ -316,9 +336,9 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
         <ShadowVoteCell votes={votes} isOpen={vOpen} />
       </div>
 
-      {/* Gov division */}
+      {/* Gov vote */}
       <div className="text-right">
-        <GovDivisionCell votes={votes} />
+        <GovDivisionCell votes={votes} bill={bill} />
       </div>
 
       {/* Vote / status */}
@@ -328,11 +348,11 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
             className="font-mono inline-block"
             style={{
               color: '#D4AF37',
-              fontSize: '10px',
+              fontSize: '12px',
               letterSpacing: '0.08em',
               border: '1px solid rgba(212,175,55,0.45)',
-              lineHeight: '22px',
-              padding: '0 7px',
+              lineHeight: '26px',
+              padding: '0 10px',
               borderRadius: '2px',
               background: 'rgba(212,175,55,0.06)',
               whiteSpace: 'nowrap',
@@ -341,7 +361,7 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
             Vote →
           </span>
         ) : (
-          <span className="font-mono" style={{ color: st.color, fontSize: '10px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+          <span className="font-mono" style={{ color: st.color, fontSize: '12px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
             {st.label}
           </span>
         )}
@@ -431,7 +451,7 @@ export default function DepartureBoardSection({ bills }: Props) {
 
   return (
     <section style={{ background: 'linear-gradient(to bottom, #171717 0px, #0A1E12 64px)' }}>
-      <div className="max-w-[1360px] mx-auto px-md sm:px-xl lg:px-3xl pt-xl lg:pt-2xl pb-2xl lg:pb-3xl">
+      <div className="max-w-[1680px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
 
         {/* ── Section header ──────────────────────────────────────────── */}
         <div className="flex items-end justify-between gap-lg mb-xl flex-wrap">
@@ -448,9 +468,9 @@ export default function DepartureBoardSection({ bills }: Props) {
               )}
             </div>
             <h2 className="ledger-headline" style={{ color: '#FAF6ED', fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)', lineHeight: '1.08' }}>
-              The Billboard.
+              The Bill Board.
             </h2>
-            <p className="font-mono hidden sm:block" style={{ color: '#B8960C', fontSize: '10px', opacity: 0.45, letterSpacing: '0.14em', marginTop: '6px' }}>
+            <p className="font-mono hidden sm:block" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
               Public votes cast at Second Reading · Government divisions at current stage
             </p>
           </div>
@@ -474,15 +494,15 @@ export default function DepartureBoardSection({ bills }: Props) {
           }}
         >
 
-          {/* ── Desktop: two-column stage-grouped layout ─────────────── */}
+          {/* ── Desktop (lg+): two-column stage-grouped layout ───────── */}
           {display.length > 0 ? (
-            <div className="hidden sm:flex" style={{ minHeight: '200px' }}>
-              <ColumnPanel groups={left}  votes={votes} rowH={54} />
+            <div className="hidden lg:flex" style={{ minHeight: '320px' }}>
+              <ColumnPanel groups={left}  votes={votes} rowH={68} />
               <div style={{ width: '1px', background: 'rgba(184,150,12,0.14)', flexShrink: 0 }} />
-              <ColumnPanel groups={right} votes={votes} rowH={54} />
+              <ColumnPanel groups={right} votes={votes} rowH={68} />
             </div>
           ) : (
-            <div className="hidden sm:grid" style={{ gridTemplateColumns: '1fr 1px 1fr' }}>
+            <div className="hidden lg:grid" style={{ gridTemplateColumns: '1fr 1px 1fr' }}>
               <div>
                 <PanelColumnHeaders />
                 {Array.from({ length: 7 }).map((_, i) => <GhostRow key={i} index={i} />)}
@@ -495,7 +515,19 @@ export default function DepartureBoardSection({ bills }: Props) {
             </div>
           )}
 
-          {/* ── Mobile: single cycling column ────────────────────────── */}
+          {/* ── Tablet (sm–lg): single full-width panel, all groups ───── */}
+          {display.length > 0 ? (
+            <div className="hidden sm:block lg:hidden">
+              <ColumnPanel groups={[...left, ...right]} votes={votes} rowH={62} />
+            </div>
+          ) : (
+            <div className="hidden sm:block lg:hidden">
+              <PanelColumnHeaders />
+              {Array.from({ length: 10 }).map((_, i) => <GhostRow key={i} index={i} />)}
+            </div>
+          )}
+
+          {/* ── Mobile (<sm): single cycling column ──────────────────── */}
           <div className="sm:hidden" style={{ height: Math.min(VISIBLE_MOBILE, display.length || VISIBLE_MOBILE) * ROW_H_MOBILE, overflow: 'hidden' }}>
             {display.length > 0 ? (
               <div
@@ -519,19 +551,19 @@ export default function DepartureBoardSection({ bills }: Props) {
                     >
                       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '13px' }}>
-                          {clip(bill.short_title ?? bill.long_title, 48)}
+                        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '14px' }}>
+                          {clip(bill.short_title ?? bill.long_title, 52)}
                         </p>
-                        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '10px', opacity: 0.65 }}>
-                          {clip(bill.current_stage_name, 34)}
+                        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.65 }}>
+                          {clip(bill.current_stage_name, 38)}
                         </p>
                       </div>
                       {vOpen ? (
-                        <span className="font-mono shrink-0 px-xs py-xxs" style={{ color: '#D4AF37', fontSize: '10px', letterSpacing: '0.08em', border: '1px solid rgba(212,175,55,0.4)', borderRadius: '2px' }}>
+                        <span className="font-mono shrink-0 px-xs py-xxs" style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '0.08em', border: '1px solid rgba(212,175,55,0.4)', borderRadius: '2px' }}>
                           Vote
                         </span>
                       ) : (
-                        <span className="font-mono shrink-0" style={{ color: st.color, fontSize: '10px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                        <span className="font-mono shrink-0" style={{ color: st.color, fontSize: '11px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
                           {st.label}
                         </span>
                       )}

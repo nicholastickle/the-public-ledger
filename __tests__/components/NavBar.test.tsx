@@ -13,15 +13,15 @@ describe('NavBar', () => {
     expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
   });
 
-  it('renders Sign In and Register to Vote CTAs', () => {
+  it('renders Log In and Sign Up CTAs', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Log In' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
   });
 
-  it('Register to Vote links to /signup', () => {
+  it('Sign Up links to /signup', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: 'Register to Vote' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
       'href',
       '/signup',
     );

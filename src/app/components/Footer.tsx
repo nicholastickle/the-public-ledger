@@ -36,26 +36,94 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-canvas border-t border-hairline py-4xl">
-      <div className="max-w-[1400px] mx-auto px-lg">
+    <footer
+      style={{
+        background: 'var(--color-parchment-dark)',
+        borderTop: '2px solid rgba(184,150,12,0.35)',
+      }}
+    >
+      {/* Ornamental top rule */}
+      <div
+        className="w-full h-px"
+        style={{
+          background: 'linear-gradient(to right, transparent, rgba(184,150,12,0.5) 20%, rgba(184,150,12,0.5) 80%, transparent)',
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="max-w-[1360px] mx-auto px-md sm:px-xl lg:px-3xl py-4xl">
+
         {/* Top: brand + nav columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-xl mb-4xl">
-          {/* Brand */}
+
+          {/* Brand column */}
           <div className="sm:col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-xs mb-md">
-              <span className="text-body-sm font-semibold text-ink">
+            <Link href="/" className="inline-flex items-center gap-xs mb-md no-underline group">
+              {/* Mini crown mark */}
+              <svg width="18" height="15" viewBox="0 0 18 15" fill="none" aria-hidden="true">
+                <path d="M1 10.5L1 4.5L5.5 8.5L9 0.5L12.5 8.5L17 4.5L17 10.5Z"
+                  fill="rgba(184,150,12,0.55)" stroke="#B8960C" strokeWidth="0.9" />
+                <rect x="1" y="10.5" width="16" height="3.5" rx="0.5"
+                  fill="rgba(184,150,12,0.4)" stroke="#B8960C" strokeWidth="0.9" />
+              </svg>
+              <span
+                style={{
+                  fontFamily: 'var(--font-display), Georgia, "Times New Roman", serif',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  color: 'var(--color-forest-green)',
+                  letterSpacing: '-0.01em',
+                }}
+              >
                 The Public Ledger
               </span>
             </Link>
-            <p className="text-body-sm text-body max-w-[20rem] leading-relaxed">
+
+            <p
+              className="text-body-sm leading-relaxed max-w-[18rem]"
+              style={{ color: '#4A3C2A' }}
+            >
               Shadow parliament voting for every UK citizen. Your voice on the
               bills that shape the country.
             </p>
+
+            {/* Live indicator */}
+            <div className="flex items-center gap-xs mt-md">
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ backgroundColor: 'var(--color-forest-green)' }}
+              />
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono), monospace',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(27,67,50,0.55)',
+                }}
+              >
+                Session Active
+              </span>
+            </div>
           </div>
 
+          {/* Nav columns */}
           {COLUMNS.map((col) => (
             <div key={col.heading}>
-              <div className="text-caption-mono font-mono text-mute uppercase tracking-widest mb-md">
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono), monospace',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(184,150,12,0.9)',
+                  marginBottom: '14px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid rgba(184,150,12,0.22)',
+                }}
+              >
                 {col.heading}
               </div>
               <ul className="flex flex-col gap-sm">
@@ -63,7 +131,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-body-sm text-body hover:text-ink transition-colors"
+                      className="ledger-footer-link text-body-sm no-underline"
                     >
                       {link.label}
                     </Link>
@@ -74,12 +142,41 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom */}
-        <div className="pt-lg border-t border-hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm">
-          <p className="text-caption text-mute">
+        {/* Ornamental divider */}
+        <div className="flex items-center gap-sm mb-lg" aria-hidden="true">
+          <div
+            className="flex-1 h-px"
+            style={{ background: 'linear-gradient(to right, rgba(184,150,12,0.35), transparent)' }}
+          />
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M5 0L10 5L5 10L0 5Z" fill="#B8960C" opacity="0.5" />
+          </svg>
+          <div
+            className="flex-1 h-px"
+            style={{ background: 'linear-gradient(to left, rgba(184,150,12,0.35), transparent)' }}
+          />
+        </div>
+
+        {/* Bottom bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm">
+          <p
+            style={{
+              fontFamily: 'var(--font-mono), monospace',
+              fontSize: '11px',
+              color: 'rgba(27,67,50,0.45)',
+              letterSpacing: '0.04em',
+            }}
+          >
             © {new Date().getFullYear()} The Public Ledger. All rights reserved.
           </p>
-          <p className="text-caption font-mono text-mute">
+          <p
+            style={{
+              fontFamily: 'var(--font-mono), monospace',
+              fontSize: '11px',
+              color: 'rgba(27,67,50,0.38)',
+              letterSpacing: '0.04em',
+            }}
+          >
             Not affiliated with the UK Parliament or any political party.
           </p>
         </div>

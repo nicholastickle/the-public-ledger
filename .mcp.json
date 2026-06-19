@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
       "env": {
-        "PUPPETEER_EXECUTABLE_PATH": "/root/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome"
+        "PUPPETEER_EXECUTABLE_PATH": "/Users/nicholastickle/.cache/puppeteer/chrome/mac_arm-131.0.6778.204/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
       }
     }
   }

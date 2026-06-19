@@ -17,14 +17,14 @@ describe('MobileMenu', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(screen.getByRole('link', { name: 'Bills' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
   });
 
-  it('shows Register to Vote and Sign In CTAs when menu is open', () => {
+  it('shows Sign Up and Log In CTAs when menu is open', () => {
     render(<MobileMenu />);
     fireEvent.click(screen.getByRole('button', { name: /open menu/i }));
-    expect(screen.getByRole('link', { name: 'Register to Vote' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Log In' })).toBeInTheDocument();
   });
 
   it('closes the menu when a nav link is clicked', () => {

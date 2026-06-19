@@ -2,6 +2,7 @@ import type {
   ParliamentBill,
   ParliamentBillDetail,
   ParliamentBillStage,
+  ParliamentRegulation,
   BillStatus,
 } from '../types/parliament';
 
@@ -47,6 +48,27 @@ export async function fetchBillStages(id: number): Promise<ParliamentBillStage[]
     const res = await fetch(`${BACKEND_URL}/api/v1/bills/${id}/stages`, {
       next: { revalidate: 60 },
     });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchRegulations(params: {
+  status?: string;
+  procedure?: string;
+  skip?: number;
+  take?: number;
+} = {}): Promise<ParliamentRegulation[]> {
+  const url = new URL(`${BACKEND_URL}/api/v1/regulations`);
+  if (params.status)    url.searchParams.set('status',    params.status);
+  if (params.procedure) url.searchParams.set('procedure', params.procedure);
+  if (params.skip != null) url.searchParams.set('skip', String(params.skip));
+  if (params.take != null) url.searchParams.set('take', String(params.take));
+
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 60 } });
     if (!res.ok) return [];
     return res.json();
   } catch {

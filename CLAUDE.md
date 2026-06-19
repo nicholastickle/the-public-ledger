@@ -12,9 +12,21 @@ For every request, create a to-do list at the start and check off each item as i
 
 After any change to infrastructure (hosting, third-party services, environment variables) or to production/dev dependencies in `package.json`, update both `CLAUDE.md` and `README.md` in the same commit to keep the documentation in sync.
 
+After completing any task, run the full test suite (`npm run test:run`). If any tests are failing — regardless of whether they are related to the code you just changed — fix them before considering the task done.
+
 ## What this repo is
 
-The Public Ledger — [description TBD]. Built with Next.js 16 (App Router), TypeScript, and Tailwind CSS v4. Has both a marketing/product frontend and a backend (API routes + database — see Architecture and Backend sections).
+The Public Ledger — a civic shadow-voting platform for UK citizens. Built with Next.js 16 (App Router), TypeScript, and Tailwind CSS v4. Has both a marketing/product frontend and a backend (API routes + database — see Architecture and Backend sections).
+
+## Product principle: impartiality
+
+The Public Ledger is designed so that citizens form their own view of legislation free from partisan or institutional influence. This has two hard rules that must never be violated:
+
+1. **Do not reveal who sponsors or brings forward a bill.** Never display `originating_house`, sponsor names, party affiliation, or any other information that identifies the political or institutional source of a bill. This applies everywhere — bill detail pages, the Billboard, search results, emails, and any future surfaces.
+
+2. **Do not reveal how Parliament voted.** Parliamentary division data (`parliamentAyes`, `parliamentNoes`, individual MP votes) must never be shown to a citizen before or during the voting flow. It may only be surfaced after a citizen has already cast their shadow vote, and even then only in an aggregate, anonymised form that does not identify individual MPs or parties.
+
+When implementing any feature that touches bills, voting, or results, check both rules before shipping. If in doubt, withhold the information.
 
 ## Commands
 
@@ -225,15 +237,34 @@ After any new service, third-party integration, or environment variable is added
 
 A Puppeteer MCP server is configured in `.mcp.json`. Tools available: `mcp__puppeteer__puppeteer_navigate`, `mcp__puppeteer__puppeteer_screenshot`, `mcp__puppeteer__puppeteer_click`, `mcp__puppeteer__puppeteer_fill`, `mcp__puppeteer__puppeteer_evaluate`.
 
-**Mandatory after any change to a component, page, or global CSS:**
+**Mandatory after any change to a component, page, or global CSS — run 3 full check-and-iterate cycles before marking the task complete.**
+
+### Breakpoints to check on every iteration
+
+| Breakpoint | Viewport width | Label |
+|---|---|---|
+| Mobile | 375px | `mobile` |
+| Tablet | 768px | `tablet` |
+| Desktop | 1280px | `desktop` |
+| XL Desktop | 1920px | `xl-desktop` |
+
+Use `mcp__puppeteer__puppeteer_evaluate` to resize the viewport before each screenshot:
+```js
+// example — resize to mobile
+page.setViewport({ width: 375, height: 812 })
+```
+
+### Iteration loop (repeat 3 times)
 
 1. Start the dev server in the background if not already running: `npm run dev`
 2. Wait ~3 seconds for it to be ready, then navigate: `mcp__puppeteer__puppeteer_navigate` → `http://localhost:3000`
-3. Screenshot every changed section: `mcp__puppeteer__puppeteer_screenshot`
-4. Inspect the screenshot visually — check layout, colours, spacing against DESIGN.md tokens
-5. Iterate until the output matches the design intent before marking the task complete
+3. For **each of the four breakpoints** above, resize the viewport and take a screenshot of every changed section.
+4. Inspect all four screenshots — check layout, colours, spacing, and typography against DESIGN.md tokens. Note any issues.
+5. Apply fixes, then go back to step 2 and run the next iteration.
 
-Use `--no-sandbox` is already handled by the server; the bundled Chromium at `/root/.cache/puppeteer/chrome/` is used automatically via `PUPPETEER_EXECUTABLE_PATH` in `.mcp.json`.
+Only mark the task complete after all three iterations have been run and the final screenshots pass visual inspection at all four breakpoints.
+
+Chrome for Testing is wired via `PUPPETEER_EXECUTABLE_PATH` in `.mcp.json`. On macOS Apple Silicon the path is `~/.cache/puppeteer/chrome/mac_arm-<version>/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`. Update `.mcp.json` if you install a newer version.
 
 ## Infrastructure
 
