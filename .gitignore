@@ -46,3 +46,8 @@ __pycache__/
 *.py[cod]
 *.pyo
 .pytest_cache/
+
+# Large video assets — add locally, do not commit
+public/videos/*.mp4
+public/videos/*.webm
+public/videos/*.mov
