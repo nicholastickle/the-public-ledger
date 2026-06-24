@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CrownOrnament from './CrownOrnament';
 
 const COLUMNS = [
   {
@@ -59,13 +60,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="sm:col-span-2 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-xs mb-md no-underline group">
-              {/* Mini crown mark */}
-              <svg width="18" height="15" viewBox="0 0 18 15" fill="none" aria-hidden="true">
-                <path d="M1 10.5L1 4.5L5.5 8.5L9 0.5L12.5 8.5L17 4.5L17 10.5Z"
-                  fill="rgba(184,150,12,0.55)" stroke="#B8960C" strokeWidth="0.9" />
-                <rect x="1" y="10.5" width="16" height="3.5" rx="0.5"
-                  fill="rgba(184,150,12,0.4)" stroke="#B8960C" strokeWidth="0.9" />
-              </svg>
+              <CrownOrnament size={22} />
               <span
                 style={{
                   fontFamily: 'var(--font-display), Georgia, "Times New Roman", serif',

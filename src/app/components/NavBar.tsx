@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import MobileMenu from './MobileMenu';
 import HowItWorksButton from './HowItWorksButton';
+import CrownOrnament from './CrownOrnament';
 
 export const NAV_LINKS = [
   { label: 'Bills',       href: '/bills' },
@@ -22,7 +23,7 @@ export default function NavBar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-xs flex-shrink-0 no-underline">
-          <LedgerIcon />
+          <CrownOrnament size={22} />
           <span
             className="font-display italic font-semibold text-forest-green hidden sm:block"
             style={{ fontSize: '17px', letterSpacing: '-0.015em', whiteSpace: 'nowrap' }}
@@ -98,16 +99,6 @@ export default function NavBar() {
   );
 }
 
-function LedgerIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <rect x="2.5" y="1.5" width="13" height="15" rx="2" stroke="#1B4332" strokeWidth="1.5" />
-      <line x1="6" y1="6"  x2="12" y2="6"  stroke="#B8960C" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="6" y1="9"  x2="12" y2="9"  stroke="#B8960C" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="6" y1="12" x2="10" y2="12" stroke="#B8960C" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function SearchIcon() {
   return (

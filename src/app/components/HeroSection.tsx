@@ -2,6 +2,7 @@ import type { ParliamentBill, ParliamentRegulation } from '../types/parliament';
 import Link from 'next/link';
 import HeroBillsFlank from './HeroBillsFlank';
 import HeroRegulationsFlank from './HeroRegulationsFlank';
+import CrownOrnament from './CrownOrnament';
 
 interface Props {
   featuredBills: ParliamentBill[];
@@ -142,21 +143,6 @@ function OrnamentalDivider() {
   );
 }
 
-function CrownOrnament() {
-  return (
-    <svg width="38" height="30" viewBox="0 0 38 30" fill="none" aria-hidden="true">
-      <rect x="2" y="21" width="34" height="7" rx="1" fill="#B8960C" opacity="0.65" />
-      <path d="M2 21 L2 9 L11 17 L19 1 L27 17 L36 9 L36 21 Z" fill="#B8960C" opacity="0.6" />
-      <path d="M2 21 L2 9 L11 17 L19 1 L27 17 L36 9 L36 21 Z" stroke="#D4AF37" strokeWidth="1.2" fill="none" />
-      <rect x="2" y="21" width="34" height="7" rx="1" stroke="#D4AF37" strokeWidth="1.2" fill="none" />
-      <circle cx="19" cy="6" r="2.8" fill="#8B1A1A" />
-      <circle cx="7" cy="14" r="2" fill="#012169" />
-      <circle cx="31" cy="14" r="2" fill="#012169" />
-      {/* Highlight on crown jewel */}
-      <circle cx="18" cy="5" r="1" fill="rgba(255,255,255,0.4)" />
-    </svg>
-  );
-}
 
 function BillStatusBadge({ bill }: { bill: ParliamentBill }) {
   if (bill.is_act) return <span className="font-mono text-xs uppercase tracking-wider" style={{ color: '#2D6A4F' }}>Act</span>;
@@ -167,8 +153,22 @@ function BillStatusBadge({ bill }: { bill: ParliamentBill }) {
 
 export default function HeroSection({ featuredBills, bills = [], regulations = [] }: Props) {
   return (
-    <section className="ledger-bg overflow-hidden">
-      <div className="max-w-[1800px] mx-auto px-md sm:px-xl lg:px-3xl py-2xl lg:py-4xl">
+    <section className="ledger-bg overflow-hidden relative">
+      {/* Parliament building timelapse video — place file at public/videos/parliament-timelapse.mp4 */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden="true"
+      >
+        <source src="/videos/parliament-timelapse.mp4" type="video/mp4" />
+      </video>
+      {/* Warm dark overlay — keeps video visible in gaps while panels stay opaque */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(15,10,3,0.42)' }} aria-hidden="true" />
+
+      <div className="relative z-10 max-w-[1800px] mx-auto px-md sm:px-xl lg:px-3xl py-2xl lg:py-4xl">
         <div className="2xl:grid 2xl:grid-cols-[260px_1fr_260px] 2xl:gap-lg 2xl:items-stretch">
 
           {/* Left flank — bills */}
@@ -177,7 +177,7 @@ export default function HeroSection({ featuredBills, bills = [], regulations = [
           </div>
 
         {/* Main ledger frame */}
-        <div className="ledger-frame relative">
+        <div className="ledger-frame ledger-bg relative">
 
           {/* Filigree corners */}
           <div className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px]"><FiligreeCorner /></div>
@@ -342,7 +342,7 @@ export default function HeroSection({ featuredBills, bills = [], regulations = [
           </div>
 
         </div>{/* xl:grid */}
-      </div>
+      </div>{/* relative z-10 */}
     </section>
   );
 }
