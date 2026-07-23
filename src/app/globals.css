@@ -535,4 +535,393 @@ body {
   .btn-ledger-secondary:hover {
     background-color: rgba(184, 150, 12, 0.08);
   }
+
+  /* ── Hero: Big Ben video scrim ───────────────────────────────────── */
+  /* Warm parchment-tinted gradient — keeps the parliament video visible
+     while guaranteeing legibility for the countdown + CTA on the left. */
+  .hero-video-scrim {
+    background:
+      linear-gradient(
+        105deg,
+        rgba(12, 22, 16, 0.82) 0%,
+        rgba(12, 22, 16, 0.62) 34%,
+        rgba(12, 22, 16, 0.28) 58%,
+        rgba(12, 22, 16, 0.12) 100%
+      ),
+      radial-gradient(
+        120% 80% at 15% 30%,
+        rgba(27, 67, 50, 0.35),
+        transparent 60%
+      );
+  }
+
+  /* Dark fade at the top of the frame so nav stays legible over bright sky */
+  .hero-frame-topfade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 128px;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(8, 14, 10, 0.74),
+      rgba(8, 14, 10, 0.16) 68%,
+      transparent
+    );
+  }
+
+  /* Text-shadow so light/gold copy reads over any brightness in the video */
+  .hero-ink-shadow {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Union Jack wax seal — cartouche over the sea at the map's top-left */
+  .hero-map-seal {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 5;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
+  }
+
+  /* ── Hero in-frame navigation (dark theme) ───────────────────────── */
+  .hero-nav__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .hero-nav__wordmark {
+    font-family: var(--font-display), Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.015em;
+    color: #faf6ed;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  }
+  .hero-nav-link {
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e8c840;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 2px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+    text-decoration: none;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+  }
+  .hero-nav-link:hover {
+    text-decoration: underline;
+    text-decoration-color: #e8c840;
+  }
+  .hero-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 2px;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .hero-nav-btn--ghost {
+    color: #faf6ed;
+    border: 1px solid rgba(184, 150, 12, 0.6);
+    background: rgba(10, 18, 13, 0.4);
+  }
+  .hero-nav-btn--ghost:hover {
+    background: rgba(250, 246, 237, 0.1);
+    border-color: var(--color-aged-gold-light);
+  }
+  .hero-nav-btn--solid {
+    color: #faf6ed;
+    background: var(--color-forest-green);
+    border: 1px solid rgba(184, 150, 12, 0.6);
+  }
+  .hero-nav-btn--solid:hover {
+    background: var(--color-forest-green-2);
+  }
+  .hero-nav__burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: #e8c840;
+    background: rgba(10, 18, 13, 0.4);
+    border: 1px solid rgba(184, 150, 12, 0.45);
+    border-radius: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .hero-nav__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    z-index: 20;
+    padding: 12px;
+    background: rgba(12, 22, 16, 0.97);
+    border: 1px solid rgba(184, 150, 12, 0.4);
+    border-radius: 2px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* ── Vote countdown ──────────────────────────────────────────────── */
+  .vote-countdown {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(4px, 1vw, 14px);
+    flex-wrap: nowrap;
+  }
+  .vote-countdown__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: clamp(8px, 1.4vw, 18px) clamp(8px, 1.6vw, 22px);
+    /* fixed width (not min-width) so tiles never resize as Playfair digits change */
+    width: clamp(64px, 9vw, 122px);
+    flex: none;
+    background: rgba(18, 40, 30, 0.5);
+    border: 1px solid rgba(184, 150, 12, 0.55);
+    border-radius: 2px;
+    box-shadow:
+      inset 0 0 0 3px rgba(184, 150, 12, 0.1),
+      0 6px 20px rgba(0, 0, 0, 0.35);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+  .vote-countdown__num {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(2.3rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #faf6ed;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  }
+  .vote-countdown__label {
+    font-family: var(--font-mono), monospace;
+    text-transform: uppercase;
+    font-size: clamp(9px, 0.9vw, 12px);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: #d4af37;
+  }
+  .vote-countdown__sep {
+    align-self: center;
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(1.4rem, 3.6vw, 3rem);
+    color: rgba(212, 175, 55, 0.7);
+    line-height: 1;
+    padding-bottom: 0.4em;
+  }
+  .vote-countdown--live {
+    padding: clamp(12px, 2vw, 24px) clamp(16px, 3vw, 36px);
+    background: rgba(18, 40, 30, 0.55);
+    border: 1px solid rgba(184, 150, 12, 0.55);
+    border-radius: 2px;
+  }
+  .vote-countdown__livetext {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 3.4rem);
+    color: #faf6ed;
+    line-height: 1.05;
+  }
+
+  /* ── Giant hero "Vote Now" CTA ───────────────────────────────────── */
+  .btn-vote-hero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background-color: var(--color-forest-green);
+    color: #faf6ed;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: clamp(1.1rem, 2.1vw, 1.65rem);
+    padding: clamp(16px, 1.9vw, 24px) clamp(30px, 4vw, 60px);
+    border: 1.5px solid var(--color-aged-gold);
+    border-radius: 2px;
+    box-shadow:
+      inset 0 0 0 3px rgba(184, 150, 12, 0.14),
+      0 12px 34px rgba(0, 0, 0, 0.42);
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  }
+  .btn-vote-hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgba(250, 246, 237, 0.35),
+      transparent
+    );
+    transform: skewX(-18deg);
+  }
+  .btn-vote-hero:hover {
+    background-color: var(--color-forest-green-2);
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 0 0 3px rgba(184, 150, 12, 0.2),
+      0 18px 44px rgba(0, 0, 0, 0.5);
+  }
+  .btn-vote-hero:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 3px;
+  }
+
+  /* ── Interactive 3D UK nations map ───────────────────────────────── */
+  .uk-map-stage {
+    perspective: 1500px;
+    width: 100%;
+    padding: 12px 12px 40px;
+  }
+  .uk-map-plane {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 16deg)) rotateY(var(--ry, 0deg));
+    transition: transform 0.35s ease-out;
+    will-change: transform;
+  }
+  .uk-map-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  /* Extruded relief — applied only to the four-nations group so the faint
+     Republic of Ireland outline behind it is not turned into a gold slab. */
+  .uk-map-relief {
+    filter:
+      drop-shadow(0 1px 0 #9a7a0d)
+      drop-shadow(0 2px 0 #8a6d0c)
+      drop-shadow(0 3px 0 #7a600b)
+      drop-shadow(0 4px 0 #6a530a)
+      drop-shadow(0 5px 0 #5a4608)
+      drop-shadow(0 12px 16px rgba(18, 11, 2, 0.45));
+  }
+  .uk-nation-top {
+    fill: #e8dbba;
+    stroke: rgba(184, 150, 12, 0.55);
+    stroke-width: 0.8;
+    cursor: pointer;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: fill 0.3s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .uk-nation-top[data-active='true'] {
+    stroke: #d4af37;
+    stroke-width: 1.3;
+    filter: drop-shadow(0 10px 10px rgba(18, 11, 2, 0.5));
+  }
+  .uk-map-badges {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* Flag pin: hidden by default, revealed only when its nation is active.
+     No background plate, no label — just the flag itself. */
+  .uk-flag-badge {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(0.96);
+    pointer-events: auto;
+    display: block;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  .uk-flag-badge__flag {
+    line-height: 0;
+    display: block;
+    box-shadow: 0 0 0 0.5px rgba(184, 150, 12, 0.7), 0 3px 8px rgba(18, 11, 2, 0.55);
+  }
+  .uk-flag-badge[data-active='true'] {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+    z-index: 6;
+  }
+  .uk-flag-badge:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-vote-hero {
+      animation: voteGlow 2.8s ease-in-out infinite;
+    }
+    .btn-vote-hero::after {
+      animation: voteSheen 4.2s ease-in-out infinite;
+    }
+  }
+  @keyframes voteGlow {
+    0%,
+    100% {
+      box-shadow:
+        inset 0 0 0 3px rgba(184, 150, 12, 0.14),
+        0 12px 34px rgba(0, 0, 0, 0.42);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 3px rgba(184, 150, 12, 0.24),
+        0 12px 34px rgba(0, 0, 0, 0.42),
+        0 0 0 4px rgba(184, 150, 12, 0.12);
+    }
+  }
+  @keyframes voteSheen {
+    0% {
+      left: -60%;
+    }
+    35%,
+    100% {
+      left: 130%;
+    }
+  }
+  @media (max-width: 640px) {
+    .uk-map-plane {
+      transform: rotateX(12deg);
+    }
+  }
 }

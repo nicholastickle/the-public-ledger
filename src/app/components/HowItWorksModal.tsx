@@ -44,9 +44,15 @@ interface Props {
 export default function HowItWorksModal({ isOpen, onClose }: Props) {
   const [step, setStep] = useState(0);
 
-  const handleClose = useCallback(() => { onClose(); }, [onClose]);
+  // Reset to the first slide whenever the modal closes — adjusting state during
+  // render on a prop change (React's recommended alternative to a setState effect).
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  if (isOpen !== prevOpen) {
+    setPrevOpen(isOpen);
+    if (!isOpen) setStep(0);
+  }
 
-  useEffect(() => { if (!isOpen) setStep(0); }, [isOpen]);
+  const handleClose = useCallback(() => { onClose(); }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
