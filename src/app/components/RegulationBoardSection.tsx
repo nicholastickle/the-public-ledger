@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { ParliamentRegulation } from '../types/parliament';
 import { formatCountdown, clipText } from '../lib/utils';
-import VoteBar from './VoteBar';
+import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
+import VoteTallies from './VoteTallies';
 import RegulationDetailModal from './RegulationDetailModal';
 
 interface Props {
@@ -169,6 +170,22 @@ export function isVoteOpen(reg: ParliamentRegulation): boolean {
   return reg.status === 'pending';
 }
 
+/** While an instrument is still pending, Parliament has not settled it — the
+ *  parliamentary deadline is the date by which it must. */
+export function regulationGovVote(reg: ParliamentRegulation, votes: RegulationVotes | undefined): GovVote {
+  if (reg.status === 'withdrawn') return { status: 'none' };
+  if (isVoteOpen(reg)) return { status: 'pending', scheduledDate: votes?.deadline ?? reg.deadline ?? null };
+  const tally = mockGovTally(reg.id, votes?.shadowApprove ?? 0, votes?.shadowAnnul ?? 0);
+  return { status: 'voted', for: tally.for, against: tally.against };
+}
+
+/** The AI panel's verdicts collapsed into a for/against tally, so it can be
+ *  shown in the same bar format as the citizen and Parliament tallies. */
+export function regulationAiTally(reg: ParliamentRegulation): { for: number; against: number } {
+  const agg = aiAggregate(generateAiVerdicts(reg.title, reg.id));
+  return { for: agg.approve, against: agg.reject };
+}
+
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
 function ProcedureBadge({ reg }: { reg: ParliamentRegulation }) {
@@ -188,7 +205,7 @@ function ProcedureBadge({ reg }: { reg: ParliamentRegulation }) {
 function RegulationGridCard({ reg, votes, myVote, onSelect }: { reg: ParliamentRegulation; votes?: RegulationVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
   const st = regulationStatus(reg);
   const vOpen = isVoteOpen(reg);
-  const hasVotes = !!votes && (votes.shadowApprove > 0 || votes.shadowAnnul > 0);
+  const revealed = !vOpen || myVote != null;
 
   return (
     <button
@@ -224,41 +241,40 @@ function RegulationGridCard({ reg, votes, myVote, onSelect }: { reg: ParliamentR
         {clipText(reg.enabling_act, 44)}
       </p>
 
-      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
-        {vOpen ? (
-          <div className="flex items-center justify-between gap-sm">
-            <div className="flex flex-col gap-xxs min-w-0">
-              <span className="font-mono" style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '0.06em' }}>
-                Voting open
-              </span>
-              <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
-                {formatCountdown(votes?.deadline, 'window closed')}
-              </span>
-            </div>
-            <span
-              className="font-mono shrink-0"
-              style={{
-                color: '#D4AF37',
-                fontSize: '11px',
-                letterSpacing: '0.06em',
-                border: '1px solid rgba(212,175,55,0.45)',
-                lineHeight: '22px',
-                padding: '0 8px',
-                borderRadius: '2px',
-                background: 'rgba(212,175,55,0.06)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              View &amp; Vote →
-            </span>
-          </div>
-        ) : hasVotes ? (
-          <VoteBar forCount={votes!.shadowApprove} againstCount={votes!.shadowAnnul} forLabel="Approve" againstLabel="Annul" />
-        ) : (
-          <span className="font-mono" style={{ color: st.color, fontSize: '11px', letterSpacing: '0.05em' }}>
-            {st.label}
+      {vOpen && (
+        <div className="flex items-center justify-between gap-sm mt-sm">
+          <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
+            {formatCountdown(votes?.deadline, 'window closed')}
           </span>
-        )}
+          <span
+            className="font-mono shrink-0"
+            style={{
+              color: '#D4AF37',
+              fontSize: '11px',
+              letterSpacing: '0.06em',
+              border: '1px solid rgba(212,175,55,0.45)',
+              lineHeight: '22px',
+              padding: '0 8px',
+              borderRadius: '2px',
+              background: 'rgba(212,175,55,0.06)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View &amp; Vote →
+          </span>
+        </div>
+      )}
+
+      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
+        <VoteTallies
+          forLabel="Approve"
+          againstLabel="Annul"
+          citizen={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
+          ai={regulationAiTally(reg)}
+          gov={regulationGovVote(reg, votes)}
+          revealed={revealed}
+          compact
+        />
       </div>
     </button>
   );

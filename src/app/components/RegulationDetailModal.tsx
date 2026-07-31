@@ -1,6 +1,6 @@
 import type { ParliamentRegulation } from '../types/parliament';
-import { regulationStatus, isVoteOpen, type RegulationVotes } from './RegulationBoardSection';
-import { generateAiVerdicts, mockGovTally, type GovVote } from '../lib/mockVotes';
+import { regulationStatus, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from './RegulationBoardSection';
+import { generateAiVerdicts } from '../lib/mockVotes';
 import { formatBillDate } from '../lib/utils';
 import Modal from './Modal';
 import BoardStageTimeline, { type TimelineStep } from './BoardStageTimeline';
@@ -39,21 +39,12 @@ function buildRegulationTimeline(reg: ParliamentRegulation): TimelineStep[] {
   }));
 }
 
-/** While an instrument is still pending, Parliament has not settled it — the
- *  parliamentary deadline is the date by which it must. */
-function regulationGovVote(reg: ParliamentRegulation, votes: RegulationVotes | undefined, voteOpen: boolean): GovVote {
-  if (reg.status === 'withdrawn') return { status: 'none' };
-  if (voteOpen) return { status: 'pending', scheduledDate: votes?.deadline ?? reg.deadline ?? null };
-  const tally = mockGovTally(reg.id, votes?.shadowApprove ?? 0, votes?.shadowAnnul ?? 0);
-  return { status: 'voted', for: tally.for, against: tally.against };
-}
-
 export default function RegulationDetailModal({ regulation, votes, voted, onVote, onClose }: Props) {
   const st = regulationStatus(regulation);
   const vOpen = isVoteOpen(regulation);
   const shadowApprove = votes?.shadowApprove ?? 0;
   const shadowAnnul = votes?.shadowAnnul ?? 0;
-  const gov = regulationGovVote(regulation, votes, vOpen);
+  const gov = regulationGovVote(regulation, votes);
   const aiOpinions = generateAiVerdicts(regulation.title, regulation.id);
   const revealed = !vOpen || voted !== null;
 
@@ -111,8 +102,8 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
           isOpen={vOpen}
           voted={voted}
           onVote={onVote}
-          citizenFor={shadowApprove}
-          citizenAgainst={shadowAnnul}
+          citizen={{ for: shadowApprove, against: shadowAnnul }}
+          ai={regulationAiTally(regulation)}
           gov={gov}
           closedNote={closedNote}
         />

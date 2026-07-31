@@ -45,7 +45,7 @@ describe('BillDetailModal', () => {
     expect(screen.getByRole('button', { name: 'Aye' })).toBeInTheDocument();
     // No citizen tally leaks before voting.
     expect(screen.queryByText(/Aye 100/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Cast your vote above to reveal/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Vote to reveal/i).length).toBeGreaterThan(0);
   });
 

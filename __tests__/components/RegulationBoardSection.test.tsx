@@ -122,8 +122,9 @@ describe('RegulationBoardSection', () => {
     expect(screen.getByText(/You voted Annul/i)).toBeInTheDocument();
   });
 
-  it('shows "Voting open" when vote is open', () => {
+  it('signals an open vote on the card with a countdown and a call to action', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    expect(screen.getAllByText(/Voting open/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/View & Vote/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/closes/i).length).toBeGreaterThan(0);
   });
 });

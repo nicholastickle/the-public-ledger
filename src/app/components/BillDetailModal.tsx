@@ -1,6 +1,6 @@
 import type { ParliamentBill } from '../types/parliament';
-import { billStatus, isVoteOpen, type BillVotes } from './DepartureBoardSection';
-import { generateAiVerdicts, mockGovTally, type GovVote } from '../lib/mockVotes';
+import { billStatus, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
+import { generateAiVerdicts } from '../lib/mockVotes';
 import { formatBillDate } from '../lib/utils';
 import Modal from './Modal';
 import BoardStageTimeline, { type TimelineStep } from './BoardStageTimeline';
@@ -51,22 +51,12 @@ function buildBillTimeline(bill: ParliamentBill): TimelineStep[] {
   }));
 }
 
-/** Parliament divides on a bill at Second Reading. So while the citizen window
- *  is still open (First/Second Reading) the government has not voted yet — the
- *  Second Reading date is when it is expected to. */
-function billGovVote(bill: ParliamentBill, votes: BillVotes | undefined, voteOpen: boolean): GovVote {
-  if (bill.bill_withdrawn) return { status: 'none' };
-  if (voteOpen) return { status: 'pending', scheduledDate: votes?.secondReadingDate ?? null };
-  const tally = mockGovTally(bill.id, votes?.shadowAyes ?? 0, votes?.shadowNoes ?? 0);
-  return { status: 'voted', for: tally.for, against: tally.against };
-}
-
 export default function BillDetailModal({ bill, votes, voted, onVote, onClose }: Props) {
   const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
   const shadowAyes = votes?.shadowAyes ?? 0;
   const shadowNoes = votes?.shadowNoes ?? 0;
-  const gov = billGovVote(bill, votes, vOpen);
+  const gov = billGovVote(bill, votes);
   const aiOpinions = generateAiVerdicts(bill.short_title ?? bill.long_title ?? 'this bill', bill.id);
   const revealed = !vOpen || voted !== null;
 
@@ -116,8 +106,8 @@ export default function BillDetailModal({ bill, votes, voted, onVote, onClose }:
           isOpen={vOpen}
           voted={voted}
           onVote={onVote}
-          citizenFor={shadowAyes}
-          citizenAgainst={shadowNoes}
+          citizen={{ for: shadowAyes, against: shadowNoes }}
+          ai={billAiTally(bill)}
           gov={gov}
           closedNote={closedNote}
         />

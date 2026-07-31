@@ -1,5 +1,4 @@
-import VoteBar from './VoteBar';
-import { formatBillDate } from '../lib/utils';
+import VoteTallies, { type Tally } from './VoteTallies';
 import type { GovVote } from '../lib/mockVotes';
 
 interface Props {
@@ -8,8 +7,8 @@ interface Props {
   isOpen: boolean;
   voted: 'for' | 'against' | null;
   onVote: (choice: 'for' | 'against') => void;
-  citizenFor: number;
-  citizenAgainst: number;
+  citizen: Tally;
+  ai: Tally;
   gov: GovVote;
   closedNote?: string;
 }
@@ -20,8 +19,8 @@ export default function VotingPanel({
   isOpen,
   voted,
   onVote,
-  citizenFor,
-  citizenAgainst,
+  citizen,
+  ai,
   gov,
   closedNote,
 }: Props) {
@@ -31,8 +30,10 @@ export default function VotingPanel({
   // public record anyway), the tallies open up.
   const revealed = !isOpen || voted !== null;
 
-  const displayCitizenFor = voted === 'for' ? citizenFor + 1 : citizenFor;
-  const displayCitizenAgainst = voted === 'against' ? citizenAgainst + 1 : citizenAgainst;
+  const citizenDisplay: Tally = {
+    for: voted === 'for' ? citizen.for + 1 : citizen.for,
+    against: voted === 'against' ? citizen.against + 1 : citizen.against,
+  };
 
   return (
     <div>
@@ -57,40 +58,14 @@ export default function VotingPanel({
         </p>
       )}
 
-      <div className="flex flex-col gap-md">
-        {revealed ? (
-          <div>
-            <span className="font-mono uppercase block mb-xs" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.14em' }}>
-              Citizens
-            </span>
-            <VoteBar forCount={displayCitizenFor} againstCount={displayCitizenAgainst} forLabel={forLabel} againstLabel={againstLabel} />
-          </div>
-        ) : (
-          <div className="voting-panel__locked">
-            🔒 Cast your vote above to reveal the public tally and the AI panel&apos;s verdicts
-          </div>
-        )}
-
-        <div>
-          <span className="font-mono uppercase block mb-xs" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.14em' }}>
-            Parliament
-          </span>
-          {gov.status === 'voted' && revealed ? (
-            <VoteBar forCount={gov.for ?? 0} againstCount={gov.against ?? 0} forLabel={forLabel} againstLabel={againstLabel} />
-          ) : gov.status === 'none' ? (
-            <p className="font-mono" style={{ color: 'rgba(184,150,12,0.5)', fontSize: '11px' }}>
-              No parliamentary vote recorded
-            </p>
-          ) : (
-            <p className="voting-panel__pending font-mono" suppressHydrationWarning>
-              ◷ Government vote pending
-              {gov.scheduledDate
-                ? ` · expected ${formatBillDate(gov.scheduledDate)}`
-                : ' · date to be announced'}
-            </p>
-          )}
-        </div>
-      </div>
+      <VoteTallies
+        forLabel={forLabel}
+        againstLabel={againstLabel}
+        citizen={citizenDisplay}
+        ai={ai}
+        gov={gov}
+        revealed={revealed}
+      />
     </div>
   );
 }

@@ -36,7 +36,7 @@ describe('RegulationDetailModal', () => {
     expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Annul' })).toBeInTheDocument();
     expect(screen.queryByText(/Approve 50/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Cast your vote above to reveal/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
   });
 
   it('shows a government-vote-pending indicator with the parliamentary deadline', () => {

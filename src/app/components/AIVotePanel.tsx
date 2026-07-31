@@ -14,7 +14,7 @@ export default function AIVotePanel({ opinions, revealed }: Props) {
     <div>
       <div className="flex items-center justify-between gap-sm mb-xs">
         <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.16em' }}>
-          AI Panel
+          AI Commentary
         </span>
         <span className="font-mono" style={{ color: 'rgba(184,150,12,0.5)', fontSize: '10px', letterSpacing: '0.08em' }}>
           Demo commentary · live model voting coming soon

@@ -119,10 +119,15 @@ describe('DepartureBoardSection', () => {
     expect(screen.getAllByText('Commons').length).toBeGreaterThan(0);
   });
 
-  it('never reveals parliamentary division/vote counts on the board (only inside the gated modal)', () => {
-    render(<DepartureBoardSection bills={[]} />);
-    expect(screen.queryAllByText(/Gov\. Vote/i)).toHaveLength(0);
-    expect(screen.queryAllByText(/Parliament(ary)? (Aye|No|Division)/i)).toHaveLength(0);
-    expect(screen.queryByText('Parliament')).not.toBeInTheDocument();
+  it('never reveals any tally on a card whose vote is still open and uncast', () => {
+    // A bill at Second Reading is still open to citizen votes, so none of the
+    // three tallies may show a result — only the pending/locked placeholders.
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    const card = document.querySelector('.board-card')!;
+    expect(card.textContent).toMatch(/Hidden until you vote/);
+    expect(card.textContent).toMatch(/Government vote pending/);
+    // No digits from any tally leak through.
+    expect(card.textContent).not.toMatch(/Aye\s[\d,]+/);
+    expect(card.textContent).not.toMatch(/No\s[\d,]+/);
   });
 });

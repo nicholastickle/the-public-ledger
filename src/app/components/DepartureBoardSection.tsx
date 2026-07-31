@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
 import { formatCountdown, clipText } from '../lib/utils';
-import VoteBar from './VoteBar';
+import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
+import VoteTallies from './VoteTallies';
 import BillDetailModal from './BillDetailModal';
 
 interface Props {
@@ -144,12 +145,29 @@ export function isVoteOpen(bill: ParliamentBill): boolean {
   return s === '' || s.includes('first reading') || s.includes('second reading');
 }
 
+/** Parliament divides on a bill at Second Reading. So while the citizen window
+ *  is still open (First/Second Reading) the government has not voted yet — the
+ *  Second Reading date is when it is expected to. */
+export function billGovVote(bill: ParliamentBill, votes: BillVotes | undefined): GovVote {
+  if (bill.bill_withdrawn) return { status: 'none' };
+  if (isVoteOpen(bill)) return { status: 'pending', scheduledDate: votes?.secondReadingDate ?? null };
+  const tally = mockGovTally(bill.id, votes?.shadowAyes ?? 0, votes?.shadowNoes ?? 0);
+  return { status: 'voted', for: tally.for, against: tally.against };
+}
+
+/** The AI panel's verdicts collapsed into a for/against tally, so it can be
+ *  shown in the same bar format as the citizen and Parliament tallies. */
+export function billAiTally(bill: ParliamentBill): { for: number; against: number } {
+  const agg = aiAggregate(generateAiVerdicts(bill.short_title ?? bill.long_title ?? 'this bill', bill.id));
+  return { for: agg.approve, against: agg.reject };
+}
+
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
 function BillGridCard({ bill, votes, myVote, onSelect }: { bill: ParliamentBill; votes?: BillVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
   const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
-  const hasVotes = !!votes && (votes.shadowAyes > 0 || votes.shadowNoes > 0);
+  const revealed = !vOpen || myVote != null;
 
   return (
     <button
@@ -177,41 +195,40 @@ function BillGridCard({ bill, votes, myVote, onSelect }: { bill: ParliamentBill;
         {clipText(bill.short_title ?? bill.long_title, 84)}
       </h3>
 
-      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
-        {vOpen ? (
-          <div className="flex items-center justify-between gap-sm">
-            <div className="flex flex-col gap-xxs min-w-0">
-              <span className="font-mono" style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '0.06em' }}>
-                Voting open
-              </span>
-              <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
-                {formatCountdown(votes?.secondReadingDate, 'vote closed')}
-              </span>
-            </div>
-            <span
-              className="font-mono shrink-0"
-              style={{
-                color: '#D4AF37',
-                fontSize: '11px',
-                letterSpacing: '0.06em',
-                border: '1px solid rgba(212,175,55,0.45)',
-                lineHeight: '22px',
-                padding: '0 8px',
-                borderRadius: '2px',
-                background: 'rgba(212,175,55,0.06)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              View &amp; Vote →
-            </span>
-          </div>
-        ) : hasVotes ? (
-          <VoteBar forCount={votes!.shadowAyes} againstCount={votes!.shadowNoes} forLabel="Aye" againstLabel="No" />
-        ) : (
-          <span className="font-mono" style={{ color: st.color, fontSize: '11px', letterSpacing: '0.05em' }}>
-            {st.label}
+      {vOpen && (
+        <div className="flex items-center justify-between gap-sm mt-sm">
+          <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
+            {formatCountdown(votes?.secondReadingDate, 'vote closed')}
           </span>
-        )}
+          <span
+            className="font-mono shrink-0"
+            style={{
+              color: '#D4AF37',
+              fontSize: '11px',
+              letterSpacing: '0.06em',
+              border: '1px solid rgba(212,175,55,0.45)',
+              lineHeight: '22px',
+              padding: '0 8px',
+              borderRadius: '2px',
+              background: 'rgba(212,175,55,0.06)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View &amp; Vote →
+          </span>
+        </div>
+      )}
+
+      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
+        <VoteTallies
+          forLabel="Aye"
+          againstLabel="No"
+          citizen={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
+          ai={billAiTally(bill)}
+          gov={billGovVote(bill, votes)}
+          revealed={revealed}
+          compact
+        />
       </div>
     </button>
   );
