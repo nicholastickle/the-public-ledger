@@ -926,34 +926,16 @@ body {
   }
 
   /* ── Kanban board (dark ledger surface) ──────────────────────────── */
-  .kanban-scroll {
-    display: flex;
-    align-items: flex-start;
+  /* Columns wrap onto additional rows instead of scrolling horizontally —
+     every stage/phase stays visible and scannable without interaction. */
+  .kanban-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(184, 150, 12, 0.45) transparent;
-    padding-bottom: 4px;
-    mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
-  }
-  .kanban-scroll::-webkit-scrollbar {
-    height: 6px;
-  }
-  .kanban-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .kanban-scroll::-webkit-scrollbar-thumb {
-    background: rgba(184, 150, 12, 0.45);
-    border-radius: 3px;
+    align-items: start;
   }
 
   .kanban-column {
-    flex: 0 0 260px;
-    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     background: rgba(250, 246, 237, 0.02);
@@ -961,41 +943,8 @@ body {
     border-radius: 4px;
     overflow: hidden;
   }
-  @media (min-width: 640px) {
-    .kanban-column {
-      flex-basis: 292px;
-    }
-  }
-
-  /* Below sm: stack columns into a single vertical column instead of
-     horizontal-scrolling — swiping sideways to find a stage doesn't
-     work well on a phone. */
-  @media (max-width: 639px) {
-    .kanban-scroll {
-      flex-direction: column;
-      overflow-x: visible;
-      overflow-y: visible;
-      scroll-snap-type: none;
-      mask-image: none;
-      -webkit-mask-image: none;
-    }
-    .kanban-column {
-      flex-basis: auto;
-      width: 100%;
-    }
-    .kanban-column__header {
-      position: static;
-    }
-    .kanban-column__body {
-      max-height: none;
-      overflow-y: visible;
-    }
-  }
 
   .kanban-column__header {
-    position: sticky;
-    top: 0;
-    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1022,17 +971,6 @@ body {
     flex-direction: column;
     gap: 10px;
     padding: 12px;
-    overflow-y: auto;
-    max-height: min(820px, 75vh);
-    scrollbar-width: thin;
-    scrollbar-color: rgba(184, 150, 12, 0.3) transparent;
-  }
-  .kanban-column__body::-webkit-scrollbar {
-    width: 5px;
-  }
-  .kanban-column__body::-webkit-scrollbar-thumb {
-    background: rgba(184, 150, 12, 0.3);
-    border-radius: 3px;
   }
 
   .kanban-card {

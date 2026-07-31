@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import type { ParliamentRegulation } from '../types/parliament';
 import { formatCountdown, clipText } from '../lib/utils';
-import FiligreeCorner from './FiligreeCorner';
 import VoteBar from './VoteBar';
 
 interface Props {
@@ -232,40 +231,26 @@ export default function RegulationBoardSection({ regulations }: Props) {
           </div>
         </div>
 
-        {/* ── Board panel ─────────────────────────────────────────────── */}
-        <div className="ledger-frame relative" style={{ background: 'rgba(5, 13, 7, 0.6)' }}>
-          <div className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px] z-10"><FiligreeCorner size={52} /></div>
-          <div className="absolute top-0 right-0 translate-x-[2px] -translate-y-[2px] z-10"><FiligreeCorner size={52} flipH /></div>
-          <div className="absolute bottom-0 left-0 -translate-x-[2px] translate-y-[2px] z-10"><FiligreeCorner size={52} flipV /></div>
-          <div className="absolute bottom-0 right-0 translate-x-[2px] translate-y-[2px] z-10"><FiligreeCorner size={52} flipH flipV /></div>
+        {/* ── Board grid ───────────────────────────────────────────────── */}
+        <div className="kanban-grid">
+          {groups.map(group => (
+            <RegulationKanbanColumn key={group.phase} group={group} votes={votes} />
+          ))}
+        </div>
 
-          <div className="py-lg px-md sm:px-lg">
-            <div className="hidden sm:flex justify-end mb-sm">
-              <span className="font-mono uppercase" style={{ color: 'rgba(184,150,12,0.45)', fontSize: '10px', letterSpacing: '0.14em' }}>
-                Scroll for every phase →
-              </span>
-            </div>
-            <div className="kanban-scroll">
-              {groups.map(group => (
-                <RegulationKanbanColumn key={group.phase} group={group} votes={votes} />
-              ))}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div
-            className="flex items-center justify-between flex-wrap gap-xs px-md sm:px-lg py-xs"
-            style={{ minHeight: 36, borderTop: '1px solid rgba(184,150,12,0.2)', background: 'rgba(184,150,12,0.03)' }}
-          >
-            <span className="font-mono" style={{ color: '#B8960C', opacity: 0.45, fontSize: '11px' }}>
-              {isDemo
-                ? 'Demo data · connect the backend for live regulations'
-                : `${regulations.length} regulations tracked · refreshes automatically`}
-            </span>
-            <Link href="/regulations" className="font-mono no-underline shrink-0" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
-              View all →
-            </Link>
-          </div>
+        {/* Footer */}
+        <div
+          className="flex items-center justify-between flex-wrap gap-xs mt-xl pt-md"
+          style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }}
+        >
+          <span className="font-mono" style={{ color: '#B8960C', opacity: 0.45, fontSize: '11px' }}>
+            {isDemo
+              ? 'Demo data · connect the backend for live regulations'
+              : `${regulations.length} regulations tracked · refreshes automatically`}
+          </span>
+          <Link href="/regulations" className="font-mono no-underline shrink-0" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
+            View all →
+          </Link>
         </div>
 
         {/* Attribution */}
