@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatVotes, formatBillDate, formatTimeAgo } from '@/app/lib/utils';
+import { formatVotes, formatBillDate, formatTimeAgo, formatCountdown, clipText } from '@/app/lib/utils';
 
 describe('formatVotes', () => {
   it('formats millions with one decimal', () => {
@@ -48,5 +48,52 @@ describe('formatTimeAgo', () => {
   it('returns days ago for older timestamps', () => {
     const past = new Date(Date.now() - 3 * 86_400_000).toISOString();
     expect(formatTimeAgo(past)).toBe('3d ago');
+  });
+});
+
+describe('formatCountdown', () => {
+  it('returns "closes TBD" when no date is given', () => {
+    expect(formatCountdown(null, 'closed')).toBe('closes TBD');
+    expect(formatCountdown(undefined, 'closed')).toBe('closes TBD');
+  });
+
+  it('returns the closedLabel when the date has already passed', () => {
+    const past = new Date(Date.now() - 60_000).toISOString();
+    expect(formatCountdown(past, 'vote closed')).toBe('vote closed');
+  });
+
+  it('returns a minute countdown for imminent deadlines', () => {
+    const soon = new Date(Date.now() + 5 * 60_000).toISOString();
+    expect(formatCountdown(soon, 'closed')).toBe('closes in 5m');
+  });
+
+  it('returns an hour countdown within the same day', () => {
+    const soon = new Date(Date.now() + 3 * 3_600_000).toISOString();
+    expect(formatCountdown(soon, 'closed')).toBe('closes in 3h');
+  });
+
+  it('returns a day/hour countdown under two weeks out', () => {
+    const soon = new Date(Date.now() + 2 * 86_400_000 + 3_600_000).toISOString();
+    expect(formatCountdown(soon, 'closed')).toBe('closes in 2d 1h');
+  });
+
+  it('returns a calendar date for deadlines two weeks or more away', () => {
+    const future = new Date(Date.now() + 20 * 86_400_000);
+    const expected = `closes ${future.getDate()} ${future.toLocaleString('en-GB', { month: 'short' })}`;
+    expect(formatCountdown(future.toISOString(), 'closed')).toBe(expected);
+  });
+});
+
+describe('clipText', () => {
+  it('returns an em dash for null input', () => {
+    expect(clipText(null, 10)).toBe('—');
+  });
+
+  it('returns the string unchanged when within the limit', () => {
+    expect(clipText('Short title', 20)).toBe('Short title');
+  });
+
+  it('truncates with an ellipsis when over the limit', () => {
+    expect(clipText('This is a much longer title than allowed', 12)).toBe('This is a m…');
   });
 });

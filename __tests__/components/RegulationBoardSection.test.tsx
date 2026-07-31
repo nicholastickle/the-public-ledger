@@ -53,19 +53,6 @@ describe('RegulationBoardSection', () => {
     expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/regulations');
   });
 
-  it('shows column headers: Regulation, Public Vote, Procedure, Status', () => {
-    render(<RegulationBoardSection regulations={[]} />);
-    expect(screen.getAllByText('Regulation').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Public Vote').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Procedure').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
-  });
-
-  it('shows "Approve / Annul" sub-label in column header', () => {
-    render(<RegulationBoardSection regulations={[]} />);
-    expect(screen.getAllByText('Approve / Annul').length).toBeGreaterThan(0);
-  });
-
   it('shows "Vote →" button for pending regulations', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     expect(screen.getAllByText('Vote →').length).toBeGreaterThan(0);
@@ -96,17 +83,17 @@ describe('RegulationBoardSection', () => {
     expect(screen.getAllByText(/Affirmative/i).length).toBeGreaterThan(0);
   });
 
-  it('shows "Annul Window Open" phase group for pending negative SIs', () => {
+  it('shows "Annul Window Open" column for pending negative SIs', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     expect(screen.getAllByText(/Annul Window Open/i).length).toBeGreaterThan(0);
   });
 
-  it('shows "Pending Approval" phase group for pending affirmative SIs', () => {
+  it('shows "Pending Approval" column for pending affirmative SIs', () => {
     render(<RegulationBoardSection regulations={[PENDING_AFF]} />);
     expect(screen.getAllByText(/Pending Approval/i).length).toBeGreaterThan(0);
   });
 
-  it('links each regulation row to its detail page', () => {
+  it('links each regulation card to its detail page', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     const links = screen.getAllByRole('link', { name: /The Test \(Amendment\) Regulations 2026/i });
     expect(links[0]).toHaveAttribute('href', '/regulations/1');

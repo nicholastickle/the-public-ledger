@@ -52,12 +52,11 @@ describe('DepartureBoardSection', () => {
     expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/bills');
   });
 
-  it('shows column headers: Bill, Public Vote, Gov. Vote, Status', () => {
-    render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getAllByText('Bill').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Public Vote').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Gov. Vote').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
+  it('renders a Kanban column per bill stage with a count badge', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL, COMMITTEE_BILL]} />);
+    expect(screen.getByText('Second Reading')).toBeInTheDocument();
+    expect(screen.getByText('Committee Stage')).toBeInTheDocument();
+    expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(2);
   });
 
   it('shows "Vote →" button for bills at First or Second Reading', () => {
@@ -76,9 +75,22 @@ describe('DepartureBoardSection', () => {
     expect(screen.queryByText('Cast Vote')).not.toBeInTheDocument();
   });
 
-  it('links each bill row to its detail page', () => {
+  it('links each bill card to its detail page', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
     const links = screen.getAllByRole('link', { name: /Test Reform Bill/i });
     expect(links[0]).toHaveAttribute('href', '/bills/101');
+  });
+
+  it('never reveals the originating house of a bill', () => {
+    const bill = billAt({ id: 104, short_title: 'Origin Test Bill', originating_house: 'Lords', current_house: 'Commons' });
+    render(<DepartureBoardSection bills={[bill]} />);
+    expect(screen.queryByText('Lords')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Commons').length).toBeGreaterThan(0);
+  });
+
+  it('never reveals parliamentary division/vote counts on the board', () => {
+    render(<DepartureBoardSection bills={[]} />);
+    expect(screen.queryAllByText(/Gov\. Vote/i)).toHaveLength(0);
+    expect(screen.queryAllByText(/Parliament(ary)? (Aye|No|Division)/i)).toHaveLength(0);
   });
 });

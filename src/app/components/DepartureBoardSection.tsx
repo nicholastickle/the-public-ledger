@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
+import { formatCountdown, clipText } from '../lib/utils';
+import FiligreeCorner from './FiligreeCorner';
+import VoteBar from './VoteBar';
 
 interface Props {
   bills: ParliamentBill[];
@@ -11,8 +14,6 @@ interface Props {
 interface BillVotes {
   shadowAyes: number;
   shadowNoes: number;
-  parliamentAyes?: number;
-  parliamentNoes?: number;
   secondReadingDate?: string | null;
 }
 
@@ -20,16 +21,6 @@ interface StageGroup {
   stage: string;
   bills: ParliamentBill[];
 }
-
-/* ── Constants ──────────────────────────────────────────────────────────── */
-
-const ROW_H_MOBILE   = 68;
-const VISIBLE_MOBILE = 8;
-const TICK_MS        = 3800;
-
-// grid per half-panel: pip | bill+stage | 2nd rdg vote | gov division | vote/status
-const PANEL_GRID = '16px 1fr 110px 110px 88px';
-const PANEL_GAP  = '0 14px';
 
 /* ── Demo data ─────────────────────────────────────────────────────────── */
 
@@ -57,16 +48,16 @@ const DEMO_VOTES: Record<number, BillVotes> = {
   10: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-06-22' },   // Terminal Illness (5 days)
   14: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },            // Bank Resolution — TBD
   // Bills past Second Reading — shadow vote recorded
-  1:  { shadowAyes: 18400, shadowNoes:  6200, parliamentAyes: 324, parliamentNoes: 218 },
-  3:  { shadowAyes:  9100, shadowNoes: 12300, parliamentAyes: 298, parliamentNoes: 241 },
-  4:  { shadowAyes: 14200, shadowNoes:  3800, parliamentAyes: 312, parliamentNoes: 187 },
-  5:  { shadowAyes: 31500, shadowNoes:  4100, parliamentAyes: 341, parliamentNoes: 206 },
-  7:  { shadowAyes: 22800, shadowNoes:  7200, parliamentAyes: 358, parliamentNoes: 199 },
-  8:  { shadowAyes: 28400, shadowNoes:  9100, parliamentAyes: 367, parliamentNoes: 212 },
-  9:  { shadowAyes: 45200, shadowNoes:  2300, parliamentAyes: 389, parliamentNoes:  98 },
-  11: { shadowAyes: 11200, shadowNoes:  4800, parliamentAyes: 302, parliamentNoes: 174 },
-  12: { shadowAyes: 19600, shadowNoes:  8400, parliamentAyes: 314, parliamentNoes: 228 },
-  13: { shadowAyes: 26700, shadowNoes:  5900, parliamentAyes: 383, parliamentNoes: 205 },
+  1:  { shadowAyes: 18400, shadowNoes:  6200 },
+  3:  { shadowAyes:  9100, shadowNoes: 12300 },
+  4:  { shadowAyes: 14200, shadowNoes:  3800 },
+  5:  { shadowAyes: 31500, shadowNoes:  4100 },
+  7:  { shadowAyes: 22800, shadowNoes:  7200 },
+  8:  { shadowAyes: 28400, shadowNoes:  9100 },
+  9:  { shadowAyes: 45200, shadowNoes:  2300 },
+  11: { shadowAyes: 11200, shadowNoes:  4800 },
+  12: { shadowAyes: 19600, shadowNoes:  8400 },
+  13: { shadowAyes: 26700, shadowNoes:  5900 },
 };
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -117,18 +108,6 @@ function groupByStage(bills: ParliamentBill[]): StageGroup[] {
   return groups;
 }
 
-function splitGroups(groups: StageGroup[]): { left: StageGroup[]; right: StageGroup[] } {
-  const total = groups.reduce((n, g) => n + g.bills.length, 0);
-  const target = Math.ceil(total / 2);
-  let leftCount = 0;
-  let splitAt = groups.length;
-  for (let i = 0; i < groups.length; i++) {
-    if (leftCount >= target) { splitAt = i; break; }
-    leftCount += groups[i].bills.length;
-  }
-  return { left: groups.slice(0, splitAt), right: groups.slice(splitAt) };
-}
-
 function billStatus(bill: ParliamentBill): { label: string; color: string; glow: string } {
   if (bill.is_act)         return { label: 'Royal Assent', color: '#10B981', glow: '#10B98166' };
   if (bill.is_defeated)    return { label: 'Defeated',     color: '#EF4444', glow: '#EF444466' };
@@ -142,226 +121,60 @@ function isVoteOpen(bill: ParliamentBill): boolean {
   return s === '' || s.includes('first reading') || s.includes('second reading');
 }
 
-function fmtVotes(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}k`;
-  return String(n);
-}
+/* ── Card ───────────────────────────────────────────────────────────────── */
 
-function clip(s: string | null, n: number): string {
-  if (!s) return '—';
-  return s.length > n ? s.slice(0, n - 1) + '…' : s;
-}
-
-function fmtCountdown(dateStr: string | null | undefined): string {
-  if (!dateStr) return 'closes TBD';
-  const diff = new Date(dateStr).getTime() - Date.now();
-  if (diff <= 0) return 'vote closed';
-  const days = Math.floor(diff / 86_400_000);
-  if (days >= 14) {
-    const d = new Date(dateStr);
-    return `closes ${d.getDate()} ${d.toLocaleString('en-GB', { month: 'short' })}`;
-  }
-  const hours = Math.floor((diff % 86_400_000) / 3_600_000);
-  if (days > 0) return `closes in ${days}d ${hours}h`;
-  const mins = Math.floor((diff % 3_600_000) / 60_000);
-  if (hours > 0) return `closes in ${hours}h`;
-  return `closes in ${mins}m`;
-}
-
-/* ── Vote cells ─────────────────────────────────────────────────────────── */
-
-/** Second-reading public shadow vote with ✓ next to winning side */
-function ShadowVoteCell({ votes, isOpen }: { votes?: BillVotes; isOpen: boolean }) {
-  if (isOpen) {
-    return (
-      <div className="flex flex-col items-end gap-xxs">
-        <span className="font-mono" style={{ color: '#D4AF37', fontSize: '12px', letterSpacing: '0.06em' }}>Voting open</span>
-        <span className="font-mono" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '11px', opacity: 0.55 }}>
-          {fmtCountdown(votes?.secondReadingDate)}
-        </span>
-      </div>
-    );
-  }
-  if (!votes) {
-    return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '12px' }}>—</span>;
-  }
-  const ayeWins = votes.shadowAyes >= votes.shadowNoes;
-  return (
-    <div className="flex flex-col items-end gap-xxs">
-      <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '12px', letterSpacing: '0.02em' }}>
-        {ayeWins ? '✓ ' : ''}↑ {fmtVotes(votes.shadowAyes)}
-      </span>
-      <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '12px', letterSpacing: '0.02em' }}>
-        {!ayeWins ? '✓ ' : ''}↓ {fmtVotes(votes.shadowNoes)}
-      </span>
-    </div>
-  );
-}
-
-/** Government division at the bill's current stage with ✓ next to winning side */
-function GovDivisionCell({ votes, bill }: { votes?: BillVotes; bill: ParliamentBill }) {
-  if (votes?.parliamentAyes) {
-    const ayeWins = votes.parliamentAyes >= (votes.parliamentNoes ?? 0);
-    return (
-      <div className="flex flex-col items-end gap-xxs">
-        <span className="font-mono tabular-nums" style={{ color: '#10B981', fontSize: '12px', letterSpacing: '0.02em' }}>
-          {ayeWins ? '✓ ' : ''}{votes.parliamentAyes} Aye
-        </span>
-        <span className="font-mono tabular-nums" style={{ color: '#EF4444', fontSize: '12px', letterSpacing: '0.02em' }}>
-          {!ayeWins ? '✓ ' : ''}{votes.parliamentNoes} No
-        </span>
-      </div>
-    );
-  }
-
-  const stage = (bill.current_stage_name ?? '').toLowerCase();
-  const isFirstReading  = stage.includes('first reading');
-  const isSecondReading = stage.includes('second reading');
-
-  if (isFirstReading) {
-    return (
-      <span className="font-mono text-right block" style={{ color: '#FAF6ED', fontSize: '10px', opacity: 0.35, letterSpacing: '0.04em', lineHeight: 1.4 }}>
-        No vote at<br />first reading
-      </span>
-    );
-  }
-
-  if (isSecondReading) {
-    return (
-      <span className="font-mono text-right block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.06em', lineHeight: 1.4 }}>
-        Vote<br />pending
-      </span>
-    );
-  }
-
-  return <span className="font-mono" style={{ color: '#FAF6ED', opacity: 0.2, fontSize: '12px' }}>—</span>;
-}
-
-/* ── Panel sub-component ────────────────────────────────────────────────── */
-
-function PanelColumnHeaders() {
-  return (
-    <div
-      className="grid items-center px-md"
-      style={{
-        gridTemplateColumns: PANEL_GRID,
-        gap: PANEL_GAP,
-        height: 48,
-        borderBottom: '1px solid rgba(184,150,12,0.25)',
-        background: 'rgba(27,67,50,0.45)',
-      }}
-    >
-      <div />
-      <span className="font-mono uppercase" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.18em' }}>Bill</span>
-      <div className="text-right">
-        <span className="font-mono uppercase block" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.14em' }}>Public Vote</span>
-        <span className="font-mono block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.08em' }}>2nd Reading</span>
-      </div>
-      <div className="text-right">
-        <span className="font-mono uppercase block" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.14em' }}>Gov. Vote</span>
-        <span className="font-mono block" style={{ color: '#D4AF37', fontSize: '10px', opacity: 0.7, letterSpacing: '0.08em' }}>Current stage</span>
-      </div>
-      <span className="font-mono uppercase text-right" style={{ color: '#FAF6ED', fontSize: '11px', letterSpacing: '0.18em' }}>Status</span>
-    </div>
-  );
-}
-
-function StageGroupHeader({ stage, count, first }: { stage: string; count: number; first: boolean }) {
-  return (
-    <div
-      style={{
-        borderBottom: '1px solid rgba(184,150,12,0.12)',
-        borderTop: first ? undefined : '1px solid rgba(184,150,12,0.08)',
-        background: 'rgba(184,150,12,0.035)',
-        padding: '6px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}
-    >
-      <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.2em' }}>
-        {stage}
-      </span>
-      <span className="font-mono" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.38 }}>
-        · {count}
-      </span>
-    </div>
-  );
-}
-
-interface BillRowProps {
-  bill: ParliamentBill;
-  votes?: BillVotes;
-  rowH: number;
-}
-
-function BillRow({ bill, votes, rowH }: BillRowProps) {
-  const st    = billStatus(bill);
+function BillKanbanCard({ bill, votes }: { bill: ParliamentBill; votes?: BillVotes }) {
+  const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
+  const hasVotes = !!votes && (votes.shadowAyes > 0 || votes.shadowNoes > 0);
 
   return (
-    <Link
-      href={`/bills/${bill.id}`}
-      className="no-underline grid items-center"
-      style={{
-        gridTemplateColumns: PANEL_GRID,
-        gap: PANEL_GAP,
-        height: rowH,
-        padding: '0 16px',
-        borderBottom: '1px solid rgba(184,150,12,0.08)',
-        transition: 'background 0.15s ease',
-      }}
-      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(27,67,50,0.35)')}
-      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-    >
-      {/* Pip */}
-      <span
-        className="w-1.5 h-1.5 rounded-full inline-block"
-        style={{ background: st.color, boxShadow: `0 0 7px ${st.glow}` }}
-      />
-
-      {/* Bill + stage */}
-      <div className="min-w-0">
-        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '15px', lineHeight: '1.3' }}>
-          {clip(bill.short_title ?? bill.long_title, 70)}
-        </p>
-        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.6, marginTop: '3px' }}>
-          {clip(bill.current_stage_name, 50)}
-        </p>
-      </div>
-
-      {/* Public 2R vote */}
-      <div className="text-right">
-        <ShadowVoteCell votes={votes} isOpen={vOpen} />
-      </div>
-
-      {/* Gov vote */}
-      <div className="text-right">
-        <GovDivisionCell votes={votes} bill={bill} />
-      </div>
-
-      {/* Vote / status */}
-      <div className="flex justify-end">
-        {vOpen ? (
-          <span
-            className="font-mono inline-block"
-            style={{
-              color: '#D4AF37',
-              fontSize: '12px',
-              letterSpacing: '0.08em',
-              border: '1px solid rgba(212,175,55,0.45)',
-              lineHeight: '26px',
-              padding: '0 10px',
-              borderRadius: '2px',
-              background: 'rgba(212,175,55,0.06)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Vote →
+    <Link href={`/bills/${bill.id}`} className="kanban-card" style={{ borderLeftColor: st.color }}>
+      <div className="flex items-center gap-xs mb-xs">
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
+        {bill.current_house && (
+          <span className="font-mono uppercase truncate" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.12em', opacity: 0.6 }}>
+            {bill.current_house}
           </span>
+        )}
+      </div>
+
+      <h3 className="font-medium" style={{ color: '#FAF6ED', fontSize: '14px', lineHeight: 1.35 }}>
+        {clipText(bill.short_title ?? bill.long_title, 84)}
+      </h3>
+
+      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
+        {vOpen ? (
+          <div className="flex items-center justify-between gap-sm">
+            <div className="flex flex-col gap-xxs min-w-0">
+              <span className="font-mono" style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '0.06em' }}>
+                Voting open
+              </span>
+              <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
+                {formatCountdown(votes?.secondReadingDate, 'vote closed')}
+              </span>
+            </div>
+            <span
+              className="font-mono shrink-0"
+              style={{
+                color: '#D4AF37',
+                fontSize: '11px',
+                letterSpacing: '0.06em',
+                border: '1px solid rgba(212,175,55,0.45)',
+                lineHeight: '22px',
+                padding: '0 8px',
+                borderRadius: '2px',
+                background: 'rgba(212,175,55,0.06)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Vote →
+            </span>
+          </div>
+        ) : hasVotes ? (
+          <VoteBar forCount={votes!.shadowAyes} againstCount={votes!.shadowNoes} forLabel="Aye" againstLabel="No" />
         ) : (
-          <span className="font-mono" style={{ color: st.color, fontSize: '12px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+          <span className="font-mono" style={{ color: st.color, fontSize: '11px', letterSpacing: '0.05em' }}>
             {st.label}
           </span>
         )}
@@ -370,40 +183,20 @@ function BillRow({ bill, votes, rowH }: BillRowProps) {
   );
 }
 
-function ColumnPanel({ groups, votes, rowH }: { groups: StageGroup[]; votes: Record<number, BillVotes>; rowH: number }) {
+function BillKanbanColumn({ group, votes }: { group: StageGroup; votes: Record<number, BillVotes> }) {
   return (
-    <div className="flex-1 min-w-0">
-      <PanelColumnHeaders />
-      {groups.map((group, gi) => (
-        <div key={group.stage}>
-          <StageGroupHeader stage={group.stage} count={group.bills.length} first={gi === 0} />
-          {group.bills.map(bill => (
-            <BillRow key={bill.id} bill={bill} votes={votes[bill.id]} rowH={rowH} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── Ghost skeleton ─────────────────────────────────────────────────────── */
-
-function GhostRow({ index }: { index: number }) {
-  const widths = [72, 58, 65, 48, 70, 54, 62, 44];
-  const w = widths[index % widths.length];
-  const o = Math.max(0.22, 0.5 - index * 0.035);
-  const delay = `${index * 0.18}s`;
-  return (
-    <div
-      className="flex items-center gap-md px-md"
-      style={{ height: ROW_H_MOBILE, borderBottom: '1px solid rgba(184,150,12,0.08)' }}
-    >
-      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#B8960C', opacity: o * 1.5, animationName: 'ledger-pulse', animationDuration: '2.4s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite', animationDelay: delay }} />
-      <div className="flex-1 min-w-0 flex flex-col gap-xxs">
-        <div className="h-2.5 rounded-sm" style={{ background: 'rgba(250,246,237,0.12)', width: `${w}%`, opacity: o, animationName: 'ledger-pulse', animationDuration: '2.8s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite', animationDelay: delay }} />
-        <div className="h-1.5 rounded-sm" style={{ background: 'rgba(184,150,12,0.18)', width: `${Math.round(w * 0.55)}%`, opacity: o * 0.75 }} />
+    <div className="kanban-column">
+      <div className="kanban-column__header">
+        <span className="font-mono uppercase truncate" style={{ color: '#FAF6ED', fontSize: '12px', letterSpacing: '0.14em' }}>
+          {group.stage}
+        </span>
+        <span className="kanban-column__count">{group.bills.length}</span>
       </div>
-      <div className="w-14 h-2 rounded-sm shrink-0" style={{ background: 'rgba(184,150,12,0.14)', opacity: o }} />
+      <div className="kanban-column__body">
+        {group.bills.map(bill => (
+          <BillKanbanCard key={bill.id} bill={bill} votes={votes[bill.id]} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -411,19 +204,14 @@ function GhostRow({ index }: { index: number }) {
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 export default function DepartureBoardSection({ bills }: Props) {
-  const [offset, setOffset]   = useState(0);
-  const [sliding, setSliding] = useState(false);
-  const [clock, setClock]     = useState('');
-  const [date, setDate]       = useState('');
+  const [clock, setClock] = useState('');
+  const [date, setDate]   = useState('');
 
   const isDemo  = bills.length === 0;
   const display = isDemo ? DEMO_BILLS : bills;
   const votes   = isDemo ? DEMO_VOTES : ({} as Record<number, BillVotes>);
+  const groups  = groupByStage(display);
 
-  const groups                = groupByStage(display);
-  const { left, right }       = splitGroups(groups);
-
-  // Mobile cycling
   useEffect(() => {
     function tick() {
       const now = new Date();
@@ -435,22 +223,8 @@ export default function DepartureBoardSection({ bills }: Props) {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    if (display.length <= VISIBLE_MOBILE) return;
-    const id = setInterval(() => setSliding(true), TICK_MS);
-    return () => clearInterval(id);
-  }, [display.length]);
-
-  function onTransitionEnd() {
-    setOffset(prev => (prev + 1) % display.length);
-    setSliding(false);
-  }
-
-  const mobileCount = Math.min(VISIBLE_MOBILE + 1, display.length);
-  const mobileRows  = Array.from({ length: mobileCount }, (_, i) => display[(offset + i) % display.length]);
-
   return (
-    <section style={{ background: 'linear-gradient(to bottom, #171717 0px, #0A1E12 64px)' }}>
+    <section style={{ background: 'linear-gradient(180deg, #0c1610 0%, #0a1d12 45%, #071108 100%)' }}>
       <div className="max-w-[1680px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
 
         {/* ── Section header ──────────────────────────────────────────── */}
@@ -471,7 +245,7 @@ export default function DepartureBoardSection({ bills }: Props) {
               The Bill Board.
             </h2>
             <p className="font-mono hidden sm:block" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
-              Public votes cast at Second Reading · Government divisions at current stage
+              Every stage, one board · public shadow votes cast at Second Reading
             </p>
           </div>
           <div className="hidden sm:flex flex-col items-end gap-xxs shrink-0">
@@ -485,108 +259,36 @@ export default function DepartureBoardSection({ bills }: Props) {
         </div>
 
         {/* ── Board panel ─────────────────────────────────────────────── */}
-        <div
-          style={{
-            border: '1px solid rgba(184,150,12,0.32)',
-            borderTop: '1px solid rgba(184,150,12,0.6)',
-            background: '#071108',
-            boxShadow: '0 0 0 4px rgba(184,150,12,0.03), 0 16px 60px rgba(0,0,0,0.75), inset 0 1px 0 rgba(184,150,12,0.12)',
-          }}
-        >
+        <div className="ledger-frame relative" style={{ background: 'rgba(7, 17, 8, 0.6)' }}>
+          <div className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px] z-10"><FiligreeCorner size={52} /></div>
+          <div className="absolute top-0 right-0 translate-x-[2px] -translate-y-[2px] z-10"><FiligreeCorner size={52} flipH /></div>
+          <div className="absolute bottom-0 left-0 -translate-x-[2px] translate-y-[2px] z-10"><FiligreeCorner size={52} flipV /></div>
+          <div className="absolute bottom-0 right-0 translate-x-[2px] translate-y-[2px] z-10"><FiligreeCorner size={52} flipH flipV /></div>
 
-          {/* ── Desktop (lg+): two-column stage-grouped layout ───────── */}
-          {display.length > 0 ? (
-            <div className="hidden lg:flex" style={{ minHeight: '320px' }}>
-              <ColumnPanel groups={left}  votes={votes} rowH={68} />
-              <div style={{ width: '1px', background: 'rgba(184,150,12,0.14)', flexShrink: 0 }} />
-              <ColumnPanel groups={right} votes={votes} rowH={68} />
+          <div className="py-lg px-md sm:px-lg">
+            <div className="flex justify-end mb-sm">
+              <span className="font-mono uppercase" style={{ color: 'rgba(184,150,12,0.45)', fontSize: '10px', letterSpacing: '0.14em' }}>
+                Scroll for every stage →
+              </span>
             </div>
-          ) : (
-            <div className="hidden lg:grid" style={{ gridTemplateColumns: '1fr 1px 1fr' }}>
-              <div>
-                <PanelColumnHeaders />
-                {Array.from({ length: 7 }).map((_, i) => <GhostRow key={i} index={i} />)}
-              </div>
-              <div style={{ background: 'rgba(184,150,12,0.14)' }} />
-              <div>
-                <PanelColumnHeaders />
-                {Array.from({ length: 7 }).map((_, i) => <GhostRow key={`r${i}`} index={i + 7} />)}
-              </div>
+            <div className="kanban-scroll">
+              {groups.map(group => (
+                <BillKanbanColumn key={group.stage} group={group} votes={votes} />
+              ))}
             </div>
-          )}
-
-          {/* ── Tablet (sm–lg): single full-width panel, all groups ───── */}
-          {display.length > 0 ? (
-            <div className="hidden sm:block lg:hidden">
-              <ColumnPanel groups={[...left, ...right]} votes={votes} rowH={62} />
-            </div>
-          ) : (
-            <div className="hidden sm:block lg:hidden">
-              <PanelColumnHeaders />
-              {Array.from({ length: 10 }).map((_, i) => <GhostRow key={i} index={i} />)}
-            </div>
-          )}
-
-          {/* ── Mobile (<sm): single cycling column ──────────────────── */}
-          <div className="sm:hidden" style={{ height: Math.min(VISIBLE_MOBILE, display.length || VISIBLE_MOBILE) * ROW_H_MOBILE, overflow: 'hidden' }}>
-            {display.length > 0 ? (
-              <div
-                style={{
-                  transform: sliding ? `translateY(-${ROW_H_MOBILE}px)` : 'translateY(0)',
-                  transition: sliding ? 'transform 0.6s cubic-bezier(0.4,0,0.2,1)' : 'none',
-                }}
-                onTransitionEnd={onTransitionEnd}
-              >
-                {mobileRows.map((bill, i) => {
-                  const st    = billStatus(bill);
-                  const vOpen = isVoteOpen(bill);
-                  return (
-                    <Link
-                      key={`${bill.id}-${offset + i}`}
-                      href={`/bills/${bill.id}`}
-                      className="no-underline flex items-center gap-sm"
-                      style={{ height: ROW_H_MOBILE, padding: '0 16px', borderBottom: '1px solid rgba(184,150,12,0.1)', transition: 'background 0.15s ease' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(27,67,50,0.35)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '14px' }}>
-                          {clip(bill.short_title ?? bill.long_title, 52)}
-                        </p>
-                        <p className="font-mono truncate" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.65 }}>
-                          {clip(bill.current_stage_name, 38)}
-                        </p>
-                      </div>
-                      {vOpen ? (
-                        <span className="font-mono shrink-0 px-xs py-xxs" style={{ color: '#D4AF37', fontSize: '11px', letterSpacing: '0.08em', border: '1px solid rgba(212,175,55,0.4)', borderRadius: '2px' }}>
-                          Vote
-                        </span>
-                      ) : (
-                        <span className="font-mono shrink-0" style={{ color: st.color, fontSize: '11px', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-                          {st.label}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              Array.from({ length: VISIBLE_MOBILE }).map((_, i) => <GhostRow key={i} index={i} />)
-            )}
           </div>
 
           {/* Footer */}
           <div
-            className="flex items-center justify-between px-md sm:px-lg"
-            style={{ height: 36, borderTop: '1px solid rgba(184,150,12,0.2)', background: 'rgba(184,150,12,0.03)' }}
+            className="flex items-center justify-between flex-wrap gap-xs px-md sm:px-lg py-xs"
+            style={{ minHeight: 36, borderTop: '1px solid rgba(184,150,12,0.2)', background: 'rgba(184,150,12,0.03)' }}
           >
             <span className="font-mono" style={{ color: '#B8960C', opacity: 0.45, fontSize: '11px' }}>
               {isDemo
                 ? 'Demo data · connect the backend for live bills'
                 : `${bills.length} bills tracked · refreshes automatically`}
             </span>
-            <Link href="/bills" className="font-mono no-underline" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
+            <Link href="/bills" className="font-mono no-underline shrink-0" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
               View all →
             </Link>
           </div>
