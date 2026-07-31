@@ -16,9 +16,10 @@ describe('VoteBar', () => {
     expect(screen.queryByText(/✓ Approve/)).not.toBeInTheDocument();
   });
 
-  it('formats large vote counts', () => {
+  it('shows large vote counts in full, never abbreviated', () => {
     render(<VoteBar forCount={18400} againstCount={6200} forLabel="Aye" againstLabel="No" />);
-    expect(screen.getByText(/18K/)).toBeInTheDocument();
-    expect(screen.getByText(/6K/)).toBeInTheDocument();
+    expect(screen.getByText(/18,400/)).toBeInTheDocument();
+    expect(screen.getByText(/6,200/)).toBeInTheDocument();
+    expect(screen.queryByText(/18K/)).not.toBeInTheDocument();
   });
 });

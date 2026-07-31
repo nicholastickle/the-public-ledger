@@ -2,15 +2,18 @@ import { describe, it, expect } from 'vitest';
 import { formatVotes, formatBillDate, formatTimeAgo, formatCountdown, clipText } from '@/app/lib/utils';
 
 describe('formatVotes', () => {
-  it('formats millions with one decimal', () => {
-    expect(formatVotes(1_000_000)).toBe('1.0M');
-    expect(formatVotes(2_400_000)).toBe('2.4M');
+  it('shows the exact count with thousands separators, never abbreviated', () => {
+    expect(formatVotes(1_000_000)).toBe('1,000,000');
+    expect(formatVotes(2_400_000)).toBe('2,400,000');
+    expect(formatVotes(100_000)).toBe('100,000');
+    expect(formatVotes(18_400)).toBe('18,400');
+    expect(formatVotes(1_000)).toBe('1,000');
   });
 
-  it('formats thousands with no decimal', () => {
-    expect(formatVotes(100_000)).toBe('100K');
-    expect(formatVotes(50_000)).toBe('50K');
-    expect(formatVotes(1_000)).toBe('1K');
+  it('never abbreviates to K or M', () => {
+    for (const n of [1_000, 10_400, 50_000, 1_000_000]) {
+      expect(formatVotes(n)).not.toMatch(/[KM]/);
+    }
   });
 
   it('formats sub-thousand amounts as-is', () => {

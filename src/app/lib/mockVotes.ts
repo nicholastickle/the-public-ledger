@@ -93,6 +93,21 @@ export function aiAggregate(opinions: AiModelOpinion[]): { approve: number; reje
   };
 }
 
+/**
+ * Where the government's own vote has got to.
+ *  - `voted`   — the division has happened; a tally is available.
+ *  - `pending` — Parliament has not voted yet. `scheduledDate` is when it is
+ *                expected to (a bill's Second Reading date, or an instrument's
+ *                parliamentary deadline), where that is known.
+ *  - `none`    — there will be no parliamentary vote (e.g. withdrawn before one).
+ */
+export interface GovVote {
+  status: 'voted' | 'pending' | 'none';
+  scheduledDate?: string | null;
+  for?: number;
+  against?: number;
+}
+
 /** Deterministic mock government (parliamentary) division tally, correlated with but distinct from the citizen tally. */
 export function mockGovTally(seed: number, citizenFor: number, citizenAgainst: number): { for: number; against: number } {
   const rand = mulberry32(seed * 733 + 17);

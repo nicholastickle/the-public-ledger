@@ -27,9 +27,9 @@ describe('BillCard', () => {
     expect(screen.getByText('35%')).toBeInTheDocument();
   });
 
-  it('renders formatted vote count', () => {
+  it('renders the exact vote count, not an abbreviation', () => {
     render(<BillCard bill={mockBill} />);
-    expect(screen.getByText('100K votes cast')).toBeInTheDocument();
+    expect(screen.getByText('100,000 votes cast')).toBeInTheDocument();
   });
 
   it('renders a Vote link pointing to the bill page', () => {

@@ -40,11 +40,25 @@ describe('BillDetailModal', () => {
     expect(screen.getByText('Royal Assent')).toBeInTheDocument();
   });
 
-  it('shows vote buttons for an open bill and keeps Parliament/AI verdicts hidden before voting', () => {
+  it('keeps the citizen tally and AI verdicts hidden until the citizen votes', () => {
     render(<BillDetailModal bill={OPEN_BILL} votes={{ shadowAyes: 100, shadowNoes: 40 }} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByRole('button', { name: 'Aye' })).toBeInTheDocument();
-    expect(screen.queryByText('Parliament')).not.toBeInTheDocument();
+    // No citizen tally leaks before voting.
+    expect(screen.queryByText(/Aye 100/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Cast your vote above to reveal/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Vote to reveal/i).length).toBeGreaterThan(0);
+  });
+
+  it('shows a government-vote-pending indicator while the citizen window is open', () => {
+    render(
+      <BillDetailModal
+        bill={OPEN_BILL}
+        votes={{ shadowAyes: 100, shadowNoes: 40, secondReadingDate: '2026-08-12' }}
+        voted="for" onVote={() => {}} onClose={() => {}}
+      />
+    );
+    expect(screen.getByText(/Government vote pending/i)).toBeInTheDocument();
+    expect(screen.getByText(/12 Aug 2026/)).toBeInTheDocument();
   });
 
   it('calls onVote when a vote button is clicked', () => {
@@ -54,17 +68,19 @@ describe('BillDetailModal', () => {
     expect(onVote).toHaveBeenCalledWith('for');
   });
 
-  it('reveals Parliament and AI verdicts once the citizen has voted', () => {
+  it('reveals the citizen tally and AI verdicts once the citizen has voted', () => {
     render(<BillDetailModal bill={OPEN_BILL} votes={{ shadowAyes: 100, shadowNoes: 40 }} voted="for" onVote={() => {}} onClose={() => {}} />);
-    expect(screen.getByText('Parliament')).toBeInTheDocument();
+    expect(screen.getByText(/Aye 101/)).toBeInTheDocument();
     expect(screen.queryAllByText(/Vote to reveal/i)).toHaveLength(0);
   });
 
-  it('shows no vote buttons for an enacted bill and reveals tallies as already-closed record', () => {
+  it('shows no vote buttons for an enacted bill and reveals both tallies as already-closed record', () => {
     render(<BillDetailModal bill={ENACTED_BILL} votes={{ shadowAyes: 500, shadowNoes: 90 }} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.queryByRole('button', { name: 'Aye' })).not.toBeInTheDocument();
     expect(screen.getByText(/Royal Assent — voting has closed/i)).toBeInTheDocument();
     expect(screen.getByText('Parliament')).toBeInTheDocument();
+    expect(screen.getByText(/Aye 500/)).toBeInTheDocument();
+    expect(screen.queryByText(/Government vote pending/i)).not.toBeInTheDocument();
   });
 
   it('calls onClose when the close button is clicked', () => {

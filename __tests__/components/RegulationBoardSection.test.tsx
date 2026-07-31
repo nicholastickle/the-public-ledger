@@ -106,6 +106,22 @@ describe('RegulationBoardSection', () => {
     expect(within(dialog).getByRole('heading', { name: /The Test \(Amendment\) Regulations 2026/i })).toBeInTheDocument();
   });
 
+  it('marks a card the citizen has voted on and sorts it to the front of its phase', () => {
+    const first  = regAt({ id: 201, title: 'The Alpha Regulations 2026' });
+    const second = regAt({ id: 202, title: 'The Beta Regulations 2026' });
+    render(<RegulationBoardSection regulations={[first, second]} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /The Beta Regulations 2026/i }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Annul' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
+
+    const cards = document.querySelectorAll('.board-card');
+    expect(cards[0].textContent).toMatch(/The Beta Regulations 2026/);
+    expect(cards[0]).toHaveAttribute('data-voted', 'true');
+    expect(cards[1]).not.toHaveAttribute('data-voted');
+    expect(screen.getByText(/You voted Annul/i)).toBeInTheDocument();
+  });
+
   it('shows "Voting open" when vote is open', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     expect(screen.getAllByText(/Voting open/i).length).toBeGreaterThan(0);

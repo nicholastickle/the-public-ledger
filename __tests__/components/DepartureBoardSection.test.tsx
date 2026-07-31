@@ -95,6 +95,23 @@ describe('DepartureBoardSection', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('marks a card the citizen has voted on and sorts it to the front of its stage', () => {
+    const first  = billAt({ id: 201, short_title: 'Alpha Bill', current_stage_name: 'Second Reading' });
+    const second = billAt({ id: 202, short_title: 'Beta Bill',  current_stage_name: 'Second Reading' });
+    render(<DepartureBoardSection bills={[first, second]} />);
+
+    // Vote on the second card via its modal.
+    fireEvent.click(screen.getByRole('button', { name: /Beta Bill/i }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Aye' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
+
+    const cards = document.querySelectorAll('.board-card');
+    expect(cards[0].textContent).toMatch(/Beta Bill/);
+    expect(cards[0]).toHaveAttribute('data-voted', 'true');
+    expect(cards[1]).not.toHaveAttribute('data-voted');
+    expect(screen.getByText(/You voted Aye/i)).toBeInTheDocument();
+  });
+
   it('never reveals the originating house of a bill', () => {
     const bill = billAt({ id: 104, short_title: 'Origin Test Bill', originating_house: 'Lords', current_house: 'Commons' });
     render(<DepartureBoardSection bills={[bill]} />);

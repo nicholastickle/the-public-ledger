@@ -146,18 +146,29 @@ export function isVoteOpen(bill: ParliamentBill): boolean {
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
-function BillGridCard({ bill, votes, onSelect }: { bill: ParliamentBill; votes?: BillVotes; onSelect: () => void }) {
+function BillGridCard({ bill, votes, myVote, onSelect }: { bill: ParliamentBill; votes?: BillVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
   const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
   const hasVotes = !!votes && (votes.shadowAyes > 0 || votes.shadowNoes > 0);
 
   return (
-    <button type="button" onClick={onSelect} className="board-card" style={{ borderLeftColor: st.color }}>
+    <button
+      type="button"
+      onClick={onSelect}
+      className="board-card"
+      data-voted={myVote ? 'true' : undefined}
+      style={{ borderLeftColor: myVote ? '#D4AF37' : st.color }}
+    >
       <div className="flex items-center gap-xs mb-xs">
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
         {bill.current_house && (
           <span className="font-mono uppercase truncate" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.12em', opacity: 0.6 }}>
             {bill.current_house}
+          </span>
+        )}
+        {myVote && (
+          <span className="board-card__voted-badge">
+            ✓ You voted {myVote === 'for' ? 'Aye' : 'No'}
           </span>
         )}
       </div>
@@ -274,9 +285,19 @@ export default function DepartureBoardSection({ bills }: Props) {
               <span className="kanban-column__count">{group.bills.length}</span>
             </div>
             <div className="board-card-grid">
-              {group.bills.map(bill => (
-                <BillGridCard key={bill.id} bill={bill} votes={votes[bill.id]} onSelect={() => setSelectedId(bill.id)} />
-              ))}
+              {/* Bills the citizen has already voted on sort to the front, so they
+                  can track their own votes as each bill moves between stages. */}
+              {[...group.bills]
+                .sort((a, b) => Number(!!votedMap[b.id]) - Number(!!votedMap[a.id]))
+                .map(bill => (
+                  <BillGridCard
+                    key={bill.id}
+                    bill={bill}
+                    votes={votes[bill.id]}
+                    myVote={votedMap[bill.id]}
+                    onSelect={() => setSelectedId(bill.id)}
+                  />
+                ))}
             </div>
           </div>
         ))}

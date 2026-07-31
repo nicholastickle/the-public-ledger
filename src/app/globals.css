@@ -1049,6 +1049,35 @@ body {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
   }
+  /* Cards the citizen has voted on — lifted so they read as "mine" at a glance
+     while scanning a stage, and sorted to the front of their section. */
+  .board-card[data-voted='true'] {
+    background: rgba(212, 175, 55, 0.07);
+    border-color: rgba(212, 175, 55, 0.4);
+  }
+  .board-card__voted-badge {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #e8c840;
+    background: rgba(212, 175, 55, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 2px;
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+
+  .voting-panel__pending {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.07);
+    border: 1px dashed rgba(212, 175, 55, 0.35);
+    border-radius: 4px;
+    padding: 8px 12px;
+  }
 
   /* ── Modal shell ──────────────────────────────────────────────────── */
   .ledger-modal-panel {

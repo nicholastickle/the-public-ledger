@@ -1,7 +1,8 @@
+/** Full vote counts with thousands separators — never abbreviated to K/M.
+ *  A shadow vote is a count of real people; rounding 10,400 to "10K" hides
+ *  400 of them. */
 export function formatVotes(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return `${n}`;
+  return n.toLocaleString('en-GB');
 }
 
 export function formatBillDate(isoDate: string): string {

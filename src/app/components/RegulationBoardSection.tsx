@@ -185,13 +185,19 @@ function ProcedureBadge({ reg }: { reg: ParliamentRegulation }) {
   );
 }
 
-function RegulationGridCard({ reg, votes, onSelect }: { reg: ParliamentRegulation; votes?: RegulationVotes; onSelect: () => void }) {
+function RegulationGridCard({ reg, votes, myVote, onSelect }: { reg: ParliamentRegulation; votes?: RegulationVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
   const st = regulationStatus(reg);
   const vOpen = isVoteOpen(reg);
   const hasVotes = !!votes && (votes.shadowApprove > 0 || votes.shadowAnnul > 0);
 
   return (
-    <button type="button" onClick={onSelect} className="board-card" style={{ borderLeftColor: st.color }}>
+    <button
+      type="button"
+      onClick={onSelect}
+      className="board-card"
+      data-voted={myVote ? 'true' : undefined}
+      style={{ borderLeftColor: myVote ? '#D4AF37' : st.color }}
+    >
       <div className="flex items-center justify-between gap-xs mb-xs">
         <div className="flex items-center gap-xs min-w-0">
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
@@ -203,6 +209,13 @@ function RegulationGridCard({ reg, votes, onSelect }: { reg: ParliamentRegulatio
         </div>
         <ProcedureBadge reg={reg} />
       </div>
+      {myVote && (
+        <div className="mb-xs">
+          <span className="board-card__voted-badge">
+            ✓ You voted {myVote === 'for' ? 'Approve' : 'Annul'}
+          </span>
+        </div>
+      )}
 
       <h3 className="font-medium" style={{ color: '#FAF6ED', fontSize: '14px', lineHeight: 1.35 }}>
         {clipText(reg.title, 84)}
@@ -298,9 +311,19 @@ export default function RegulationBoardSection({ regulations }: Props) {
               <span className="kanban-column__count">{group.regulations.length}</span>
             </div>
             <div className="board-card-grid">
-              {group.regulations.map(reg => (
-                <RegulationGridCard key={reg.id} reg={reg} votes={votes[reg.id]} onSelect={() => setSelectedId(reg.id)} />
-              ))}
+              {/* Instruments the citizen has already voted on sort to the front, so
+                  they can track their own votes as each one moves between phases. */}
+              {[...group.regulations]
+                .sort((a, b) => Number(!!votedMap[b.id]) - Number(!!votedMap[a.id]))
+                .map(reg => (
+                  <RegulationGridCard
+                    key={reg.id}
+                    reg={reg}
+                    votes={votes[reg.id]}
+                    myVote={votedMap[reg.id]}
+                    onSelect={() => setSelectedId(reg.id)}
+                  />
+                ))}
             </div>
           </div>
         ))}

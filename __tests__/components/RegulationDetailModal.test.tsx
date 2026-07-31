@@ -31,11 +31,18 @@ describe('RegulationDetailModal', () => {
     expect(screen.getByText(/Test Act 2026/)).toBeInTheDocument();
   });
 
-  it('shows Approve/Annul vote buttons for a pending instrument and hides Parliament tally before voting', () => {
+  it('shows Approve/Annul vote buttons and hides all tallies before voting', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} votes={{ shadowApprove: 50, shadowAnnul: 20 }} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Annul' })).toBeInTheDocument();
-    expect(screen.queryByText('Parliament')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Approve 50/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Cast your vote above to reveal/i)).toBeInTheDocument();
+  });
+
+  it('shows a government-vote-pending indicator with the parliamentary deadline', () => {
+    render(<RegulationDetailModal regulation={PENDING_REG} votes={{ shadowApprove: 50, shadowAnnul: 20, deadline: '2026-09-01' }} voted="for" onVote={() => {}} onClose={() => {}} />);
+    expect(screen.getByText(/Government vote pending/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 Sept 2026|1 Sep 2026/)).toBeInTheDocument();
   });
 
   it('calls onVote with the chosen side', () => {
@@ -45,9 +52,10 @@ describe('RegulationDetailModal', () => {
     expect(onVote).toHaveBeenCalledWith('against');
   });
 
-  it('reveals Parliament and AI verdicts once voted', () => {
+  it('reveals the citizen tally and AI verdicts once voted', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} votes={{ shadowApprove: 50, shadowAnnul: 20 }} voted="against" onVote={() => {}} onClose={() => {}} />);
-    expect(screen.getByText('Parliament')).toBeInTheDocument();
+    expect(screen.getByText(/Annul 21/)).toBeInTheDocument();
+    expect(screen.queryAllByText(/Vote to reveal/i)).toHaveLength(0);
   });
 
   it('shows no vote buttons for a made instrument and reveals tallies as already-closed record', () => {
