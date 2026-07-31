@@ -1,110 +1,136 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
- * A best-effort, singable rendition of the "Rule, Britannia!" chorus melody
- * (Thomas Arne, 1740 — the composition is centuries out of copyright).
- * Synthesized in-browser via the Web Audio API rather than an audio file —
- * no asset to license or fetch, works offline, loops seamlessly. This is an
- * approximation from memory rather than a note-perfect transcription.
+ * Background player for the "Rule, Britannia!" tune (Thomas Arne, 1740 — the
+ * composition is centuries out of copyright; see public/audio/README.md for
+ * the recording's own licensing).
+ *
+ * The tune runs continuously from page load, muted. The toggle only lifts or
+ * reapplies the mute — it never pauses, seeks, or restarts — so unmuting drops
+ * you into wherever the tune has got to rather than back at the first bar.
  */
-const NOTE = {
-  G4: 392.0, A4: 440.0, B4: 493.88,
-  D5: 587.33, E5: 659.25, Fs5: 739.99, G5: 783.99,
-} as const;
+const AUDIO_SRC = '/audio/rule-britannia.m4a';
 
-interface Note {
-  freq: number;
-  start: number;
-  dur: number;
-}
+/** Silence between repeats of the tune. */
+const LOOP_GAP_MS = 2000;
 
-function buildMelody(): { notes: Note[]; loopDuration: number } {
-  const q = 0.42;
-  const h = q * 2;
-  const w = q * 4;
-  let t = 0;
-  const notes: Note[] = [];
-  function push(name: keyof typeof NOTE, dur: number) {
-    notes.push({ freq: NOTE[name], start: t, dur: dur * 0.92 });
-    t += dur;
+/**
+ * Playback level once unmuted. The recording itself is fairly restrained
+ * (peaks around −5 dBFS, averages around −23), and unmuting is a deliberate
+ * act, so this sits higher than a typical ambient bed would.
+ */
+const VOLUME = 0.7;
+
+/**
+ * jsdom (and any browser mid-teardown) can throw synchronously from play(),
+ * and browsers reject the returned promise when autoplay is refused. Normalise
+ * both into a rejected promise so callers only need one code path.
+ */
+function safePlay(el: HTMLAudioElement): Promise<void> {
+  try {
+    return Promise.resolve(el.play()).then(() => undefined);
+  } catch {
+    return Promise.reject(new Error('play() unavailable'));
   }
-  // "Rule, Britannia! Britannia, rule the waves:"
-  push('G4', q); push('D5', q); push('D5', q); push('E5', q); push('D5', h);
-  push('B4', q); push('G4', q); push('D5', q); push('D5', q); push('G5', h);
-  // "Britons never, never, never shall be slaves."
-  push('G5', q); push('Fs5', q); push('E5', q); push('D5', h);
-  push('E5', q); push('Fs5', q); push('G5', q); push('Fs5', q); push('E5', q); push('D5', q);
-  push('G4', w);
-  return { notes, loopDuration: t + q };
-}
-
-function getAudioContextCtor(): typeof AudioContext | undefined {
-  const w = window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
-  return w.AudioContext ?? w.webkitAudioContext;
 }
 
 export default function SoundToggle() {
-  const [playing, setPlaying] = useState(false);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const melodyRef = useRef(buildMelody());
+  const [muted, setMuted] = useState(true);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const gapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inGapRef = useRef(false);
 
+  // Start the tune on mount. Muted autoplay is permitted by every current
+  // browser, so playback is already underway before anyone touches the toggle.
+  //
+  // Playback is started here rather than with an `autoPlay` attribute on the
+  // element: React does not emit `muted` into server-rendered markup, so an
+  // autoplaying element could briefly be audible between HTML parse and
+  // hydration. Muting imperatively first removes that window entirely.
   useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.muted = true;
+    el.volume = VOLUME;
+
+    let removeFallback: (() => void) | undefined;
+    let unmounted = false;
+
+    safePlay(el).catch(() => {
+      // Some browsers (and stricter user settings) refuse even muted autoplay.
+      // Fall back to the first interaction of any kind, which is always allowed.
+      if (unmounted) return;
+      const onFirstInteraction = () => void safePlay(el).catch(() => {});
+      const opts = { once: true, passive: true } as const;
+      window.addEventListener('pointerdown', onFirstInteraction, opts);
+      window.addEventListener('keydown', onFirstInteraction, opts);
+      removeFallback = () => {
+        window.removeEventListener('pointerdown', onFirstInteraction);
+        window.removeEventListener('keydown', onFirstInteraction);
+      };
+    });
+
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      ctxRef.current?.close();
+      unmounted = true;
+      removeFallback?.();
+      if (gapTimerRef.current) clearTimeout(gapTimerRef.current);
     };
   }, []);
 
-  function scheduleLoop(ctx: AudioContext) {
-    const { notes, loopDuration } = melodyRef.current;
-    const startAt = ctx.currentTime + 0.05;
-    for (const n of notes) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = n.freq;
-      const noteStart = startAt + n.start;
-      const noteEnd = noteStart + n.dur;
-      gain.gain.setValueAtTime(0, noteStart);
-      gain.gain.linearRampToValueAtTime(0.18, noteStart + 0.02);
-      gain.gain.linearRampToValueAtTime(0, noteEnd);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(noteStart);
-      osc.stop(noteEnd + 0.02);
-    }
-    timeoutRef.current = setTimeout(() => scheduleLoop(ctx), loopDuration * 1000);
-  }
+  // The element deliberately has no `loop` attribute: looping natively would
+  // restart instantly, and the tune wants a breath between repeats.
+  const handleEnded = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    inGapRef.current = true;
+    gapTimerRef.current = setTimeout(() => {
+      inGapRef.current = false;
+      const current = audioRef.current;
+      if (!current) return;
+      current.currentTime = 0;
+      void safePlay(current).catch(() => {});
+    }, LOOP_GAP_MS);
+  }, []);
 
-  function toggle() {
-    if (playing) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      ctxRef.current?.close();
-      ctxRef.current = null;
-      setPlaying(false);
-      return;
+  const toggle = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    const nextMuted = !el.muted;
+    el.muted = nextMuted;
+    setMuted(nextMuted);
+
+    // Unmuting resumes rather than restarts. The only case where this starts
+    // playback at all is a browser that refused the muted autoplay — there the
+    // element is still sitting at zero, and this click is the gesture that
+    // releases it. Never interrupt the deliberate gap between repeats.
+    if (!nextMuted && el.paused && !inGapRef.current) {
+      void safePlay(el).catch(() => {});
     }
-    const AudioCtx = getAudioContextCtor();
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    ctxRef.current = ctx;
-    scheduleLoop(ctx);
-    setPlaying(true);
-  }
+  }, []);
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      className="sound-toggle"
-      data-playing={playing}
-      aria-pressed={playing}
-      aria-label={playing ? 'Mute Rule Britannia' : 'Play Rule Britannia'}
-      title={playing ? 'Mute' : 'Play Rule Britannia'}
-    >
-      {playing ? '🔊' : '🔇'}
-    </button>
+    <>
+      <audio
+        ref={audioRef}
+        src={AUDIO_SRC}
+        onEnded={handleEnded}
+        preload="auto"
+        muted
+        aria-hidden="true"
+      />
+      <button
+        type="button"
+        onClick={toggle}
+        className="sound-toggle"
+        data-playing={!muted}
+        aria-pressed={!muted}
+        aria-label={muted ? 'Unmute Rule Britannia' : 'Mute Rule Britannia'}
+        title={muted ? 'Unmute' : 'Mute'}
+      >
+        {muted ? '🔇' : '🔊'}
+      </button>
+    </>
   );
 }
