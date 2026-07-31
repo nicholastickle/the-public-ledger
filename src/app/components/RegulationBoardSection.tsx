@@ -213,7 +213,6 @@ function RegulationGridCard({ reg, votes, myVote, onSelect }: { reg: ParliamentR
       onClick={onSelect}
       className="board-card"
       data-voted={myVote ? 'true' : undefined}
-      style={{ borderLeftColor: myVote ? '#D4AF37' : st.color }}
     >
       <div className="flex items-center justify-between gap-xs mb-xs">
         <div className="flex items-center gap-xs min-w-0">

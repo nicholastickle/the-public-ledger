@@ -175,7 +175,6 @@ function BillGridCard({ bill, votes, myVote, onSelect }: { bill: ParliamentBill;
       onClick={onSelect}
       className="board-card"
       data-voted={myVote ? 'true' : undefined}
-      style={{ borderLeftColor: myVote ? '#D4AF37' : st.color }}
     >
       <div className="flex items-center gap-xs mb-xs">
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
