@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import DepartureBoardSection from '@/app/components/DepartureBoardSection';
 import type { ParliamentBill } from '@/app/types/parliament';
@@ -52,33 +52,47 @@ describe('DepartureBoardSection', () => {
     expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/bills');
   });
 
-  it('renders a Kanban column per bill stage with a count badge', () => {
+  it('renders a stacked stage section per bill stage with a count badge', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL, COMMITTEE_BILL]} />);
     expect(screen.getByText('Second Reading')).toBeInTheDocument();
     expect(screen.getByText('Committee Stage')).toBeInTheDocument();
     expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('shows "Vote →" button for bills at First or Second Reading', () => {
+  it('shows "View & Vote →" button for bills at First or Second Reading', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    expect(screen.getAllByText('Vote →').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/View & Vote/).length).toBeGreaterThan(0);
   });
 
-  it('does not show "Vote →" for bills past Second Reading', () => {
+  it('does not show "View & Vote →" for bills past Second Reading', () => {
     render(<DepartureBoardSection bills={[COMMITTEE_BILL]} />);
-    expect(screen.queryByText('Vote →')).not.toBeInTheDocument();
+    expect(screen.queryByText(/View & Vote/)).not.toBeInTheDocument();
   });
 
   it('shows "Royal Assent" status for enacted bills with no vote button', () => {
     render(<DepartureBoardSection bills={[ASSENTED_BILL]} />);
     expect(screen.getAllByText('Royal Assent').length).toBeGreaterThan(0);
-    expect(screen.queryByText('Cast Vote')).not.toBeInTheDocument();
+    expect(screen.queryByText(/View & Vote/)).not.toBeInTheDocument();
   });
 
-  it('links each bill card to its detail page', () => {
+  it('renders bill cards as buttons rather than navigation links', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    const links = screen.getAllByRole('link', { name: /Test Reform Bill/i });
-    expect(links[0]).toHaveAttribute('href', '/bills/101');
+    expect(screen.getByRole('button', { name: /Test Reform Bill/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Test Reform Bill/i })).not.toBeInTheDocument();
+  });
+
+  it('opens the bill detail modal when a card is clicked', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    fireEvent.click(screen.getByRole('button', { name: /Test Reform Bill/i }));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: /Test Reform Bill/i })).toBeInTheDocument();
+  });
+
+  it('closes the modal when the close button is clicked', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    fireEvent.click(screen.getByRole('button', { name: /Test Reform Bill/i }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('never reveals the originating house of a bill', () => {
@@ -88,9 +102,10 @@ describe('DepartureBoardSection', () => {
     expect(screen.getAllByText('Commons').length).toBeGreaterThan(0);
   });
 
-  it('never reveals parliamentary division/vote counts on the board', () => {
+  it('never reveals parliamentary division/vote counts on the board (only inside the gated modal)', () => {
     render(<DepartureBoardSection bills={[]} />);
     expect(screen.queryAllByText(/Gov\. Vote/i)).toHaveLength(0);
     expect(screen.queryAllByText(/Parliament(ary)? (Aye|No|Division)/i)).toHaveLength(0);
+    expect(screen.queryByText('Parliament')).not.toBeInTheDocument();
   });
 });

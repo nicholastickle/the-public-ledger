@@ -1,13 +1,17 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { ParliamentRegulation } from '../types/parliament';
 import { formatCountdown, clipText } from '../lib/utils';
 import VoteBar from './VoteBar';
+import RegulationDetailModal from './RegulationDetailModal';
 
 interface Props {
   regulations: ParliamentRegulation[];
 }
 
-interface RegulationVotes {
+export interface RegulationVotes {
   shadowApprove: number;
   shadowAnnul: number;
   deadline?: string | null;
@@ -154,14 +158,14 @@ function groupByPhase(regs: ParliamentRegulation[]): PhaseGroup[] {
   return groups;
 }
 
-function regulationStatus(reg: ParliamentRegulation): { label: string; color: string; glow: string } {
+export function regulationStatus(reg: ParliamentRegulation): { label: string; color: string; glow: string } {
   if (reg.status === 'made' || reg.status === 'approved') return { label: reg.status === 'approved' ? 'Approved' : 'Made', color: '#10B981', glow: '#10B98166' };
   if (reg.status === 'annulled')  return { label: 'Annulled',  color: '#EF4444', glow: '#EF444466' };
   if (reg.status === 'withdrawn') return { label: 'Withdrawn', color: '#6B7280', glow: '#6B728066' };
   return                                 { label: 'Pending',   color: '#D4AF37', glow: '#D4AF3766' };
 }
 
-function isVoteOpen(reg: ParliamentRegulation): boolean {
+export function isVoteOpen(reg: ParliamentRegulation): boolean {
   return reg.status === 'pending';
 }
 
@@ -181,13 +185,13 @@ function ProcedureBadge({ reg }: { reg: ParliamentRegulation }) {
   );
 }
 
-function RegulationKanbanCard({ reg, votes }: { reg: ParliamentRegulation; votes?: RegulationVotes }) {
+function RegulationGridCard({ reg, votes, onSelect }: { reg: ParliamentRegulation; votes?: RegulationVotes; onSelect: () => void }) {
   const st = regulationStatus(reg);
   const vOpen = isVoteOpen(reg);
   const hasVotes = !!votes && (votes.shadowApprove > 0 || votes.shadowAnnul > 0);
 
   return (
-    <Link href={`/regulations/${reg.id}`} className="kanban-card" style={{ borderLeftColor: st.color }}>
+    <button type="button" onClick={onSelect} className="board-card" style={{ borderLeftColor: st.color }}>
       <div className="flex items-center justify-between gap-xs mb-xs">
         <div className="flex items-center gap-xs min-w-0">
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
@@ -232,7 +236,7 @@ function RegulationKanbanCard({ reg, votes }: { reg: ParliamentRegulation; votes
                 whiteSpace: 'nowrap',
               }}
             >
-              Vote →
+              View &amp; Vote →
             </span>
           </div>
         ) : hasVotes ? (
@@ -243,35 +247,21 @@ function RegulationKanbanCard({ reg, votes }: { reg: ParliamentRegulation; votes
           </span>
         )}
       </div>
-    </Link>
-  );
-}
-
-function RegulationKanbanColumn({ group, votes }: { group: PhaseGroup; votes: Record<number, RegulationVotes> }) {
-  return (
-    <div className="kanban-column">
-      <div className="kanban-column__header">
-        <span className="font-mono uppercase truncate" style={{ color: '#FAF6ED', fontSize: '12px', letterSpacing: '0.14em' }}>
-          {group.phase}
-        </span>
-        <span className="kanban-column__count">{group.regulations.length}</span>
-      </div>
-      <div className="kanban-column__body">
-        {group.regulations.map(reg => (
-          <RegulationKanbanCard key={reg.id} reg={reg} votes={votes[reg.id]} />
-        ))}
-      </div>
-    </div>
+    </button>
   );
 }
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 export default function RegulationBoardSection({ regulations }: Props) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [votedMap, setVotedMap] = useState<Record<number, 'for' | 'against'>>({});
+
   const isDemo  = regulations.length === 0;
   const display = isDemo ? DEMO_REGULATIONS : regulations;
   const votes   = isDemo ? DEMO_VOTES : ({} as Record<number, RegulationVotes>);
   const groups  = groupByPhase(display);
+  const selectedRegulation = selectedId != null ? display.find(r => r.id === selectedId) : undefined;
 
   return (
     <section style={{ background: 'linear-gradient(180deg, #071108 0%, #050d07 55%, #030804 100%)' }}>
@@ -300,12 +290,20 @@ export default function RegulationBoardSection({ regulations }: Props) {
           </div>
         </div>
 
-        {/* ── Board grid ───────────────────────────────────────────────── */}
-        <div className="kanban-grid">
-          {groups.map(group => (
-            <RegulationKanbanColumn key={group.phase} group={group} votes={votes} />
-          ))}
-        </div>
+        {/* ── Phase sections ──────────────────────────────────────────── */}
+        {groups.map(group => (
+          <div key={group.phase} className="board-stage-section">
+            <div className="board-stage-section__header">
+              <span className="board-stage-section__title">{group.phase}</span>
+              <span className="kanban-column__count">{group.regulations.length}</span>
+            </div>
+            <div className="board-card-grid">
+              {group.regulations.map(reg => (
+                <RegulationGridCard key={reg.id} reg={reg} votes={votes[reg.id]} onSelect={() => setSelectedId(reg.id)} />
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Footer */}
         <div
@@ -331,6 +329,16 @@ export default function RegulationBoardSection({ regulations }: Props) {
           <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
         </div>
       </div>
+
+      {selectedRegulation && (
+        <RegulationDetailModal
+          regulation={selectedRegulation}
+          votes={votes[selectedRegulation.id]}
+          voted={votedMap[selectedRegulation.id] ?? null}
+          onVote={choice => setVotedMap(prev => ({ ...prev, [selectedRegulation.id]: choice }))}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
     </section>
   );
 }

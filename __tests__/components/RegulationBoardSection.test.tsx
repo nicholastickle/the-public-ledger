@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import RegulationBoardSection from '@/app/components/RegulationBoardSection';
 import type { ParliamentRegulation } from '@/app/types/parliament';
@@ -53,14 +53,14 @@ describe('RegulationBoardSection', () => {
     expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/regulations');
   });
 
-  it('shows "Vote →" button for pending regulations', () => {
+  it('shows "View & Vote →" button for pending regulations', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    expect(screen.getAllByText('Vote →').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/View & Vote/).length).toBeGreaterThan(0);
   });
 
-  it('does not show "Vote →" for made regulations', () => {
+  it('does not show "View & Vote →" for made regulations', () => {
     render(<RegulationBoardSection regulations={[MADE_REG]} />);
-    expect(screen.queryByText('Vote →')).not.toBeInTheDocument();
+    expect(screen.queryByText(/View & Vote/)).not.toBeInTheDocument();
   });
 
   it('shows "Made" status for made regulations', () => {
@@ -83,20 +83,27 @@ describe('RegulationBoardSection', () => {
     expect(screen.getAllByText(/Affirmative/i).length).toBeGreaterThan(0);
   });
 
-  it('shows "Annul Window Open" column for pending negative SIs', () => {
+  it('shows "Annul Window Open" section for pending negative SIs', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     expect(screen.getAllByText(/Annul Window Open/i).length).toBeGreaterThan(0);
   });
 
-  it('shows "Pending Approval" column for pending affirmative SIs', () => {
+  it('shows "Pending Approval" section for pending affirmative SIs', () => {
     render(<RegulationBoardSection regulations={[PENDING_AFF]} />);
     expect(screen.getAllByText(/Pending Approval/i).length).toBeGreaterThan(0);
   });
 
-  it('links each regulation card to its detail page', () => {
+  it('renders regulation cards as buttons rather than navigation links', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    const links = screen.getAllByRole('link', { name: /The Test \(Amendment\) Regulations 2026/i });
-    expect(links[0]).toHaveAttribute('href', '/regulations/1');
+    expect(screen.getByRole('button', { name: /The Test \(Amendment\) Regulations 2026/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /The Test \(Amendment\) Regulations 2026/i })).not.toBeInTheDocument();
+  });
+
+  it('opens the regulation detail modal when a card is clicked', () => {
+    render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
+    fireEvent.click(screen.getByRole('button', { name: /The Test \(Amendment\) Regulations 2026/i }));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: /The Test \(Amendment\) Regulations 2026/i })).toBeInTheDocument();
   });
 
   it('shows "Voting open" when vote is open', () => {

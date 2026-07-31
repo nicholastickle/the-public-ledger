@@ -5,12 +5,13 @@ import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
 import { formatCountdown, clipText } from '../lib/utils';
 import VoteBar from './VoteBar';
+import BillDetailModal from './BillDetailModal';
 
 interface Props {
   bills: ParliamentBill[];
 }
 
-interface BillVotes {
+export interface BillVotes {
   shadowAyes: number;
   shadowNoes: number;
   secondReadingDate?: string | null;
@@ -130,14 +131,14 @@ function groupByStage(bills: ParliamentBill[]): StageGroup[] {
   return groups;
 }
 
-function billStatus(bill: ParliamentBill): { label: string; color: string; glow: string } {
+export function billStatus(bill: ParliamentBill): { label: string; color: string; glow: string } {
   if (bill.is_act)         return { label: 'Royal Assent', color: '#10B981', glow: '#10B98166' };
   if (bill.is_defeated)    return { label: 'Defeated',     color: '#EF4444', glow: '#EF444466' };
   if (bill.bill_withdrawn) return { label: 'Withdrawn',    color: '#6B7280', glow: '#6B728066' };
   return                          { label: 'Active',       color: '#D4AF37', glow: '#D4AF3766' };
 }
 
-function isVoteOpen(bill: ParliamentBill): boolean {
+export function isVoteOpen(bill: ParliamentBill): boolean {
   if (bill.is_act || bill.is_defeated || bill.bill_withdrawn) return false;
   const s = (bill.current_stage_name ?? '').toLowerCase();
   return s === '' || s.includes('first reading') || s.includes('second reading');
@@ -145,13 +146,13 @@ function isVoteOpen(bill: ParliamentBill): boolean {
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 
-function BillKanbanCard({ bill, votes }: { bill: ParliamentBill; votes?: BillVotes }) {
+function BillGridCard({ bill, votes, onSelect }: { bill: ParliamentBill; votes?: BillVotes; onSelect: () => void }) {
   const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
   const hasVotes = !!votes && (votes.shadowAyes > 0 || votes.shadowNoes > 0);
 
   return (
-    <Link href={`/bills/${bill.id}`} className="kanban-card" style={{ borderLeftColor: st.color }}>
+    <button type="button" onClick={onSelect} className="board-card" style={{ borderLeftColor: st.color }}>
       <div className="flex items-center gap-xs mb-xs">
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
         {bill.current_house && (
@@ -190,7 +191,7 @@ function BillKanbanCard({ bill, votes }: { bill: ParliamentBill; votes?: BillVot
                 whiteSpace: 'nowrap',
               }}
             >
-              Vote →
+              View &amp; Vote →
             </span>
           </div>
         ) : hasVotes ? (
@@ -201,25 +202,7 @@ function BillKanbanCard({ bill, votes }: { bill: ParliamentBill; votes?: BillVot
           </span>
         )}
       </div>
-    </Link>
-  );
-}
-
-function BillKanbanColumn({ group, votes }: { group: StageGroup; votes: Record<number, BillVotes> }) {
-  return (
-    <div className="kanban-column">
-      <div className="kanban-column__header">
-        <span className="font-mono uppercase truncate" style={{ color: '#FAF6ED', fontSize: '12px', letterSpacing: '0.14em' }}>
-          {group.stage}
-        </span>
-        <span className="kanban-column__count">{group.bills.length}</span>
-      </div>
-      <div className="kanban-column__body">
-        {group.bills.map(bill => (
-          <BillKanbanCard key={bill.id} bill={bill} votes={votes[bill.id]} />
-        ))}
-      </div>
-    </div>
+    </button>
   );
 }
 
@@ -228,11 +211,14 @@ function BillKanbanColumn({ group, votes }: { group: StageGroup; votes: Record<n
 export default function DepartureBoardSection({ bills }: Props) {
   const [clock, setClock] = useState('');
   const [date, setDate]   = useState('');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [votedMap, setVotedMap] = useState<Record<number, 'for' | 'against'>>({});
 
   const isDemo  = bills.length === 0;
   const display = isDemo ? DEMO_BILLS : bills;
   const votes   = isDemo ? DEMO_VOTES : ({} as Record<number, BillVotes>);
   const groups  = groupByStage(display);
+  const selectedBill = selectedId != null ? display.find(b => b.id === selectedId) : undefined;
 
   useEffect(() => {
     function tick() {
@@ -280,12 +266,20 @@ export default function DepartureBoardSection({ bills }: Props) {
           </div>
         </div>
 
-        {/* ── Board grid ───────────────────────────────────────────────── */}
-        <div className="kanban-grid">
-          {groups.map(group => (
-            <BillKanbanColumn key={group.stage} group={group} votes={votes} />
-          ))}
-        </div>
+        {/* ── Stage sections ──────────────────────────────────────────── */}
+        {groups.map(group => (
+          <div key={group.stage} className="board-stage-section">
+            <div className="board-stage-section__header">
+              <span className="board-stage-section__title">{group.stage}</span>
+              <span className="kanban-column__count">{group.bills.length}</span>
+            </div>
+            <div className="board-card-grid">
+              {group.bills.map(bill => (
+                <BillGridCard key={bill.id} bill={bill} votes={votes[bill.id]} onSelect={() => setSelectedId(bill.id)} />
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Footer */}
         <div
@@ -311,6 +305,16 @@ export default function DepartureBoardSection({ bills }: Props) {
           <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
         </div>
       </div>
+
+      {selectedBill && (
+        <BillDetailModal
+          bill={selectedBill}
+          votes={votes[selectedBill.id]}
+          voted={votedMap[selectedBill.id] ?? null}
+          onVote={choice => setVotedMap(prev => ({ ...prev, [selectedBill.id]: choice }))}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
     </section>
   );
 }
