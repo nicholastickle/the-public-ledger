@@ -63,17 +63,19 @@ describe('formatCountdown', () => {
   });
 
   it('returns a minute countdown for imminent deadlines', () => {
-    const soon = new Date(Date.now() + 5 * 60_000).toISOString();
+    // +2s buffer so a slow test runner can't shave the minute down by the
+    // time formatCountdown re-reads Date.now() internally.
+    const soon = new Date(Date.now() + 5 * 60_000 + 2_000).toISOString();
     expect(formatCountdown(soon, 'closed')).toBe('closes in 5m');
   });
 
   it('returns an hour countdown within the same day', () => {
-    const soon = new Date(Date.now() + 3 * 3_600_000).toISOString();
+    const soon = new Date(Date.now() + 3 * 3_600_000 + 2_000).toISOString();
     expect(formatCountdown(soon, 'closed')).toBe('closes in 3h');
   });
 
   it('returns a day/hour countdown under two weeks out', () => {
-    const soon = new Date(Date.now() + 2 * 86_400_000 + 3_600_000).toISOString();
+    const soon = new Date(Date.now() + 2 * 86_400_000 + 3_600_000 + 2_000).toISOString();
     expect(formatCountdown(soon, 'closed')).toBe('closes in 2d 1h');
   });
 
