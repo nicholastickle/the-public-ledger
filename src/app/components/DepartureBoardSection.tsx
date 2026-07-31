@@ -266,7 +266,7 @@ export default function DepartureBoardSection({ bills }: Props) {
           <div className="absolute bottom-0 right-0 translate-x-[2px] translate-y-[2px] z-10"><FiligreeCorner size={52} flipH flipV /></div>
 
           <div className="py-lg px-md sm:px-lg">
-            <div className="flex justify-end mb-sm">
+            <div className="hidden sm:flex justify-end mb-sm">
               <span className="font-mono uppercase" style={{ color: 'rgba(184,150,12,0.45)', fontSize: '10px', letterSpacing: '0.14em' }}>
                 Scroll for every stage →
               </span>

@@ -967,6 +967,31 @@ body {
     }
   }
 
+  /* Below sm: stack columns into a single vertical column instead of
+     horizontal-scrolling — swiping sideways to find a stage doesn't
+     work well on a phone. */
+  @media (max-width: 639px) {
+    .kanban-scroll {
+      flex-direction: column;
+      overflow-x: visible;
+      overflow-y: visible;
+      scroll-snap-type: none;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+    .kanban-column {
+      flex-basis: auto;
+      width: 100%;
+    }
+    .kanban-column__header {
+      position: static;
+    }
+    .kanban-column__body {
+      max-height: none;
+      overflow-y: visible;
+    }
+  }
+
   .kanban-column__header {
     position: sticky;
     top: 0;
