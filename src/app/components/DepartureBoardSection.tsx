@@ -23,29 +23,44 @@ interface StageGroup {
 
 /* ── Demo data ─────────────────────────────────────────────────────────── */
 
+// Sized to match the ~19 government bills Parliament typically has in flight at once
+// (Parallel Parliament, government-bills tracker, 2026-27 session), spread so every
+// stage column has at least one bill.
 const DEMO_BILLS: ParliamentBill[] = [
-  { id: 1,  short_title: 'Employment Rights Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T08:51:00Z' },
-  { id: 2,  short_title: 'Planning and Infrastructure Bill',                   long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T06:42:00Z' },
-  { id: 3,  short_title: 'Crime and Policing Bill',                            long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T09:14:00Z' },
-  { id: 4,  short_title: 'Data (Use and Access) Bill',                         long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T04:30:00Z' },
-  { id: 5,  short_title: "Renters' Rights Bill",                               long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T10:22:00Z' },
-  { id: 6,  short_title: 'Border Security, Asylum and Immigration Bill',       long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T02:55:00Z' },
-  { id: 7,  short_title: "Children's Wellbeing and Schools Bill",              long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T07:48:00Z' },
-  { id: 8,  short_title: 'Great British Energy Bill',                          long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-15T11:00:00Z' },
-  { id: 9,  short_title: 'Football Governance Bill',                           long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-12T14:00:00Z' },
-  { id: 10, short_title: 'Terminal Illness (Relief of Pain) Bill',             long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-17T05:10:00Z' },
-  { id: 11, short_title: 'Armed Forces Commissioner Bill',                     long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-14T09:00:00Z' },
-  { id: 12, short_title: 'Passenger Railway Services (Public Ownership) Bill', long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-10T16:00:00Z' },
-  { id: 13, short_title: 'Tobacco and Vapes Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-16T22:05:00Z' },
-  { id: 14, short_title: 'Bank Resolution (Recapitalisation) Bill',            long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-06-16T16:20:00Z' },
+  { id: 1,  short_title: 'Employment Rights Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-22T08:51:00Z' },
+  { id: 2,  short_title: 'Planning and Infrastructure Bill',                   long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-24T06:42:00Z' },
+  { id: 3,  short_title: 'Crime and Policing Bill',                            long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-25T09:14:00Z' },
+  { id: 4,  short_title: 'Data (Use and Access) Bill',                         long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-20T04:30:00Z' },
+  { id: 5,  short_title: "Renters' Rights Bill",                               long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-27T10:22:00Z' },
+  { id: 6,  short_title: 'Border Security, Asylum and Immigration Bill',       long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-18T02:55:00Z' },
+  { id: 7,  short_title: "Children's Wellbeing and Schools Bill",              long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-23T07:48:00Z' },
+  { id: 8,  short_title: 'Great British Energy Bill',                          long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-10T11:00:00Z' },
+  { id: 9,  short_title: 'Football Governance Bill',                           long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-05T14:00:00Z' },
+  { id: 10, short_title: 'Terminal Illness (Relief of Pain) Bill',             long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-26T05:10:00Z' },
+  { id: 11, short_title: 'Armed Forces Commissioner Bill',                     long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-08T09:00:00Z' },
+  { id: 12, short_title: 'Passenger Railway Services (Public Ownership) Bill', long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-02T16:00:00Z' },
+  { id: 13, short_title: 'Tobacco and Vapes Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-21T22:05:00Z' },
+  { id: 14, short_title: 'Bank Resolution (Recapitalisation) Bill',            long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-19T16:20:00Z' },
+  { id: 15, short_title: 'High Speed Rail (Crewe – Manchester) Bill',          long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-29T10:00:00Z' },
+  { id: 16, short_title: 'Sentencing Bill',                                    long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-28T11:30:00Z' },
+  { id: 17, short_title: 'Mental Health Bill',                                 long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-24T13:15:00Z' },
+  { id: 18, short_title: 'Water (Special Measures) Bill',                      long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-17T09:40:00Z' },
+  { id: 19, short_title: 'Pension Schemes Bill',                               long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-15T15:05:00Z' },
+  { id: 20, short_title: 'Non-Domestic Rating (Multipliers and Private Schools) Bill', long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Report Stage', is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-16T12:20:00Z' },
+  { id: 21, short_title: 'Arbitration Bill',                                   long_title: null, originating_house: 'Lords',   current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-30T08:00:00Z' },
+  { id: 22, short_title: 'Holocaust Memorial Bill',                            long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Ping-Pong',       is_act: false, is_defeated: false, bill_withdrawn: null, parliament_last_update: '2026-07-31T09:00:00Z' },
+  { id: 23, short_title: 'Local Government (Boundary Changes) Bill',           long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: true,  bill_withdrawn: null, parliament_last_update: '2026-07-14T17:45:00Z' },
+  { id: 24, short_title: 'Digital Markets (Amendment) Bill',                   long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: '2026-07-12', parliament_last_update: '2026-07-12T10:30:00Z' },
 ];
 
 const DEMO_VOTES: Record<number, BillVotes> = {
   // Bills at First/Second Reading — vote open, second reading date known or TBD
-  2:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-07-08' },   // Planning Bill (~3 weeks)
-  6:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-06-24' },   // Border Security (~1 week)
-  10: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-06-22' },   // Terminal Illness (5 days)
-  14: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },            // Bank Resolution — TBD
+  2:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-12' },
+  6:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-04' },
+  10: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-03' },
+  14: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },
+  15: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },
+  16: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-05' },
   // Bills past Second Reading — shadow vote recorded
   1:  { shadowAyes: 18400, shadowNoes:  6200 },
   3:  { shadowAyes:  9100, shadowNoes: 12300 },
@@ -57,6 +72,14 @@ const DEMO_VOTES: Record<number, BillVotes> = {
   11: { shadowAyes: 11200, shadowNoes:  4800 },
   12: { shadowAyes: 19600, shadowNoes:  8400 },
   13: { shadowAyes: 26700, shadowNoes:  5900 },
+  17: { shadowAyes: 15600, shadowNoes:  4300 },
+  18: { shadowAyes: 24100, shadowNoes:  3200 },
+  19: { shadowAyes: 12800, shadowNoes:  6700 },
+  20: { shadowAyes:  8300, shadowNoes: 14900 },
+  21: { shadowAyes:  6200, shadowNoes:  1100 },
+  22: { shadowAyes: 33200, shadowNoes:  2800 },
+  23: { shadowAyes:  9800, shadowNoes:  8600 },
+  // 24 (Digital Markets (Amendment) Bill): withdrawn before Second Reading — no tally yet
 };
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
