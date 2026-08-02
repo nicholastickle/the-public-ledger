@@ -56,21 +56,21 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
   }
 
   return (
-    <Modal onClose={onClose} labelledBy="regulation-modal-title" theme="burgundy">
+    <Modal onClose={onClose} labelledBy="regulation-modal-title" theme="bronze">
       <div className="flex items-center gap-sm mb-xs flex-wrap">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
         {regulation.house && (
-          <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.12em', opacity: 0.7 }}>
+          <span className="font-mono uppercase" style={{ color: '#A8722F', fontSize: '11px', letterSpacing: '0.12em', opacity: 0.7 }}>
             {regulation.house}
           </span>
         )}
         <span
           className="font-mono uppercase"
           style={{
-            color: regulation.procedure === 'affirmative' ? '#A78BFA' : '#D4AF37',
+            color: regulation.procedure === 'affirmative' ? '#A78BFA' : '#C9944F',
             fontSize: '10px',
             letterSpacing: '0.1em',
-            border: `1px solid ${regulation.procedure === 'affirmative' ? 'rgba(167,139,250,0.35)' : 'rgba(212,175,55,0.35)'}`,
+            border: `1px solid ${regulation.procedure === 'affirmative' ? 'rgba(167,139,250,0.35)' : 'rgba(201,148,79,0.35)'}`,
             padding: '1px 6px',
             borderRadius: '2px',
           }}
@@ -83,19 +83,19 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
         {regulation.title}
       </h2>
 
-      <p className="font-mono mt-xs" style={{ color: 'rgba(184,150,12,0.6)', fontSize: '11px' }}>
+      <p className="font-mono mt-xs" style={{ color: 'rgba(168,114,47,0.6)', fontSize: '11px' }}>
         {regulation.enabling_act ?? 'Enabling Act not recorded'}
         {regulation.last_update ? ` · updated ${formatBillDate(regulation.last_update)}` : ''}
       </p>
 
       <div className="mt-lg">
-        <span className="font-mono uppercase block mb-sm" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.16em' }}>
+        <span className="font-mono uppercase block mb-sm" style={{ color: '#A8722F', fontSize: '11px', letterSpacing: '0.16em' }}>
           Progress
         </span>
         <BoardStageTimeline steps={buildRegulationTimeline(regulation)} />
       </div>
 
-      <div className="mt-lg pt-lg" style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }}>
+      <div className="mt-lg pt-lg" style={{ borderTop: '1px solid rgba(168,114,47,0.15)' }}>
         <VotingPanel
           forLabel="Approve"
           againstLabel="Annul"
@@ -109,7 +109,7 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
         />
       </div>
 
-      <div className="mt-lg pt-lg" style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }}>
+      <div className="mt-lg pt-lg" style={{ borderTop: '1px solid rgba(168,114,47,0.15)' }}>
         <AIVotePanel opinions={aiOpinions} revealed={revealed} />
       </div>
     </Modal>

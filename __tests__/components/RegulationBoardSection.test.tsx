@@ -17,8 +17,8 @@ const regAt = (overrides: Partial<ParliamentRegulation> & { id: number; title: s
 
 const PENDING_NEG = regAt({ id: 1, title: 'The Test (Amendment) Regulations 2026', procedure: 'negative', status: 'pending' });
 const PENDING_AFF = regAt({ id: 2, title: 'The Affirmative Test Regulations 2026', procedure: 'affirmative', status: 'pending' });
-const MADE_REG    = regAt({ id: 3, title: 'The Made Regulations 2026', status: 'made', made_date: '2026-05-01' });
-const ANNULLED    = regAt({ id: 4, title: 'The Annulled Regulations 2026', status: 'annulled' });
+const MADE_REG = regAt({ id: 3, title: 'The Made Regulations 2026', status: 'made', made_date: '2026-05-01' });
+const ANNULLED = regAt({ id: 4, title: 'The Annulled Regulations 2026', status: 'annulled' });
 
 const rows = () => Array.from(document.querySelectorAll('.ledger-table__row'));
 
@@ -153,9 +153,9 @@ describe('RegulationBoardSection', () => {
     expect(rows()[0]).toHaveAttribute('data-voted', 'true');
   });
 
-  it('renders the board on the burgundy surface, apart from the Bill Board', () => {
+  it('renders the board on the bronze surface, apart from the Bill Board', () => {
     const { container } = render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    expect(container.querySelector('section.board-surface')).toHaveAttribute('data-board-theme', 'burgundy');
+    expect(container.querySelector('section.board-surface')).toHaveAttribute('data-board-theme', 'bronze');
   });
 
   it('shows a London clock and date alongside the heading', () => {

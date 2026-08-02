@@ -5,9 +5,10 @@ import Link from 'next/link';
 import HowItWorksModal from './HowItWorksModal';
 
 const NAV_LINKS = [
-  { label: 'Bills',        href: '/bills' },
-  { label: 'Regulations',  href: '/regulations' },
-  { label: 'Elections',    href: '/elections' },
+  { label: 'Bills', href: '/bills' },
+  { label: 'Regulations', href: '/regulations' },
+  { label: 'Elections', href: '/elections' },
+  { label: 'Lobby', href: '/lobby' },
 ];
 
 export default function MobileMenu() {

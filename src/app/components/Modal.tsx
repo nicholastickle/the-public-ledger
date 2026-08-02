@@ -6,8 +6,8 @@ interface Props {
   onClose: () => void;
   labelledBy: string;
   /** Tints the panel to match the board it opened from — forest green for
-   *  bills, burgundy for regulations. */
-  theme?: 'burgundy';
+   *  bills, bronze-on-black for regulations. */
+  theme?: 'bronze';
   children: React.ReactNode;
 }
 

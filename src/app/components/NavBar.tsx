@@ -4,9 +4,10 @@ import HowItWorksButton from './HowItWorksButton';
 import CrownOrnament from './CrownOrnament';
 
 export const NAV_LINKS = [
-  { label: 'Bills',       href: '/bills' },
+  { label: 'Bills', href: '/bills' },
   { label: 'Regulations', href: '/regulations' },
-  { label: 'Elections',   href: '/elections' },
+  { label: 'Elections', href: '/elections' },
+  { label: 'Lobby', href: '/lobby' },
 ];
 
 export default function NavBar() {

@@ -1,13 +1,27 @@
 @import "tailwindcss";
 
 @keyframes ledger-pulse {
-  0%, 100% { opacity: var(--pulse-from, 0.55); }
-  50%       { opacity: var(--pulse-to,   0.25); }
+
+  0%,
+  100% {
+    opacity: var(--pulse-from, 0.55);
+  }
+
+  50% {
+    opacity: var(--pulse-to, 0.25);
+  }
 }
 
 @keyframes ledger-shimmer {
-  0%, 100% { background-position: 200% center; }
-  50%       { background-position: -200% center; }
+
+  0%,
+  100% {
+    background-position: 200% center;
+  }
+
+  50% {
+    background-position: -200% center;
+  }
 }
 
 /* ── Design tokens (DESIGN.md → Tailwind v4 utilities) ──────────────
@@ -20,42 +34,42 @@
    ─────────────────────────────────────────────────────────────────── */
 @theme {
   /* Colors ─────────────────────────────────────────────────────────── */
-  --color-primary:         #171717;
-  --color-on-primary:      #ffffff;
-  --color-ink:             #171717;
-  --color-body:            #4d4d4d;
-  --color-mute:            #888888;
-  --color-hairline:        #ebebeb;
+  --color-primary: #171717;
+  --color-on-primary: #ffffff;
+  --color-ink: #171717;
+  --color-body: #4d4d4d;
+  --color-mute: #888888;
+  --color-hairline: #ebebeb;
   --color-hairline-strong: #a1a1a1;
-  --color-canvas:          #ffffff;
-  --color-canvas-soft:     #fafafa;
-  --color-canvas-soft-2:   #f5f5f5;
-  --color-link:            #0070f3;
-  --color-link-deep:       #0761d1;
-  --color-link-bg-soft:    #d3e5ff;
-  --color-success:         #0070f3;
-  --color-error:           #ee0000;
-  --color-error-soft:      #f7d4d6;
-  --color-error-deep:      #c50000;
-  --color-warning:         #f5a623;
-  --color-warning-soft:    #ffefcf;
-  --color-warning-deep:    #ab570a;
-  --color-violet:          #7928ca;
-  --color-violet-soft:     #d8ccf1;
-  --color-violet-deep:     #4c2889;
-  --color-cyan:            #50e3c2;
-  --color-cyan-soft:       #aaffec;
-  --color-cyan-deep:       #29bc9b;
-  --color-highlight-pink:  #ff0080;
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #fafafa;
+  --color-canvas-soft-2: #f5f5f5;
+  --color-link: #0070f3;
+  --color-link-deep: #0761d1;
+  --color-link-bg-soft: #d3e5ff;
+  --color-success: #0070f3;
+  --color-error: #ee0000;
+  --color-error-soft: #f7d4d6;
+  --color-error-deep: #c50000;
+  --color-warning: #f5a623;
+  --color-warning-soft: #ffefcf;
+  --color-warning-deep: #ab570a;
+  --color-violet: #7928ca;
+  --color-violet-soft: #d8ccf1;
+  --color-violet-deep: #4c2889;
+  --color-cyan: #50e3c2;
+  --color-cyan-soft: #aaffec;
+  --color-cyan-deep: #29bc9b;
+  --color-highlight-pink: #ff0080;
 
   /* Victorian palette — Ledger Book hero */
-  --color-parchment:       #FAF6ED;
-  --color-parchment-dark:  #EDE3C8;
-  --color-forest-green:    #1B4332;
-  --color-forest-green-2:  #2D6A4F;
-  --color-aged-gold:       #B8960C;
+  --color-parchment: #FAF6ED;
+  --color-parchment-dark: #EDE3C8;
+  --color-forest-green: #1B4332;
+  --color-forest-green-2: #2D6A4F;
+  --color-aged-gold: #B8960C;
   --color-aged-gold-light: #D4AF37;
-  --color-seal-red:        #8B1A1A;
+  --color-seal-red: #8B1A1A;
 
   /* Typography ─────────────────────────────────────────────────────── */
   /* Each text-* utility sets font-size, line-height, and letter-spacing.
@@ -103,30 +117,30 @@
   --text-button-md--line-height: 20px;
 
   /* Spacing ────────────────────────────────────────────────────────── */
-  --spacing-xxs:     4px;
-  --spacing-xs:      8px;
-  --spacing-sm:      12px;
-  --spacing-md:      16px;
-  --spacing-lg:      24px;
-  --spacing-xl:      32px;
-  --spacing-2xl:     40px;
-  --spacing-3xl:     48px;
-  --spacing-4xl:     64px;
-  --spacing-5xl:     96px;
-  --spacing-6xl:     128px;
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+  --spacing-5xl: 96px;
+  --spacing-6xl: 128px;
   --spacing-section: 192px;
 
   /* Border radius ──────────────────────────────────────────────────── */
   /* Note: these override Tailwind v4 defaults for rounded-sm/md/lg/xl */
-  --radius-none:    0px;
-  --radius-xs:      4px;
-  --radius-sm:      6px;
-  --radius-md:      8px;
-  --radius-lg:      12px;
-  --radius-xl:      16px;
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-pill-sm: 64px;
-  --radius-pill:    100px;
-  --radius-full:    9999px;
+  --radius-pill: 100px;
+  --radius-full: 9999px;
 }
 
 /* Next.js font variables → Tailwind font-sans / font-mono utilities.
@@ -155,6 +169,7 @@ body {
    Never use a single heavy drop-shadow — the brand's elevation is calm.
    ─────────────────────────────────────────────────────────────────── */
 @layer utilities {
+
   /* Hero atmospheric gradient — mesh backdrop at hero scale only */
   .hero-atmosphere {
     background:
@@ -167,6 +182,7 @@ body {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -175,24 +191,28 @@ body {
   .shadow-level-1 {
     box-shadow: inset 0 0 0 1px #00000014;
   }
+
   .shadow-level-2 {
     box-shadow:
       0px 1px 1px #00000005,
       0px 2px 2px #0000000a,
       inset 0 0 0 1px #00000014;
   }
+
   .shadow-level-3 {
     box-shadow:
       0px 2px 2px #0000000a,
       0px 8px 8px -8px #0000000a,
       inset 0 0 0 1px #00000014;
   }
+
   .shadow-level-4 {
     box-shadow:
       0px 2px 2px #0000000a,
       0px 8px 16px -4px #0000000a,
       inset 0 0 0 1px #00000014;
   }
+
   .shadow-level-5 {
     box-shadow:
       0px 1px 1px #00000005,
@@ -206,6 +226,7 @@ body {
    Add here rather than inline when a pattern repeats across 3+ places.
    ─────────────────────────────────────────────────────────────────── */
 @layer components {
+
   /* button-primary: black 100px-pill, marketing scale */
   .btn-primary {
     display: inline-flex;
@@ -225,6 +246,7 @@ body {
     white-space: nowrap;
     transition: opacity 0.15s ease;
   }
+
   .btn-primary:hover {
     opacity: 0.85;
   }
@@ -249,6 +271,7 @@ body {
     box-shadow: inset 0 0 0 1px var(--color-hairline);
     transition: box-shadow 0.15s ease;
   }
+
   .btn-secondary:hover {
     box-shadow: inset 0 0 0 1px var(--color-hairline-strong);
   }
@@ -274,6 +297,7 @@ body {
     border: 1px solid rgba(184, 150, 12, 0.35);
     transition: background 0.15s ease;
   }
+
   .btn-ledger-primary-sm:hover {
     background-color: var(--color-forest-green-2);
   }
@@ -298,6 +322,7 @@ body {
     border: 1px solid rgba(184, 150, 12, 0.45);
     transition: background 0.15s ease, border-color 0.15s ease;
   }
+
   .btn-ledger-secondary-sm:hover {
     background-color: rgba(184, 150, 12, 0.07);
     border-color: rgba(184, 150, 12, 0.65);
@@ -316,6 +341,7 @@ body {
     border-radius: 2px;
     transition: background 0.12s ease;
   }
+
   .ledger-nav-link:hover {
     background: rgba(27, 67, 50, 0.08);
   }
@@ -339,6 +365,7 @@ body {
     white-space: nowrap;
     transition: opacity 0.15s ease;
   }
+
   .btn-primary-sm:hover {
     opacity: 0.85;
   }
@@ -363,6 +390,7 @@ body {
     box-shadow: inset 0 0 0 1px var(--color-hairline);
     transition: box-shadow 0.15s ease;
   }
+
   .btn-secondary-sm:hover {
     box-shadow: inset 0 0 0 1px var(--color-hairline-strong);
   }
@@ -372,6 +400,7 @@ body {
     color: #5A4A32;
     transition: color 0.12s ease;
   }
+
   .ledger-footer-link:hover {
     color: var(--color-forest-green);
   }
@@ -381,9 +410,11 @@ body {
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
+
   .ledger-search-input::placeholder {
     color: rgba(27, 67, 50, 0.35);
   }
+
   .ledger-search-input:focus {
     border-color: rgba(184, 150, 12, 0.6) !important;
     box-shadow: 0 0 0 2px rgba(184, 150, 12, 0.1);
@@ -396,6 +427,7 @@ body {
     text-underline-offset: 2px;
     transition: color 0.1s ease;
   }
+
   .link:hover {
     color: var(--color-link-deep);
   }
@@ -406,13 +438,11 @@ body {
   .ledger-bg {
     background-color: var(--color-parchment);
     background-image:
-      repeating-linear-gradient(
-        to bottom,
+      repeating-linear-gradient(to bottom,
         transparent 0px,
         transparent 47px,
         rgba(184, 150, 12, 0.18) 47px,
-        rgba(184, 150, 12, 0.18) 48px
-      );
+        rgba(184, 150, 12, 0.18) 48px);
   }
 
   /* Ornate gold border frame */
@@ -439,15 +469,14 @@ body {
   .ledger-rule {
     border: none;
     height: 1px;
-    background: linear-gradient(
-      to right,
-      transparent,
-      var(--color-aged-gold) 20%,
-      var(--color-aged-gold) 80%,
-      transparent
-    );
+    background: linear-gradient(to right,
+        transparent,
+        var(--color-aged-gold) 20%,
+        var(--color-aged-gold) 80%,
+        transparent);
     position: relative;
   }
+
   .ledger-rule::before {
     content: '◆';
     position: absolute;
@@ -486,6 +515,7 @@ body {
     padding: 16px 20px;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
+
   .ledger-entry:hover {
     background: rgba(255, 255, 255, 0.8);
     border-color: rgba(184, 150, 12, 0.5);
@@ -510,6 +540,7 @@ body {
     transition: background 0.15s ease;
     border-radius: 2px;
   }
+
   .btn-ledger-primary:hover {
     background-color: var(--color-forest-green-2);
   }
@@ -532,6 +563,7 @@ body {
     transition: background 0.15s ease;
     border-radius: 2px;
   }
+
   .btn-ledger-secondary:hover {
     background-color: rgba(184, 150, 12, 0.08);
   }
@@ -541,18 +573,14 @@ body {
      while guaranteeing legibility for the countdown + CTA on the left. */
   .hero-video-scrim {
     background:
-      linear-gradient(
-        105deg,
+      linear-gradient(105deg,
         rgba(12, 22, 16, 0.82) 0%,
         rgba(12, 22, 16, 0.62) 34%,
         rgba(12, 22, 16, 0.28) 58%,
-        rgba(12, 22, 16, 0.12) 100%
-      ),
-      radial-gradient(
-        120% 80% at 15% 30%,
+        rgba(12, 22, 16, 0.12) 100%),
+      radial-gradient(120% 80% at 15% 30%,
         rgba(27, 67, 50, 0.35),
-        transparent 60%
-      );
+        transparent 60%);
   }
 
   /* Dark fade at the top of the frame so nav stays legible over bright sky */
@@ -564,12 +592,10 @@ body {
     height: 128px;
     z-index: 0;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      rgba(8, 14, 10, 0.74),
-      rgba(8, 14, 10, 0.16) 68%,
-      transparent
-    );
+    background: linear-gradient(to bottom,
+        rgba(8, 14, 10, 0.74),
+        rgba(8, 14, 10, 0.16) 68%,
+        transparent);
   }
 
   /* Text-shadow so light/gold copy reads over any brightness in the video */
@@ -595,6 +621,7 @@ body {
     text-decoration: none;
     flex-shrink: 0;
   }
+
   .hero-nav__wordmark {
     font-family: var(--font-display), Georgia, serif;
     font-style: italic;
@@ -605,6 +632,7 @@ body {
     white-space: nowrap;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
   }
+
   .hero-nav-link {
     font-family: var(--font-mono), monospace;
     font-size: 12px;
@@ -624,10 +652,12 @@ body {
     text-underline-offset: 6px;
     text-decoration-thickness: 2px;
   }
+
   .hero-nav-link:hover {
     text-decoration: underline;
     text-decoration-color: #e8c840;
   }
+
   .hero-nav-btn {
     display: inline-flex;
     align-items: center;
@@ -644,23 +674,28 @@ body {
     white-space: nowrap;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
+
   .hero-nav-btn--ghost {
     color: #faf6ed;
     border: 1px solid rgba(184, 150, 12, 0.6);
     background: rgba(10, 18, 13, 0.4);
   }
+
   .hero-nav-btn--ghost:hover {
     background: rgba(250, 246, 237, 0.1);
     border-color: var(--color-aged-gold-light);
   }
+
   .hero-nav-btn--solid {
     color: #faf6ed;
     background: var(--color-forest-green);
     border: 1px solid rgba(184, 150, 12, 0.6);
   }
+
   .hero-nav-btn--solid:hover {
     background: var(--color-forest-green-2);
   }
+
   .hero-nav__burger {
     display: inline-flex;
     align-items: center;
@@ -674,6 +709,7 @@ body {
     cursor: pointer;
     flex-shrink: 0;
   }
+
   .hero-nav__menu {
     position: absolute;
     top: 100%;
@@ -697,6 +733,7 @@ body {
     gap: clamp(4px, 1vw, 14px);
     flex-wrap: nowrap;
   }
+
   .vote-countdown__unit {
     display: flex;
     flex-direction: column;
@@ -716,6 +753,7 @@ body {
     -webkit-backdrop-filter: blur(3px);
     backdrop-filter: blur(3px);
   }
+
   .vote-countdown__num {
     font-family: var(--font-display), Georgia, serif;
     font-weight: 700;
@@ -726,6 +764,7 @@ body {
     font-variant-numeric: tabular-nums;
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
   }
+
   .vote-countdown__label {
     font-family: var(--font-mono), monospace;
     text-transform: uppercase;
@@ -734,6 +773,7 @@ body {
     letter-spacing: 0.18em;
     color: #d4af37;
   }
+
   .vote-countdown__sep {
     align-self: center;
     font-family: var(--font-display), Georgia, serif;
@@ -742,12 +782,14 @@ body {
     line-height: 1;
     padding-bottom: 0.4em;
   }
+
   .vote-countdown--live {
     padding: clamp(12px, 2vw, 24px) clamp(16px, 3vw, 36px);
     background: rgba(18, 40, 30, 0.55);
     border: 1px solid rgba(184, 150, 12, 0.55);
     border-radius: 2px;
   }
+
   .vote-countdown__livetext {
     font-family: var(--font-display), Georgia, serif;
     font-weight: 700;
@@ -781,6 +823,7 @@ body {
     overflow: hidden;
     transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
+
   .btn-vote-hero::after {
     content: '';
     position: absolute;
@@ -788,14 +831,13 @@ body {
     left: -60%;
     width: 40%;
     height: 100%;
-    background: linear-gradient(
-      100deg,
-      transparent,
-      rgba(250, 246, 237, 0.35),
-      transparent
-    );
+    background: linear-gradient(100deg,
+        transparent,
+        rgba(250, 246, 237, 0.35),
+        transparent);
     transform: skewX(-18deg);
   }
+
   .btn-vote-hero:hover {
     background-color: var(--color-forest-green-2);
     transform: translateY(-2px);
@@ -803,6 +845,7 @@ body {
       inset 0 0 0 3px rgba(184, 150, 12, 0.2),
       0 18px 44px rgba(0, 0, 0, 0.5);
   }
+
   .btn-vote-hero:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 3px;
@@ -814,6 +857,7 @@ body {
     width: 100%;
     padding: 12px 12px 40px;
   }
+
   .uk-map-plane {
     position: relative;
     transform-style: preserve-3d;
@@ -821,23 +865,21 @@ body {
     transition: transform 0.35s ease-out;
     will-change: transform;
   }
+
   .uk-map-svg {
     display: block;
     width: 100%;
     height: auto;
     overflow: visible;
   }
+
   /* Extruded relief — applied only to the four-nations group so the faint
      Republic of Ireland outline behind it is not turned into a gold slab. */
   .uk-map-relief {
     filter:
-      drop-shadow(0 1px 0 #9a7a0d)
-      drop-shadow(0 2px 0 #8a6d0c)
-      drop-shadow(0 3px 0 #7a600b)
-      drop-shadow(0 4px 0 #6a530a)
-      drop-shadow(0 5px 0 #5a4608)
-      drop-shadow(0 12px 16px rgba(18, 11, 2, 0.45));
+      drop-shadow(0 1px 0 #9a7a0d) drop-shadow(0 2px 0 #8a6d0c) drop-shadow(0 3px 0 #7a600b) drop-shadow(0 4px 0 #6a530a) drop-shadow(0 5px 0 #5a4608) drop-shadow(0 12px 16px rgba(18, 11, 2, 0.45));
   }
+
   .uk-nation-top {
     fill: #e8dbba;
     stroke: rgba(184, 150, 12, 0.55);
@@ -847,16 +889,19 @@ body {
     transform-origin: center;
     transition: fill 0.3s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+
   .uk-nation-top[data-active='true'] {
     stroke: #d4af37;
     stroke-width: 1.3;
     filter: drop-shadow(0 10px 10px rgba(18, 11, 2, 0.5));
   }
+
   .uk-map-badges {
     position: absolute;
     inset: 0;
     pointer-events: none;
   }
+
   /* Flag pin: hidden by default, revealed only when its nation is active.
      No background plate, no label — just the flag itself. */
   .uk-flag-badge {
@@ -872,16 +917,19 @@ body {
     opacity: 0;
     transition: opacity 0.22s ease, transform 0.22s ease;
   }
+
   .uk-flag-badge__flag {
     line-height: 0;
     display: block;
     box-shadow: 0 0 0 0.5px rgba(184, 150, 12, 0.7), 0 3px 8px rgba(18, 11, 2, 0.55);
   }
+
   .uk-flag-badge[data-active='true'] {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.06);
     z-index: 6;
   }
+
   .uk-flag-badge:focus-visible {
     opacity: 1;
     outline: 2px solid var(--color-aged-gold-light);
@@ -892,17 +940,21 @@ body {
     .btn-vote-hero {
       animation: voteGlow 2.8s ease-in-out infinite;
     }
+
     .btn-vote-hero::after {
       animation: voteSheen 4.2s ease-in-out infinite;
     }
   }
+
   @keyframes voteGlow {
+
     0%,
     100% {
       box-shadow:
         inset 0 0 0 3px rgba(184, 150, 12, 0.14),
         0 12px 34px rgba(0, 0, 0, 0.42);
     }
+
     50% {
       box-shadow:
         inset 0 0 0 3px rgba(184, 150, 12, 0.24),
@@ -910,15 +962,18 @@ body {
         0 0 0 4px rgba(184, 150, 12, 0.12);
     }
   }
+
   @keyframes voteSheen {
     0% {
       left: -60%;
     }
+
     35%,
     100% {
       left: 130%;
     }
   }
+
   @media (max-width: 640px) {
     .uk-map-plane {
       transform: rotateX(12deg);
@@ -983,12 +1038,14 @@ body {
     text-decoration: none;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   }
+
   .kanban-card:hover,
   .kanban-card:focus-visible {
     background: rgba(250, 246, 237, 0.075);
     border-color: rgba(184, 150, 12, 0.45);
     transform: translateY(-1px);
   }
+
   .kanban-card:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
@@ -1006,6 +1063,7 @@ body {
   .board-stage-section {
     margin-bottom: 32px;
   }
+
   .board-stage-section__header {
     display: flex;
     align-items: baseline;
@@ -1014,6 +1072,7 @@ body {
     padding-bottom: 8px;
     border-bottom: 1px solid rgba(184, 150, 12, 0.2);
   }
+
   .board-stage-section__title {
     font-family: var(--font-mono), monospace;
     text-transform: uppercase;
@@ -1021,6 +1080,7 @@ body {
     font-size: 14px;
     color: #faf6ed;
   }
+
   .board-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -1038,22 +1098,26 @@ body {
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   }
+
   .board-card:hover,
   .board-card:focus-visible {
     background: rgba(250, 246, 237, 0.075);
     border-color: rgba(184, 150, 12, 0.45);
     transform: translateY(-1px);
   }
+
   .board-card:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
   }
+
   /* Cards the citizen has voted on — lifted so they read as "mine" at a glance
      while scanning a stage, and sorted to the front of their section. */
   .board-card[data-voted='true'] {
     background: rgba(212, 175, 55, 0.07);
     border-color: rgba(212, 175, 55, 0.4);
   }
+
   .board-card__voted-badge {
     display: inline-block;
     font-family: var(--font-mono), monospace;
@@ -1073,19 +1137,100 @@ body {
      narrow viewports rather than reflowing — the columns only mean anything
      read across. */
   /* ── Board surface themes ────────────────────────────────────────── */
-  /* The Bill Board reads in the brand's forest green and the Regulation Board
-     in a burgundy drawn from seal red — no new hues, just the two ends of the
-     existing palette. The step between them is what separates the sections, so
-     each board's chrome takes its colour from these variables. */
+  /* The Bill Board reads in the brand's forest green. The Regulation Board
+     goes near-black instead — antique bronze on black rather than a second
+     hue lifted from the palette — so gold stays the site's one accent metal
+     everywhere except this one board, which trades it for bronze/copper. */
   .board-surface {
     --board-head-bg: #12291d;
     --board-band-bg: rgba(27, 67, 50, 0.24);
     --board-row-hover: rgba(250, 246, 237, 0.07);
   }
-  .board-surface[data-board-theme='burgundy'] {
-    --board-head-bg: #5d1a2e;
-    --board-band-bg: rgba(150, 42, 74, 0.32);
+
+  .board-surface[data-board-theme='bronze'] {
+    --board-head-bg: #1c1712;
+    --board-band-bg: rgba(90, 60, 30, 0.26);
     --board-row-hover: rgba(250, 246, 237, 0.07);
+  }
+
+  /* The regulation board's own chrome swaps gold for bronze/copper — scoped so
+     the Bill Board's table (which shares every one of these classes) keeps
+     its gold untouched. */
+  .board-surface[data-board-theme='bronze'] .ledger-table thead th {
+    color: #a8722f;
+    border-bottom-color: rgba(168, 114, 47, 0.32);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__stage-head {
+    border-top-color: rgba(168, 114, 47, 0.18);
+    border-bottom-color: rgba(168, 114, 47, 0.18);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__row+.ledger-table__row .ledger-table__cell {
+    border-top-color: rgba(168, 114, 47, 0.12);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__row[data-voted='true'] {
+    background: rgba(201, 148, 79, 0.07);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__row[data-voted='true']:hover {
+    background: rgba(201, 148, 79, 0.11);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__cell--no {
+    color: rgba(168, 114, 47, 0.7);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__subtitle {
+    color: rgba(168, 114, 47, 0.62);
+  }
+
+  .board-surface[data-board-theme='bronze'] .ledger-table__title:hover {
+    color: #c9944f;
+    text-decoration-color: rgba(201, 148, 79, 0.6);
+  }
+
+  .board-surface[data-board-theme='bronze'] .header-tip {
+    color: #a8722f;
+  }
+
+  .board-surface[data-board-theme='bronze'] .header-tip::after {
+    border-color: rgba(168, 114, 47, 0.45);
+  }
+
+  .board-surface[data-board-theme='bronze'] .info-tip {
+    color: rgba(168, 114, 47, 0.55);
+  }
+
+  .board-surface[data-board-theme='bronze'] .info-tip:hover {
+    color: #c9944f;
+  }
+
+  .board-surface[data-board-theme='bronze'] .tally-header__icon {
+    color: #a8722f;
+  }
+
+  .board-surface[data-board-theme='bronze'] .tally-cell__none {
+    color: rgba(168, 114, 47, 0.45);
+  }
+
+  .board-surface[data-board-theme='bronze'] .tally-cell__pending {
+    color: #c9944f;
+    background: rgba(201, 148, 79, 0.07);
+    border-color: rgba(201, 148, 79, 0.35);
+  }
+
+  .board-surface[data-board-theme='bronze'] .board-view-all {
+    color: #a8722f;
+    border-color: rgba(168, 114, 47, 0.45);
+    background: rgba(168, 114, 47, 0.06);
+  }
+
+  .board-surface[data-board-theme='bronze'] .board-view-all:hover {
+    color: #c9944f;
+    border-color: rgba(201, 148, 79, 0.8);
+    background: rgba(201, 148, 79, 0.14);
   }
 
   /* No overflow above the phone breakpoint: the table already fits there, and a
@@ -1136,9 +1281,11 @@ body {
     border-top: 1px solid rgba(184, 150, 12, 0.18);
     border-bottom: 1px solid rgba(184, 150, 12, 0.18);
   }
+
   .ledger-table__group:first-of-type .ledger-table__stage-head {
     border-top: 0;
   }
+
   .ledger-table__stage-title {
     font-family: var(--font-mono), monospace;
     font-size: 9px;
@@ -1147,11 +1294,13 @@ body {
     text-transform: uppercase;
     color: rgba(250, 246, 237, 0.62);
   }
+
   /* Smaller and tighter than the header tips — the band is only ~17px tall. */
   .ledger-table__stage-head .info-tip {
     top: 2px;
     margin-left: 4px;
   }
+
   .ledger-table__stage-head .info-tip svg {
     width: 10px;
     height: 10px;
@@ -1161,16 +1310,20 @@ body {
     cursor: pointer;
     transition: background 0.12s ease;
   }
+
   .ledger-table__row:hover {
     background: var(--board-row-hover, rgba(250, 246, 237, 0.07));
   }
-  .ledger-table__row + .ledger-table__row .ledger-table__cell {
+
+  .ledger-table__row+.ledger-table__row .ledger-table__cell {
     border-top: 1px solid rgba(184, 150, 12, 0.12);
   }
+
   /* Rows the citizen has voted on read as "mine" at a glance while scanning. */
   .ledger-table__row[data-voted='true'] {
     background: rgba(212, 175, 55, 0.07);
   }
+
   .ledger-table__row[data-voted='true']:hover {
     background: rgba(212, 175, 55, 0.11);
   }
@@ -1187,9 +1340,11 @@ body {
     color: rgba(184, 150, 12, 0.7);
     font-size: 12px;
   }
+
   .ledger-table__cell--name {
     min-width: 220px;
   }
+
   /* Wide enough for the Regulation Board's "Affirmative"; the Bill Board's
      shorter House values sit comfortably inside it. */
   .ledger-table__cell--house {
@@ -1197,11 +1352,13 @@ body {
     font-size: 12px;
     color: rgba(250, 246, 237, 0.72);
   }
+
   .ledger-table__cell--tally,
   .ledger-table thead th.ledger-table__cell--tally {
     width: 112px;
     text-align: center;
   }
+
   .ledger-table__cell--own,
   .ledger-table thead th.ledger-table__cell--own {
     width: 116px;
@@ -1224,10 +1381,12 @@ body {
     text-underline-offset: 3px;
     transition: text-decoration-color 0.12s ease, color 0.12s ease;
   }
+
   .ledger-table__title:hover {
     color: var(--color-aged-gold-light);
     text-decoration-color: rgba(212, 175, 55, 0.6);
   }
+
   .ledger-table__title:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
@@ -1262,11 +1421,13 @@ body {
     color: #b8960c;
     cursor: help;
   }
+
   .header-tip:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 3px;
     border-radius: 2px;
   }
+
   /* `display: none` rather than a hidden-but-laid-out box: the tooltip is wider
      than its column, and while laid out it inflates the table wrapper's scroll
      width, giving the board a phantom horizontal scrollbar. */
@@ -1297,6 +1458,7 @@ body {
     padding: 8px 10px;
     box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.5);
   }
+
   /* Columns near either edge of the table anchor their tooltip to that edge, so
      a centred box does not hang off the side and get cut off. */
   .header-tip[data-align='right']::after {
@@ -1304,10 +1466,12 @@ body {
     right: -6px;
     transform: none;
   }
+
   .header-tip[data-align='left']::after {
     left: -6px;
     transform: none;
   }
+
   .header-tip:hover::after,
   .header-tip:focus-visible::after {
     display: block;
@@ -1323,6 +1487,7 @@ body {
     color: rgba(184, 150, 12, 0.55);
     transition: color 0.12s ease;
   }
+
   .info-tip:hover,
   .info-tip:focus-visible {
     color: var(--color-aged-gold-light);
@@ -1334,6 +1499,7 @@ body {
     display: inline-flex;
     align-items: center;
   }
+
   .tally-header__icon {
     display: inline-flex;
     color: #b8960c;
@@ -1346,11 +1512,13 @@ body {
     justify-content: center;
     gap: 10px;
   }
+
   .thumb-tally__side {
     display: inline-flex;
     align-items: center;
     gap: 4px;
   }
+
   .thumb-tally__count {
     font-family: var(--font-mono), monospace;
     font-size: 11px;
@@ -1370,9 +1538,11 @@ body {
     opacity: 0.5;
     cursor: help;
   }
+
   .tally-cell__none {
     color: rgba(184, 150, 12, 0.45);
   }
+
   .tally-cell__pending {
     font-size: 11px;
     color: #d4af37;
@@ -1394,12 +1564,15 @@ body {
     text-transform: uppercase;
     white-space: nowrap;
   }
+
   .own-vote--for {
     color: #10b981;
   }
+
   .own-vote--against {
     color: #ef4444;
   }
+
   .own-vote--none {
     color: rgba(250, 246, 237, 0.35);
   }
@@ -1408,6 +1581,7 @@ body {
     display: inline-flex;
     gap: 6px;
   }
+
   .own-vote-btn {
     display: inline-flex;
     align-items: center;
@@ -1419,24 +1593,29 @@ body {
     cursor: pointer;
     transition: background 0.12s ease, border-color 0.12s ease;
   }
+
   .own-vote-btn--for {
     color: #10b981;
     border-color: rgba(16, 185, 129, 0.4);
     background: rgba(16, 185, 129, 0.08);
   }
+
   .own-vote-btn--for:hover {
     border-color: rgba(16, 185, 129, 0.85);
     background: rgba(16, 185, 129, 0.2);
   }
+
   .own-vote-btn--against {
     color: #ef4444;
     border-color: rgba(239, 68, 68, 0.4);
     background: rgba(239, 68, 68, 0.08);
   }
+
   .own-vote-btn--against:hover {
     border-color: rgba(239, 68, 68, 0.85);
     background: rgba(239, 68, 68, 0.2);
   }
+
   .own-vote-btn:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
@@ -1457,11 +1636,13 @@ body {
     background: rgba(184, 150, 12, 0.06);
     transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
   }
+
   .board-view-all:hover {
     color: var(--color-aged-gold-light);
     border-color: rgba(212, 175, 55, 0.8);
     background: rgba(212, 175, 55, 0.14);
   }
+
   .board-view-all:focus-visible {
     outline: 2px solid var(--color-aged-gold-light);
     outline-offset: 2px;
@@ -1472,6 +1653,7 @@ body {
     display: none;
     margin-top: 7px;
   }
+
   .ledger-table__row-procedure {
     display: none;
     margin-top: 7px;
@@ -1488,24 +1670,30 @@ body {
     .ledger-table {
       min-width: 470px;
     }
+
     .ledger-table__cell--no,
     .ledger-table__cell--house {
       display: none;
     }
+
     .ledger-table__row-procedure {
       display: inline-flex;
     }
+
     .ledger-table__cell--name {
       min-width: 150px;
     }
+
     .ledger-table__cell--tally,
     .ledger-table thead th.ledger-table__cell--tally {
       width: 98px;
     }
+
     .ledger-table__cell--own,
     .ledger-table thead th.ledger-table__cell--own {
       width: 104px;
     }
+
     .ledger-table thead th,
     .ledger-table__cell {
       padding-left: 10px;
@@ -1516,44 +1704,54 @@ body {
   /* On phones the tallies stack so each column narrows to a single count width,
      keeping the horizontal scroll to roughly one thumb-swipe. */
   @media (max-width: 639px) {
+
     /* The only width where the table can outgrow its container, so the only one
        that needs a scroll container — and with it, tooltips flipped back below
        the header, since the container would clip anything above the table. */
     .ledger-table__wrap {
       overflow-x: auto;
     }
+
     .header-tip::after {
       bottom: auto;
       top: calc(100% + 10px);
       width: 220px;
     }
+
     .ledger-table {
       min-width: 0;
     }
+
     .ledger-table__cell--own,
     .ledger-table thead th.ledger-table__cell--own {
       display: none;
     }
+
     .ledger-table__row-own {
       display: inline-flex;
     }
+
     .ledger-table__cell--name {
       min-width: 120px;
     }
+
     .ledger-table__cell--tally,
     .ledger-table thead th.ledger-table__cell--tally {
       width: 68px;
     }
+
     .ledger-table thead th,
     .ledger-table__cell {
       padding-left: 8px;
       padding-right: 8px;
     }
+
     .thumb-tally {
       flex-direction: column;
       align-items: flex-start;
       gap: 2px;
     }
+
     .own-vote {
       font-size: 10px;
     }
@@ -1582,11 +1780,13 @@ body {
       0 24px 64px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(184, 150, 12, 0.1);
   }
-  /* Regulation detail opens from the claret board, so its panel matches —
-     a shade lifted from the surface so it reads as sitting above it. */
-  .ledger-modal-panel[data-board-theme='burgundy'] {
-    background: #511526;
+
+  /* Regulation detail opens from the bronze-on-black board, so its panel
+     matches — a shade lifted from the surface so it reads as sitting above it. */
+  .ledger-modal-panel[data-board-theme='bronze'] {
+    background: #241c14;
   }
+
   .ledger-modal-close {
     position: absolute;
     top: 14px;
@@ -1604,6 +1804,7 @@ body {
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
+
   .ledger-modal-close:hover {
     background: rgba(184, 150, 12, 0.18);
     color: #faf6ed;
@@ -1621,17 +1822,20 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(184, 150, 12, 0.35) transparent;
   }
+
   .board-timeline__step {
     position: relative;
     flex: 1 1 96px;
     min-width: 88px;
     height: 108px;
   }
+
   .board-timeline__node-row {
     display: flex;
     align-items: center;
     width: 100%;
   }
+
   .board-timeline__node {
     width: 14px;
     height: 14px;
@@ -1639,10 +1843,12 @@ body {
     border: 2px solid;
     flex-shrink: 0;
   }
+
   .board-timeline__connector {
     height: 2px;
     flex: 1;
   }
+
   .board-timeline__leader {
     position: absolute;
     top: 13px;
@@ -1652,6 +1858,7 @@ body {
     overflow: visible;
     pointer-events: none;
   }
+
   .board-timeline__label {
     position: absolute;
     display: block;
@@ -1677,6 +1884,7 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(184, 150, 12, 0.35) transparent;
   }
+
   .ai-panel-card {
     flex: 0 0 260px;
     scroll-snap-align: start;
@@ -1698,25 +1906,31 @@ body {
     cursor: pointer;
     transition: transform 0.12s ease, background 0.15s ease;
   }
+
   .voting-panel__btn:hover {
     transform: translateY(-1px);
   }
+
   .voting-panel__btn--for {
     background: rgba(16, 185, 129, 0.14);
     border: 1px solid rgba(16, 185, 129, 0.5);
     color: #6ee7b7;
   }
+
   .voting-panel__btn--for:hover {
     background: rgba(16, 185, 129, 0.22);
   }
+
   .voting-panel__btn--against {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.45);
     color: #fca5a5;
   }
+
   .voting-panel__btn--against:hover {
     background: rgba(239, 68, 68, 0.18);
   }
+
   .voting-panel__locked {
     font-family: var(--font-mono), monospace;
     font-size: 11px;
@@ -1746,10 +1960,12 @@ body {
     backdrop-filter: blur(4px);
     transition: background 0.15s ease, transform 0.15s ease;
   }
+
   .sound-toggle:hover {
     transform: translateY(-1px);
     background: rgba(10, 22, 14, 0.92);
   }
+
   .sound-toggle[data-playing='true'] {
     color: #faf6ed;
     border-color: rgba(212, 175, 55, 0.8);

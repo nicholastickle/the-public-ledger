@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: 'Bills', href: '/bills' },
   { label: 'Regulations', href: '/regulations' },
   { label: 'Elections', href: '/elections' },
+  { label: 'Lobby', href: '/lobby' },
 ];
 
 /**
