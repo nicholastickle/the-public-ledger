@@ -1068,6 +1068,497 @@ body {
     white-space: nowrap;
   }
 
+  /* ── Ledger table (dark board surface) ───────────────────────────── */
+  /* One row per bill/instrument, ordered by stage. Scrolls horizontally on
+     narrow viewports rather than reflowing — the columns only mean anything
+     read across. */
+  /* ── Board surface themes ────────────────────────────────────────── */
+  /* The Bill Board reads in the brand's forest green and the Regulation Board
+     in a burgundy drawn from seal red — no new hues, just the two ends of the
+     existing palette. The step between them is what separates the sections, so
+     each board's chrome takes its colour from these variables. */
+  .board-surface {
+    --board-head-bg: #12291d;
+    --board-band-bg: rgba(27, 67, 50, 0.24);
+    --board-row-hover: rgba(250, 246, 237, 0.07);
+  }
+  .board-surface[data-board-theme='burgundy'] {
+    --board-head-bg: #5d1a2e;
+    --board-band-bg: rgba(150, 42, 74, 0.32);
+    --board-row-hover: rgba(250, 246, 237, 0.07);
+  }
+
+  /* No overflow above the phone breakpoint: the table already fits there, and a
+     scroll container would clip the header tooltips that sit above the table. */
+  .ledger-table__wrap {
+    border: 1px solid rgba(184, 150, 12, 0.2);
+    border-radius: 4px;
+    background: rgba(250, 246, 237, 0.02);
+  }
+
+  .ledger-table {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: collapse;
+    font-family: var(--font-sans), sans-serif;
+  }
+
+  /* Filled on the row, not each cell: at fractional column widths a per-cell
+     background leaves hairline seams at the boundaries. */
+  .ledger-table thead tr {
+    background: var(--board-head-bg, #12291d);
+  }
+
+  .ledger-table thead th {
+    position: relative;
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+    /* Weight 500 so the label carries the same visual weight as the solid-fill
+       column icons beside it — at 400 the icons read noticeably bolder. */
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b8960c;
+    text-align: left;
+    padding: 11px 14px 12px;
+    border-bottom: 1px solid rgba(184, 150, 12, 0.32);
+    white-space: nowrap;
+  }
+
+  /* ── Stage bands ─────────────────────────────────────────────────── */
+  /* The board is ordered by stage, so the stage is a heading over its group
+     rather than a column repeating the same value down every row. */
+  .ledger-table__stage-head {
+    text-align: left;
+    padding: 1px 14px 2px;
+    line-height: 14px;
+    background: var(--board-band-bg, rgba(27, 67, 50, 0.24));
+    border-top: 1px solid rgba(184, 150, 12, 0.18);
+    border-bottom: 1px solid rgba(184, 150, 12, 0.18);
+  }
+  .ledger-table__group:first-of-type .ledger-table__stage-head {
+    border-top: 0;
+  }
+  .ledger-table__stage-title {
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(250, 246, 237, 0.62);
+  }
+  /* Smaller and tighter than the header tips — the band is only ~17px tall. */
+  .ledger-table__stage-head .info-tip {
+    top: 2px;
+    margin-left: 4px;
+  }
+  .ledger-table__stage-head .info-tip svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .ledger-table__row {
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .ledger-table__row:hover {
+    background: var(--board-row-hover, rgba(250, 246, 237, 0.07));
+  }
+  .ledger-table__row + .ledger-table__row .ledger-table__cell {
+    border-top: 1px solid rgba(184, 150, 12, 0.12);
+  }
+  /* Rows the citizen has voted on read as "mine" at a glance while scanning. */
+  .ledger-table__row[data-voted='true'] {
+    background: rgba(212, 175, 55, 0.07);
+  }
+  .ledger-table__row[data-voted='true']:hover {
+    background: rgba(212, 175, 55, 0.11);
+  }
+
+  .ledger-table__cell {
+    padding: 9px 14px;
+    font-size: 13px;
+    color: #faf6ed;
+    vertical-align: middle;
+  }
+
+  .ledger-table__cell--no {
+    width: 64px;
+    color: rgba(184, 150, 12, 0.7);
+    font-size: 12px;
+  }
+  .ledger-table__cell--name {
+    min-width: 220px;
+  }
+  /* Wide enough for the Regulation Board's "Affirmative"; the Bill Board's
+     shorter House values sit comfortably inside it. */
+  .ledger-table__cell--house {
+    width: 112px;
+    font-size: 12px;
+    color: rgba(250, 246, 237, 0.72);
+  }
+  .ledger-table__cell--tally,
+  .ledger-table thead th.ledger-table__cell--tally {
+    width: 112px;
+    text-align: center;
+  }
+  .ledger-table__cell--own,
+  .ledger-table thead th.ledger-table__cell--own {
+    width: 116px;
+    text-align: center;
+  }
+
+  .ledger-table__title {
+    display: block;
+    text-align: left;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: #faf6ed;
+    font-weight: 500;
+    line-height: 1.35;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.12s ease, color 0.12s ease;
+  }
+  .ledger-table__title:hover {
+    color: var(--color-aged-gold-light);
+    text-decoration-color: rgba(212, 175, 55, 0.6);
+  }
+  .ledger-table__title:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* The parent Act under a statutory instrument's title. */
+  .ledger-table__subtitle {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: rgba(184, 150, 12, 0.62);
+  }
+
+  .stage-pill {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid;
+    border-radius: 2px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  /* ── Column-header tooltips ──────────────────────────────────────── */
+  .header-tip {
+    position: relative;
+    display: inline-flex;
+    color: #b8960c;
+    cursor: help;
+  }
+  .header-tip:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  /* `display: none` rather than a hidden-but-laid-out box: the tooltip is wider
+     than its column, and while laid out it inflates the table wrapper's scroll
+     width, giving the board a phantom horizontal scrollbar. */
+  /* Tooltips sit above the table rather than over the first rows of data. */
+  .header-tip::after {
+    content: attr(data-tooltip);
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 260px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+    line-height: 1.45;
+    /* The header cell sets `nowrap`, which the tooltip inherits and which forces
+       the text out past the box — tooltips must wrap inside their own width. */
+    white-space: normal;
+    color: #faf6ed;
+    background: var(--board-head-bg, #12291d);
+    border: 1px solid rgba(184, 150, 12, 0.45);
+    border-radius: 3px;
+    padding: 8px 10px;
+    box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  }
+  /* Columns near either edge of the table anchor their tooltip to that edge, so
+     a centred box does not hang off the side and get cut off. */
+  .header-tip[data-align='right']::after {
+    left: auto;
+    right: -6px;
+    transform: none;
+  }
+  .header-tip[data-align='left']::after {
+    left: -6px;
+    transform: none;
+  }
+  .header-tip:hover::after,
+  .header-tip:focus-visible::after {
+    display: block;
+  }
+
+  /* The circled "i" tucked against the bottom-right of its heading's text —
+     next to the label rather than at the far corner of a wide column, where it
+     would read as belonging to nothing in particular. */
+  .info-tip {
+    margin-left: 5px;
+    position: relative;
+    top: 3px;
+    color: rgba(184, 150, 12, 0.55);
+    transition: color 0.12s ease;
+  }
+  .info-tip:hover,
+  .info-tip:focus-visible {
+    color: var(--color-aged-gold-light);
+  }
+
+  /* The tally columns pair their icon with the same InfoTip the text columns
+     use, so every header is explained the same way. */
+  .tally-header {
+    display: inline-flex;
+    align-items: center;
+  }
+  .tally-header__icon {
+    display: inline-flex;
+    color: #b8960c;
+  }
+
+  /* ── Thumb tallies ───────────────────────────────────────────────── */
+  .thumb-tally {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .thumb-tally__side {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .thumb-tally__count {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.01em;
+  }
+
+  /* The side that carried the vote keeps its full colour and the side that lost
+     is muted, so the public / AI / government columns can be compared by
+     scanning across a row: three bright greens means all three agreed. A dead
+     heat mutes neither. */
+  .thumb-tally__side[data-outcome='lost'] {
+    opacity: 0.4;
+  }
+
+  .tally-cell__locked {
+    font-size: 12px;
+    opacity: 0.5;
+    cursor: help;
+  }
+  .tally-cell__none {
+    color: rgba(184, 150, 12, 0.45);
+  }
+  .tally-cell__pending {
+    font-size: 11px;
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.07);
+    border: 1px dashed rgba(212, 175, 55, 0.35);
+    border-radius: 2px;
+    padding: 2px 6px;
+    white-space: nowrap;
+  }
+
+  /* ── The citizen's own vote ──────────────────────────────────────── */
+  .own-vote {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .own-vote--for {
+    color: #10b981;
+  }
+  .own-vote--against {
+    color: #ef4444;
+  }
+  .own-vote--none {
+    color: rgba(250, 246, 237, 0.35);
+  }
+
+  .own-vote-buttons {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .own-vote-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 26px;
+    border: 1px solid;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .own-vote-btn--for {
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .own-vote-btn--for:hover {
+    border-color: rgba(16, 185, 129, 0.85);
+    background: rgba(16, 185, 129, 0.2);
+  }
+  .own-vote-btn--against {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+  }
+  .own-vote-btn--against:hover {
+    border-color: rgba(239, 68, 68, 0.85);
+    background: rgba(239, 68, 68, 0.2);
+  }
+  .own-vote-btn:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+  }
+
+  /* Board footer link — sharp-cornered ledger chrome, matching the vote buttons
+     in the table rather than the marketing pill. */
+  .board-view-all {
+    display: inline-flex;
+    align-items: center;
+    color: #b8960c;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 26px;
+    padding: 0 12px;
+    border: 1px solid rgba(184, 150, 12, 0.45);
+    border-radius: 2px;
+    background: rgba(184, 150, 12, 0.06);
+    transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  }
+  .board-view-all:hover {
+    color: var(--color-aged-gold-light);
+    border-color: rgba(212, 175, 55, 0.8);
+    background: rgba(212, 175, 55, 0.14);
+  }
+  .board-view-all:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+  }
+
+  /* Controls that fold into the name cell once their own column drops out. */
+  .ledger-table__row-own {
+    display: none;
+    margin-top: 7px;
+  }
+  .ledger-table__row-procedure {
+    display: none;
+    margin-top: 7px;
+    margin-right: 10px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: rgba(250, 246, 237, 0.55);
+  }
+
+  /* Below the desktop breakpoint the bill number and House columns drop out, so
+     the three tallies and the vote buttons — the columns a citizen actually acts
+     on — stay on screen. */
+  @media (max-width: 1023px) {
+    .ledger-table {
+      min-width: 470px;
+    }
+    .ledger-table__cell--no,
+    .ledger-table__cell--house {
+      display: none;
+    }
+    .ledger-table__row-procedure {
+      display: inline-flex;
+    }
+    .ledger-table__cell--name {
+      min-width: 150px;
+    }
+    .ledger-table__cell--tally,
+    .ledger-table thead th.ledger-table__cell--tally {
+      width: 98px;
+    }
+    .ledger-table__cell--own,
+    .ledger-table thead th.ledger-table__cell--own {
+      width: 104px;
+    }
+    .ledger-table thead th,
+    .ledger-table__cell {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+
+  /* On phones the tallies stack so each column narrows to a single count width,
+     keeping the horizontal scroll to roughly one thumb-swipe. */
+  @media (max-width: 639px) {
+    /* The only width where the table can outgrow its container, so the only one
+       that needs a scroll container — and with it, tooltips flipped back below
+       the header, since the container would clip anything above the table. */
+    .ledger-table__wrap {
+      overflow-x: auto;
+    }
+    .header-tip::after {
+      bottom: auto;
+      top: calc(100% + 10px);
+      width: 220px;
+    }
+    .ledger-table {
+      min-width: 0;
+    }
+    .ledger-table__cell--own,
+    .ledger-table thead th.ledger-table__cell--own {
+      display: none;
+    }
+    .ledger-table__row-own {
+      display: inline-flex;
+    }
+    .ledger-table__cell--name {
+      min-width: 120px;
+    }
+    .ledger-table__cell--tally,
+    .ledger-table thead th.ledger-table__cell--tally {
+      width: 68px;
+    }
+    .ledger-table thead th,
+    .ledger-table__cell {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .thumb-tally {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .own-vote {
+      font-size: 10px;
+    }
+  }
+
   .voting-panel__pending {
     font-size: 11px;
     letter-spacing: 0.04em;
@@ -1090,6 +1581,11 @@ body {
     box-shadow:
       0 24px 64px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(184, 150, 12, 0.1);
+  }
+  /* Regulation detail opens from the claret board, so its panel matches —
+     a shade lifted from the surface so it reads as sitting above it. */
+  .ledger-modal-panel[data-board-theme='burgundy'] {
+    background: #511526;
   }
   .ledger-modal-close {
     position: absolute;
@@ -1118,16 +1614,18 @@ body {
     display: flex;
     align-items: flex-start;
     overflow-x: auto;
+    padding-top: 4px;
+    /* room for the angled label of the final step, which reaches past its column */
+    padding-right: 28px;
     padding-bottom: 6px;
     scrollbar-width: thin;
     scrollbar-color: rgba(184, 150, 12, 0.35) transparent;
   }
   .board-timeline__step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1 0 96px;
-    min-width: 96px;
+    position: relative;
+    flex: 1 1 96px;
+    min-width: 88px;
+    height: 108px;
   }
   .board-timeline__node-row {
     display: flex;
@@ -1135,8 +1633,8 @@ body {
     width: 100%;
   }
   .board-timeline__node {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 999px;
     border: 2px solid;
     flex-shrink: 0;
@@ -1145,12 +1643,27 @@ body {
     height: 2px;
     flex: 1;
   }
+  .board-timeline__leader {
+    position: absolute;
+    top: 13px;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    overflow: visible;
+    pointer-events: none;
+  }
   .board-timeline__label {
-    margin-top: 8px;
+    position: absolute;
+    display: block;
+    top: 42px;
+    left: 34px;
+    width: 84px;
+    transform: rotate(17deg);
+    transform-origin: left top;
     font-family: var(--font-mono), monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
-    text-align: center;
+    text-align: left;
     line-height: 1.3;
   }
 

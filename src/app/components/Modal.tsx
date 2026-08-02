@@ -5,10 +5,13 @@ import { useEffect } from 'react';
 interface Props {
   onClose: () => void;
   labelledBy: string;
+  /** Tints the panel to match the board it opened from — forest green for
+   *  bills, burgundy for regulations. */
+  theme?: 'burgundy';
   children: React.ReactNode;
 }
 
-export default function Modal({ onClose, labelledBy, children }: Props) {
+export default function Modal({ onClose, labelledBy, theme, children }: Props) {
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -35,6 +38,7 @@ export default function Modal({ onClose, labelledBy, children }: Props) {
         aria-modal="true"
         aria-labelledby={labelledBy}
         className="ledger-modal-panel relative w-full"
+        data-board-theme={theme}
       >
         <button type="button" onClick={onClose} aria-label="Close" className="ledger-modal-close">
           ✕

@@ -106,7 +106,7 @@ export default function BillDetailModal({ bill, votes, voted, onVote, onClose }:
           isOpen={vOpen}
           voted={voted}
           onVote={onVote}
-          citizen={{ for: shadowAyes, against: shadowNoes }}
+          publicVote={{ for: shadowAyes, against: shadowNoes }}
           ai={billAiTally(bill)}
           gov={gov}
           closedNote={closedNote}

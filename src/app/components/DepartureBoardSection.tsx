@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
-import { formatCountdown, clipText } from '../lib/utils';
 import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
-import VoteTallies from './VoteTallies';
+import TallyHeader from './TallyHeader';
+import InfoTip from './InfoTip';
+import { TallyCell, GovTallyCell } from './TallyCell';
+import OwnVoteCell from './OwnVoteCell';
 import BillDetailModal from './BillDetailModal';
 
 interface Props {
@@ -110,6 +112,26 @@ function stageRank(bill: ParliamentBill): number {
   return 3;
 }
 
+/** What each stage actually is, in plain terms. Kept deliberately procedural —
+ *  what happens and who votes — with no comment on any bill's merits or on who
+ *  brought it forward. */
+const STAGE_DESCRIPTIONS: Record<string, string> = {
+  'first reading': 'The bill is formally introduced and its title read out. There is no debate and no vote; the full text is published shortly afterwards, and the public shadow vote opens.',
+  'second reading': 'The first debate on the principle of the bill, ending in the division that decides whether it proceeds. The public shadow vote closes here.',
+  'committee stage': 'The bill is examined line by line. Amendments are proposed and voted on, but the principle of the bill is already settled.',
+  'report stage': 'The whole House reviews the bill as amended in committee and can make further changes before it is finalised.',
+  'third reading': 'The final debate and vote on the bill as it now stands. No further amendments can be made in this House.',
+  'consideration of amendments': 'One House considers the changes the other made, accepting, rejecting or amending them in turn.',
+  'ping-pong': 'The bill passes back and forth between the Commons and the Lords until both Houses agree on identical text.',
+  'royal assent': 'The bill has passed both Houses and received the monarch’s assent. It is now an Act of Parliament and is law.',
+  defeated: 'The bill lost a decisive vote and can go no further in this session.',
+  withdrawn: 'The bill was withdrawn before completing its passage and will not proceed.',
+};
+
+function stageDescription(stage: string): string {
+  return STAGE_DESCRIPTIONS[stage.toLowerCase()] ?? 'This bill is making its way through Parliament.';
+}
+
 function stageLabel(bill: ParliamentBill): string {
   if (bill.is_act) return 'Royal Assent';
   if (bill.is_defeated) return 'Defeated';
@@ -117,19 +139,29 @@ function stageLabel(bill: ParliamentBill): string {
   return bill.current_stage_name ?? 'Active';
 }
 
+/** Board order: earliest stage first (First Reading at the top), defeated and
+ *  withdrawn bills last, banded into one group per stage. `sort` is stable, so
+ *  bills within a stage keep the order Parliament returned them in. */
 function groupByStage(bills: ParliamentBill[]): StageGroup[] {
-  const sorted = [...bills].sort((a, b) => stageRank(a) - stageRank(b));
   const groups: StageGroup[] = [];
-  for (const bill of sorted) {
-    const s = stageLabel(bill);
+  for (const bill of [...bills].sort((a, b) => stageRank(a) - stageRank(b))) {
+    const stage = stageLabel(bill);
     const last = groups[groups.length - 1];
-    if (last && last.stage === s) {
-      last.bills.push(bill);
-    } else {
-      groups.push({ stage: s, bills: [bill] });
-    }
+    if (last && last.stage === stage) last.bills.push(bill);
+    else groups.push({ stage, bills: [bill] });
   }
   return groups;
+}
+
+/** Which House the bill currently sits in. Deliberately derived from the
+ *  *current* house only — `originating_house` identifies the political source
+ *  of a bill and must never surface. A bill bouncing between the two Houses,
+ *  or one that has cleared both, reads as "Both". */
+export function billHouse(bill: ParliamentBill): string {
+  if (bill.is_act) return 'Both';
+  const s = (bill.current_stage_name ?? '').toLowerCase();
+  if (s.includes('ping-pong') || s.includes('consideration of amendments')) return 'Both';
+  return bill.current_house ?? '—';
 }
 
 export function billStatus(bill: ParliamentBill): { label: string; color: string; glow: string } {
@@ -162,74 +194,56 @@ export function billAiTally(bill: ParliamentBill): { for: number; against: numbe
   return { for: agg.approve, against: agg.reject };
 }
 
-/* ── Card ───────────────────────────────────────────────────────────────── */
+/* ── Row ────────────────────────────────────────────────────────────────── */
 
-function BillGridCard({ bill, votes, myVote, onSelect }: { bill: ParliamentBill; votes?: BillVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
-  const st = billStatus(bill);
+function BillRow({ bill, votes, myVote, onSelect, onVote }: { bill: ParliamentBill; votes?: BillVotes; myVote?: 'for' | 'against'; onSelect: () => void; onVote: (choice: 'for' | 'against') => void }) {
   const vOpen = isVoteOpen(bill);
   const revealed = !vOpen || myVote != null;
+  const title = bill.short_title ?? bill.long_title ?? 'Untitled Bill';
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="board-card"
-      data-voted={myVote ? 'true' : undefined}
-    >
-      <div className="flex items-center gap-xs mb-xs">
-        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
-        {bill.current_house && (
-          <span className="font-mono uppercase truncate" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.12em', opacity: 0.6 }}>
-            {bill.current_house}
+    // The whole row opens the bill. The title stays a real button so the row is
+    // still reachable and operable from the keyboard without a second tab stop.
+    <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined} onClick={onSelect}>
+      <td className="ledger-table__cell ledger-table__cell--no font-mono tabular-nums">{bill.id}</td>
+
+      <td className="ledger-table__cell ledger-table__cell--name">
+        <button type="button" className="ledger-table__title" onClick={onSelect}>
+          {title}
+        </button>
+        {/* On phones the citizen's own vote folds into this cell so the column
+            they act on stays on screen. Only one copy is ever displayed; CSS
+            decides which. Nothing folds in where there is nothing to act on. */}
+        {(vOpen || myVote) && (
+          <span className="ledger-table__row-own">
+            <OwnVoteCell title={title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Aye" againstLabel="No" />
           </span>
         )}
-        {myVote && (
-          <span className="board-card__voted-badge">
-            ✓ You voted {myVote === 'for' ? 'Aye' : 'No'}
-          </span>
-        )}
-      </div>
+      </td>
 
-      <h3 className="font-medium" style={{ color: '#FAF6ED', fontSize: '14px', lineHeight: 1.35 }}>
-        {clipText(bill.short_title ?? bill.long_title, 84)}
-      </h3>
+      <td className="ledger-table__cell ledger-table__cell--house font-mono">{billHouse(bill)}</td>
 
-      {vOpen && (
-        <div className="flex items-center justify-between gap-sm mt-sm">
-          <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
-            {formatCountdown(votes?.secondReadingDate, 'vote closed')}
-          </span>
-          <span
-            className="font-mono shrink-0"
-            style={{
-              color: '#D4AF37',
-              fontSize: '11px',
-              letterSpacing: '0.06em',
-              border: '1px solid rgba(212,175,55,0.45)',
-              lineHeight: '22px',
-              padding: '0 8px',
-              borderRadius: '2px',
-              background: 'rgba(212,175,55,0.06)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            View &amp; Vote →
-          </span>
-        </div>
-      )}
-
-      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
-        <VoteTallies
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <TallyCell
+          tally={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
+          revealed={revealed}
           forLabel="Aye"
           againstLabel="No"
-          citizen={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
-          ai={billAiTally(bill)}
-          gov={billGovVote(bill, votes)}
-          revealed={revealed}
-          compact
         />
-      </div>
-    </button>
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <TallyCell tally={billAiTally(bill)} revealed={revealed} forLabel="Aye" againstLabel="No" />
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <GovTallyCell gov={billGovVote(bill, votes)} revealed={revealed} forLabel="Aye" againstLabel="No" />
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--own">
+        <OwnVoteCell title={title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Aye" againstLabel="No" />
+      </td>
+    </tr>
   );
 }
 
@@ -247,6 +261,9 @@ export default function DepartureBoardSection({ bills }: Props) {
   const groups  = groupByStage(display);
   const selectedBill = selectedId != null ? display.find(b => b.id === selectedId) : undefined;
 
+  const castVote = (id: number, choice: 'for' | 'against') =>
+    setVotedMap(prev => ({ ...prev, [id]: choice }));
+
   useEffect(() => {
     function tick() {
       const now = new Date();
@@ -259,8 +276,13 @@ export default function DepartureBoardSection({ bills }: Props) {
   }, []);
 
   return (
-    <section style={{ background: 'linear-gradient(180deg, #0c1610 0%, #0a1d12 45%, #071108 100%)' }}>
-      <div className="max-w-[1680px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
+    // Flat forest green edge to edge — no gradient, so the board reads as one
+    // continuous surface and the step to the Regulation Board is a clean cut.
+    <section className="board-surface" style={{ background: '#0C1610' }}>
+      {/* 1400px is the brand page width (DESIGN.md `--ds-page-width`); beyond it
+          the table's slack all lands in the Bill column and pushes House and
+          Stage far from the name they describe. */}
+      <div className="max-w-[1400px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
 
         {/* ── Section header ──────────────────────────────────────────── */}
         <div className="flex items-end justify-between gap-lg mb-xl flex-wrap">
@@ -279,8 +301,8 @@ export default function DepartureBoardSection({ bills }: Props) {
             <h2 className="ledger-headline" style={{ color: '#FAF6ED', fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)', lineHeight: '1.08' }}>
               The Bill Board.
             </h2>
-            <p className="font-mono hidden sm:block" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
-              Every stage, one board · public shadow votes cast at Second Reading
+            <p className="font-mono" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
+              Public shadow votes cast at the second reading
             </p>
           </div>
           <div className="hidden sm:flex flex-col items-end gap-xxs shrink-0">
@@ -293,53 +315,71 @@ export default function DepartureBoardSection({ bills }: Props) {
           </div>
         </div>
 
-        {/* ── Stage sections ──────────────────────────────────────────── */}
-        {groups.map(group => (
-          <div key={group.stage} className="board-stage-section">
-            <div className="board-stage-section__header">
-              <span className="board-stage-section__title">{group.stage}</span>
-              <span className="kanban-column__count">{group.bills.length}</span>
-            </div>
-            <div className="board-card-grid">
-              {/* Bills the citizen has already voted on sort to the front, so they
-                  can track their own votes as each bill moves between stages. */}
-              {[...group.bills]
-                .sort((a, b) => Number(!!votedMap[b.id]) - Number(!!votedMap[a.id]))
-                .map(bill => (
-                  <BillGridCard
+        {/* ── Bill table ──────────────────────────────────────────────── */}
+        <div className="ledger-table__wrap">
+          <table className="ledger-table">
+            <caption className="sr-only">
+              Bills before Parliament, ordered by stage — First Reading first, defeated and withdrawn last.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" className="ledger-table__cell--no">No.</th>
+                {/* aria-label so the column's own name stays the plain label —
+                    without it the InfoTip's text runs into it in the a11y tree. */}
+                <th scope="col" className="ledger-table__cell--name" aria-label="Bill">
+                  Bill
+                  {/* Left-anchored: this column sits against the table's left
+                      edge, so a centred tooltip would spill off it. */}
+                  <InfoTip align="left" label="Bill" tip="The bill's short title as published by Parliament. Select any row to read the full detail and cast your vote." />
+                </th>
+                <th scope="col" className="ledger-table__cell--house" aria-label="House">
+                  House
+                  <InfoTip label="House" tip="The House the bill currently sits in — Commons or Lords, or Both once it is passing between them." />
+                </th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="Public vote tally"><TallyHeader kind="public" /></th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="AI vote tally"><TallyHeader kind="ai" /></th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="Government vote tally"><TallyHeader kind="government" align="right" /></th>
+                <th scope="col" className="ledger-table__cell--own" aria-label="Your vote">
+                  Your vote
+                  <InfoTip
+                    align="right"
+                    label="Your vote"
+                    tip="Your own shadow vote. Cast it from this column or from the bill detail while the bill is at First or Second Reading, and your choice is shown here. If you do not vote before the window closes, this column reads 'Did not vote'."
+                  />
+                </th>
+              </tr>
+            </thead>
+            {/* One banded section per stage rather than a Stage column — the
+                board is ordered by stage, so the heading carries it once for the
+                whole group instead of repeating on every row. */}
+            {groups.map(group => (
+              <tbody key={group.stage} className="ledger-table__group">
+                <tr className="ledger-table__stage-row">
+                  <th scope="colgroup" colSpan={7} className="ledger-table__stage-head" aria-label={group.stage}>
+                    <span className="ledger-table__stage-title">{group.stage}</span>
+                    <InfoTip align="left" scope="stage" label={group.stage} tip={stageDescription(group.stage)} />
+                  </th>
+                </tr>
+                {group.bills.map(bill => (
+                  <BillRow
                     key={bill.id}
                     bill={bill}
                     votes={votes[bill.id]}
                     myVote={votedMap[bill.id]}
                     onSelect={() => setSelectedId(bill.id)}
+                    onVote={choice => castVote(bill.id, choice)}
                   />
                 ))}
-            </div>
-          </div>
-        ))}
-
-        {/* Footer */}
-        <div
-          className="flex items-center justify-between flex-wrap gap-xs mt-xl pt-md"
-          style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }}
-        >
-          <span className="font-mono" style={{ color: '#B8960C', opacity: 0.45, fontSize: '11px' }}>
-            {isDemo
-              ? 'Demo data · connect the backend for live bills'
-              : `${bills.length} bills tracked · refreshes automatically`}
-          </span>
-          <Link href="/bills" className="font-mono no-underline shrink-0" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
-            View all →
-          </Link>
+              </tbody>
+            ))}
+          </table>
         </div>
 
-        {/* Attribution */}
-        <div className="flex items-center justify-center gap-md mt-xl" aria-hidden="true">
-          <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
-          <span className="font-mono uppercase" style={{ color: 'rgba(184,150,12,0.25)', fontSize: '10px', letterSpacing: '0.22em' }}>
-            UK Parliament API · Live data
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
+        {/* Footer */}
+        <div className="flex items-center justify-end mt-lg">
+          <Link href="/bills" className="board-view-all font-mono no-underline shrink-0">
+            View all →
+          </Link>
         </div>
       </div>
 
@@ -348,7 +388,7 @@ export default function DepartureBoardSection({ bills }: Props) {
           bill={selectedBill}
           votes={votes[selectedBill.id]}
           voted={votedMap[selectedBill.id] ?? null}
-          onVote={choice => setVotedMap(prev => ({ ...prev, [selectedBill.id]: choice }))}
+          onVote={choice => castVote(selectedBill.id, choice)}
           onClose={() => setSelectedId(null)}
         />
       )}

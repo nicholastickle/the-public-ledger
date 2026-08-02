@@ -56,7 +56,7 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
   }
 
   return (
-    <Modal onClose={onClose} labelledBy="regulation-modal-title">
+    <Modal onClose={onClose} labelledBy="regulation-modal-title" theme="burgundy">
       <div className="flex items-center gap-sm mb-xs flex-wrap">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
         {regulation.house && (
@@ -102,7 +102,7 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
           isOpen={vOpen}
           voted={voted}
           onVote={onVote}
-          citizen={{ for: shadowApprove, against: shadowAnnul }}
+          publicVote={{ for: shadowApprove, against: shadowAnnul }}
           ai={regulationAiTally(regulation)}
           gov={gov}
           closedNote={closedNote}

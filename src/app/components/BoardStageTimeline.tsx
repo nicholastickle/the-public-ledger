@@ -15,7 +15,9 @@ const STATE_COLOR: Record<TimelineStep['state'], string> = {
 };
 
 /** Horizontal stage progress — dark-ledger themed, distinct from the light-theme
- *  StageTimeline used on /bills/[id] (which renders division results, not this). */
+ *  StageTimeline used on /bills/[id] (which renders division results, not this).
+ *  Each node drops a hand-drawn leader line to an angled label, so long stage
+ *  names read cleanly without crowding their neighbours. */
 export default function BoardStageTimeline({ steps }: Props) {
   return (
     <div className="board-timeline" role="list" aria-label="Legislative progress">
@@ -40,6 +42,19 @@ export default function BoardStageTimeline({ steps }: Props) {
                 />
               )}
             </div>
+
+            {/* Leader line from the node down to the angled label */}
+            <svg className="board-timeline__leader" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+              <path
+                d="M7 1 L 10 18 L 36 34"
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+
             <span
               className="board-timeline__label"
               style={{ color: step.state === 'upcoming' ? 'rgba(184,150,12,0.45)' : '#FAF6ED' }}

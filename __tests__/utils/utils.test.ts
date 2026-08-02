@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatVotes, formatBillDate, formatTimeAgo, formatCountdown, clipText } from '@/app/lib/utils';
+import { formatVotes, formatBillDate, formatDateNumeric, formatTimeAgo, formatCountdown, clipText } from '@/app/lib/utils';
 
 describe('formatVotes', () => {
   it('shows the exact count with thousands separators, never abbreviated', () => {
@@ -29,6 +29,20 @@ describe('formatBillDate', () => {
 
   it('handles year boundaries correctly', () => {
     expect(formatBillDate('2026-01-01')).toBe('1 Jan 2026');
+  });
+});
+
+describe('formatDateNumeric', () => {
+  it('formats a date as zero-padded dd/mm/yyyy', () => {
+    expect(formatDateNumeric('2026-08-04')).toBe('04/08/2026');
+  });
+
+  it('pads both the day and the month', () => {
+    expect(formatDateNumeric('2026-01-09')).toBe('09/01/2026');
+  });
+
+  it('falls back to TBD for an unparseable date', () => {
+    expect(formatDateNumeric('not-a-date')).toBe('TBD');
   });
 });
 

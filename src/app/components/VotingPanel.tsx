@@ -7,7 +7,7 @@ interface Props {
   isOpen: boolean;
   voted: 'for' | 'against' | null;
   onVote: (choice: 'for' | 'against') => void;
-  citizen: Tally;
+  publicVote: Tally;
   ai: Tally;
   gov: GovVote;
   closedNote?: string;
@@ -19,20 +19,20 @@ export default function VotingPanel({
   isOpen,
   voted,
   onVote,
-  citizen,
+  publicVote,
   ai,
   gov,
   closedNote,
 }: Props) {
-  // While a vote is open and the citizen has not yet cast theirs, no tally of
+  // While a vote is open and the citizen has not yet cast their own, no tally of
   // any kind is shown — seeing how others are voting first would anchor their
   // decision. Once they vote (or once the window has closed and the result is
   // public record anyway), the tallies open up.
   const revealed = !isOpen || voted !== null;
 
-  const citizenDisplay: Tally = {
-    for: voted === 'for' ? citizen.for + 1 : citizen.for,
-    against: voted === 'against' ? citizen.against + 1 : citizen.against,
+  const publicDisplay: Tally = {
+    for: voted === 'for' ? publicVote.for + 1 : publicVote.for,
+    against: voted === 'against' ? publicVote.against + 1 : publicVote.against,
   };
 
   return (
@@ -61,7 +61,7 @@ export default function VotingPanel({
       <VoteTallies
         forLabel={forLabel}
         againstLabel={againstLabel}
-        citizen={citizenDisplay}
+        publicVote={publicDisplay}
         ai={ai}
         gov={gov}
         revealed={revealed}

@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ParliamentRegulation } from '../types/parliament';
-import { formatCountdown, clipText } from '../lib/utils';
 import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
-import VoteTallies from './VoteTallies';
+import TallyHeader from './TallyHeader';
+import InfoTip from './InfoTip';
+import { TallyCell, GovTallyCell } from './TallyCell';
+import OwnVoteCell from './OwnVoteCell';
 import RegulationDetailModal from './RegulationDetailModal';
 
 interface Props {
@@ -129,6 +131,22 @@ const PHASE_RANK: Record<string, number> = {
   'Withdrawn': 5,
 };
 
+/** What each phase actually means for the instrument, in plain terms. Kept
+ *  procedural — what happens and who votes — with no comment on any
+ *  instrument's merits or on who laid it. */
+const PHASE_DESCRIPTIONS: Record<string, string> = {
+  'Pending Approval': 'An affirmative instrument. It cannot be made until both Houses actively vote to approve it, so the public vote runs until that approval is taken.',
+  'Annul Window Open': 'A negative instrument. It becomes law automatically unless either House votes to annul it within the objection period — usually 40 sitting days from laying.',
+  Approved: 'Both Houses have voted to approve the instrument. It now awaits formal making before it comes into force.',
+  Made: 'The instrument has been formally made and is in force as law.',
+  Annulled: 'Parliament voted to annul the instrument within the objection period, so it does not come into force.',
+  Withdrawn: 'The instrument was withdrawn before Parliament settled it and will not proceed.',
+};
+
+function phaseDescription(phase: string): string {
+  return PHASE_DESCRIPTIONS[phase] ?? 'This instrument is before Parliament.';
+}
+
 function regulationPhase(reg: ParliamentRegulation): string {
   if (reg.status === 'pending') {
     return reg.procedure === 'affirmative' ? 'Pending Approval' : 'Annul Window Open';
@@ -186,102 +204,75 @@ export function regulationAiTally(reg: ParliamentRegulation): { for: number; aga
   return { for: agg.approve, against: agg.reject };
 }
 
-/* ── Card ───────────────────────────────────────────────────────────────── */
+/* ── Row ────────────────────────────────────────────────────────────────── */
 
-function ProcedureBadge({ reg }: { reg: ParliamentRegulation }) {
-  const isAff = reg.procedure === 'affirmative';
-  const color  = isAff ? '#A78BFA' : '#D4AF37';
-  const border = isAff ? 'rgba(167,139,250,0.35)' : 'rgba(212,175,55,0.35)';
-  return (
-    <span
-      className="font-mono uppercase"
-      style={{ color, fontSize: '10px', letterSpacing: '0.1em', border: `1px solid ${border}`, padding: '1px 5px', borderRadius: '2px' }}
-    >
-      {isAff ? 'Affirmative' : 'Negative'}
-    </span>
-  );
+function procedureLabel(reg: ParliamentRegulation): string {
+  return reg.procedure === 'affirmative' ? 'Affirmative' : 'Negative';
 }
 
-function RegulationGridCard({ reg, votes, myVote, onSelect }: { reg: ParliamentRegulation; votes?: RegulationVotes; myVote?: 'for' | 'against'; onSelect: () => void }) {
-  const st = regulationStatus(reg);
+function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: ParliamentRegulation; votes?: RegulationVotes; myVote?: 'for' | 'against'; onSelect: () => void; onVote: (choice: 'for' | 'against') => void }) {
   const vOpen = isVoteOpen(reg);
   const revealed = !vOpen || myVote != null;
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="board-card"
-      data-voted={myVote ? 'true' : undefined}
-    >
-      <div className="flex items-center justify-between gap-xs mb-xs">
-        <div className="flex items-center gap-xs min-w-0">
-          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color, boxShadow: `0 0 6px ${st.glow}` }} />
-          {reg.house && (
-            <span className="font-mono uppercase truncate" style={{ color: '#B8960C', fontSize: '10px', letterSpacing: '0.12em', opacity: 0.6 }}>
-              {reg.house}
-            </span>
-          )}
-        </div>
-        <ProcedureBadge reg={reg} />
-      </div>
-      {myVote && (
-        <div className="mb-xs">
-          <span className="board-card__voted-badge">
-            ✓ You voted {myVote === 'for' ? 'Approve' : 'Annul'}
-          </span>
-        </div>
-      )}
+    // The whole row opens the instrument. The title stays a real button so the
+    // row is still operable from the keyboard without a second tab stop.
+    <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined} onClick={onSelect}>
+      <td className="ledger-table__cell ledger-table__cell--no font-mono tabular-nums">{reg.id}</td>
 
-      <h3 className="font-medium" style={{ color: '#FAF6ED', fontSize: '14px', lineHeight: 1.35 }}>
-        {clipText(reg.title, 84)}
-      </h3>
-      <p className="font-mono truncate mt-xxs" style={{ color: '#B8960C', fontSize: '11px', opacity: 0.55 }}>
-        {clipText(reg.enabling_act, 44)}
-      </p>
-
-      {vOpen && (
-        <div className="flex items-center justify-between gap-sm mt-sm">
-          <span className="font-mono truncate" suppressHydrationWarning style={{ color: '#B8960C', fontSize: '10px', opacity: 0.55 }}>
-            {formatCountdown(votes?.deadline, 'window closed')}
+      <td className="ledger-table__cell ledger-table__cell--name">
+        <button type="button" className="ledger-table__title" onClick={onSelect}>
+          {reg.title}
+        </button>
+        {/* The parent Act is what makes an otherwise opaque SI title legible. */}
+        <span className="ledger-table__subtitle font-mono">{reg.enabling_act}</span>
+        {/* Narrow viewports fold the Procedure column — and, on phones, the
+            citizen's own vote — into this cell, so what a citizen needs to read
+            the row stays on screen. Only one copy of each is ever displayed;
+            CSS decides which. */}
+        {/* Named in full when folded in — out of its column the bare word has
+            nothing to tell a reader what it refers to. */}
+        <span className="ledger-table__row-procedure font-mono">
+          {procedureLabel(reg)} procedure
+        </span>
+        {(vOpen || myVote) && (
+          <span className="ledger-table__row-own">
+            <OwnVoteCell title={reg.title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Approve" againstLabel="Annul" />
           </span>
-          <span
-            className="font-mono shrink-0"
-            style={{
-              color: '#D4AF37',
-              fontSize: '11px',
-              letterSpacing: '0.06em',
-              border: '1px solid rgba(212,175,55,0.45)',
-              lineHeight: '22px',
-              padding: '0 8px',
-              borderRadius: '2px',
-              background: 'rgba(212,175,55,0.06)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            View &amp; Vote →
-          </span>
-        </div>
-      )}
+        )}
+      </td>
 
-      <div className="mt-sm pt-sm" style={{ borderTop: '1px solid rgba(184,150,12,0.1)' }}>
-        <VoteTallies
+      <td className="ledger-table__cell ledger-table__cell--house font-mono">{procedureLabel(reg)}</td>
+
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <TallyCell
+          tally={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
+          revealed={revealed}
           forLabel="Approve"
           againstLabel="Annul"
-          citizen={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
-          ai={regulationAiTally(reg)}
-          gov={regulationGovVote(reg, votes)}
-          revealed={revealed}
-          compact
         />
-      </div>
-    </button>
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <TallyCell tally={regulationAiTally(reg)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--tally">
+        <GovTallyCell gov={regulationGovVote(reg, votes)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--own">
+        <OwnVoteCell title={reg.title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Approve" againstLabel="Annul" />
+      </td>
+    </tr>
   );
 }
 
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 export default function RegulationBoardSection({ regulations }: Props) {
+  const [clock, setClock] = useState('');
+  const [date, setDate]   = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [votedMap, setVotedMap] = useState<Record<number, 'for' | 'against'>>({});
 
@@ -291,9 +282,32 @@ export default function RegulationBoardSection({ regulations }: Props) {
   const groups  = groupByPhase(display);
   const selectedRegulation = selectedId != null ? display.find(r => r.id === selectedId) : undefined;
 
+  const castVote = (id: number, choice: 'for' | 'against') =>
+    setVotedMap(prev => ({ ...prev, [id]: choice }));
+
+  // Starts empty and fills on the client — a server-rendered time would be
+  // stale the moment it arrived, and would mismatch on hydration.
+  useEffect(() => {
+    function tick() {
+      const now = new Date();
+      setClock(now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setDate(now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }));
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <section style={{ background: 'linear-gradient(180deg, #071108 0%, #050d07 55%, #030804 100%)' }}>
-      <div className="max-w-[1680px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
+    // Deep claret — the wine-and-gold register of a bound ledger or a club
+    // library, not a washed red. Flat edge to edge like the Bill Board, so the
+    // hard colour step is what separates the two; the gold rule makes it plain.
+    <section
+      className="board-surface"
+      data-board-theme="burgundy"
+      style={{ background: '#45111F', borderTop: '2px solid rgba(184,150,12,0.45)' }}
+    >
+      <div className="max-w-[1400px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
 
         {/* ── Section header ──────────────────────────────────────────── */}
         <div className="flex items-end justify-between gap-lg mb-xl flex-wrap">
@@ -312,59 +326,83 @@ export default function RegulationBoardSection({ regulations }: Props) {
             <h2 className="ledger-headline" style={{ color: '#FAF6ED', fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)', lineHeight: '1.08' }}>
               The Regulation Board.
             </h2>
-            <p className="font-mono hidden sm:block" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
-              Public votes open from laying · closes at parliamentary deadline
+            <p className="font-mono" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
+              Public shadow votes cast before the parliamentary deadline
             </p>
+          </div>
+          <div className="hidden sm:flex flex-col items-end gap-xxs shrink-0">
+            <span className="font-mono font-semibold tabular-nums" style={{ color: '#FAF6ED', fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>
+              {clock || '—:—:—'}
+            </span>
+            <span className="font-mono" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              {date || ' '} · London
+            </span>
           </div>
         </div>
 
-        {/* ── Phase sections ──────────────────────────────────────────── */}
-        {groups.map(group => (
-          <div key={group.phase} className="board-stage-section">
-            <div className="board-stage-section__header">
-              <span className="board-stage-section__title">{group.phase}</span>
-              <span className="kanban-column__count">{group.regulations.length}</span>
-            </div>
-            <div className="board-card-grid">
-              {/* Instruments the citizen has already voted on sort to the front, so
-                  they can track their own votes as each one moves between phases. */}
-              {[...group.regulations]
-                .sort((a, b) => Number(!!votedMap[b.id]) - Number(!!votedMap[a.id]))
-                .map(reg => (
-                  <RegulationGridCard
+        {/* ── Regulation table ────────────────────────────────────────── */}
+        <div className="ledger-table__wrap">
+          <table className="ledger-table">
+            <caption className="sr-only">
+              Statutory instruments before Parliament, ordered by phase — those still open to a vote first, settled and withdrawn instruments last.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" className="ledger-table__cell--no">No.</th>
+                {/* Left-anchored: this column sits against the table's left
+                    edge, so a centred tooltip would spill off it. */}
+                <th scope="col" className="ledger-table__cell--name" aria-label="Regulation">
+                  Regulation
+                  <InfoTip align="left" label="Regulation" tip="The instrument's formal title as laid before Parliament, with the Act it is made under beneath. Select any row to read the full detail and cast your vote." />
+                </th>
+                <th scope="col" className="ledger-table__cell--house" aria-label="Procedure">
+                  Procedure
+                  <InfoTip label="Procedure" tip="How Parliament scrutinises the instrument. An affirmative instrument must be actively approved by both Houses before it can be made; a negative one becomes law unless either House annuls it." />
+                </th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="Public vote tally"><TallyHeader kind="public" context="regulation" /></th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="AI vote tally"><TallyHeader kind="ai" context="regulation" /></th>
+                <th scope="col" className="ledger-table__cell--tally" aria-label="Government vote tally"><TallyHeader kind="government" context="regulation" align="right" /></th>
+                <th scope="col" className="ledger-table__cell--own" aria-label="Your vote">
+                  Your vote
+                  <InfoTip
+                    align="right"
+                    label="Your vote"
+                    tip="Your own shadow vote. Cast it from this column or from the instrument detail while the voting window is open, and your choice is shown here. If you do not vote before the deadline, this column reads 'Did not vote'."
+                  />
+                </th>
+              </tr>
+            </thead>
+            {/* One banded section per phase rather than a Phase column — the
+                board is ordered by phase, so the heading carries it once for the
+                whole group instead of repeating on every row. */}
+            {groups.map(group => (
+              <tbody key={group.phase} className="ledger-table__group">
+                <tr className="ledger-table__stage-row">
+                  <th scope="colgroup" colSpan={7} className="ledger-table__stage-head" aria-label={group.phase}>
+                    <span className="ledger-table__stage-title">{group.phase}</span>
+                    <InfoTip align="left" scope="stage" label={group.phase} tip={phaseDescription(group.phase)} />
+                  </th>
+                </tr>
+                {group.regulations.map(reg => (
+                  <RegulationRow
                     key={reg.id}
                     reg={reg}
                     votes={votes[reg.id]}
                     myVote={votedMap[reg.id]}
                     onSelect={() => setSelectedId(reg.id)}
+                    onVote={choice => castVote(reg.id, choice)}
                   />
                 ))}
-            </div>
-          </div>
-        ))}
-
-        {/* Footer */}
-        <div
-          className="flex items-center justify-between flex-wrap gap-xs mt-xl pt-md"
-          style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }}
-        >
-          <span className="font-mono" style={{ color: '#B8960C', opacity: 0.45, fontSize: '11px' }}>
-            {isDemo
-              ? 'Demo data · connect the backend for live regulations'
-              : `${regulations.length} regulations tracked · refreshes automatically`}
-          </span>
-          <Link href="/regulations" className="font-mono no-underline shrink-0" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.1em', opacity: 0.7 }}>
-            View all →
-          </Link>
+              </tbody>
+            ))}
+          </table>
         </div>
 
-        {/* Attribution */}
-        <div className="flex items-center justify-center gap-md mt-xl" aria-hidden="true">
-          <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
-          <span className="font-mono uppercase" style={{ color: 'rgba(184,150,12,0.25)', fontSize: '10px', letterSpacing: '0.22em' }}>
-            UK Parliament SI API · Live data
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'rgba(184,150,12,0.12)' }} />
+        {/* Footer */}
+        <div className="flex items-center justify-end mt-lg">
+          <Link href="/regulations" className="board-view-all font-mono no-underline shrink-0">
+            View all →
+          </Link>
         </div>
       </div>
 
@@ -373,7 +411,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
           regulation={selectedRegulation}
           votes={votes[selectedRegulation.id]}
           voted={votedMap[selectedRegulation.id] ?? null}
-          onVote={choice => setVotedMap(prev => ({ ...prev, [selectedRegulation.id]: choice }))}
+          onVote={choice => castVote(selectedRegulation.id, choice)}
           onClose={() => setSelectedId(null)}
         />
       )}

@@ -10,7 +10,9 @@ export interface Tally {
 interface Props {
   forLabel: string;
   againstLabel: string;
-  citizen: Tally;
+  /** The general public's shadow vote. Named "public" throughout the UI — the
+   *  word "citizen" is reserved for eligibility, not for the tally itself. */
+  publicVote: Tally;
   ai: Tally;
   gov: GovVote;
   /** False while a vote is open and the citizen has not yet cast theirs —
@@ -46,14 +48,14 @@ function Locked({ compact }: { compact?: boolean }) {
   );
 }
 
-/** The three tallies — citizens, the AI panel, and Parliament — always rendered
+/** The three tallies — the public, the AI panel, and Parliament — always rendered
  *  in the same order and the same bar format, on cards and in the modal alike. */
-export default function VoteTallies({ forLabel, againstLabel, citizen, ai, gov, revealed, compact }: Props) {
+export default function VoteTallies({ forLabel, againstLabel, publicVote, ai, gov, revealed, compact }: Props) {
   return (
     <div className="flex flex-col" style={{ gap: compact ? '8px' : '16px' }}>
-      <Row label="Citizens" compact={compact}>
+      <Row label="Public" compact={compact}>
         {revealed
-          ? <VoteBar forCount={citizen.for} againstCount={citizen.against} forLabel={forLabel} againstLabel={againstLabel} />
+          ? <VoteBar forCount={publicVote.for} againstCount={publicVote.against} forLabel={forLabel} againstLabel={againstLabel} />
           : <Locked compact={compact} />}
       </Row>
 

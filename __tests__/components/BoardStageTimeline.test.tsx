@@ -17,6 +17,19 @@ describe('BoardStageTimeline', () => {
     expect(items.map(i => i.textContent)).toEqual(['First Reading', 'Second Reading', 'Committee Stage']);
   });
 
+  it('draws a leader line from every node to its angled label', () => {
+    const { container } = render(
+      <BoardStageTimeline
+        steps={[
+          { label: 'First Reading', state: 'done' },
+          { label: 'Second Reading', state: 'current' },
+        ]}
+      />
+    );
+    expect(container.querySelectorAll('.board-timeline__leader')).toHaveLength(2);
+    expect(container.querySelectorAll('.board-timeline__label')).toHaveLength(2);
+  });
+
   it('renders a stopped end-state step (e.g. Defeated)', () => {
     render(
       <BoardStageTimeline

@@ -14,7 +14,7 @@ describe('VotingPanel', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={true} voted={null} onVote={onVote}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
       />
     );
     expect(screen.getByRole('button', { name: 'Aye' })).toBeInTheDocument();
@@ -22,11 +22,11 @@ describe('VotingPanel', () => {
     expect(onVote).toHaveBeenCalledWith('for');
   });
 
-  it('hides the citizen and AI tallies until the citizen votes', () => {
+  it('hides the public and AI tallies until the citizen votes', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={true} voted={null} onVote={() => {}}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
       />
     );
     // No tally numbers of any kind should be on screen before voting.
@@ -35,11 +35,11 @@ describe('VotingPanel', () => {
     expect(screen.getAllByText(/Hidden until you vote/i).length).toBe(2);
   });
 
-  it('reveals the citizen tally once voted, counting the new vote', () => {
+  it('reveals the public tally once voted, counting the new vote', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={true} voted="for" onVote={() => {}}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
       />
     );
     expect(screen.getByText(/You voted Aye/i)).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('VotingPanel', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={true} voted="for" onVote={() => {}}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING}
       />
     );
     expect(screen.getByText(/Government vote pending/i)).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('VotingPanel', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={true} voted="for" onVote={() => {}}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING_TBA}
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_PENDING_TBA}
       />
     );
     expect(screen.getByText(/Government vote pending/i)).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('VotingPanel', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={false} voted={null} onVote={() => {}}
-        citizen={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_VOTED} closedNote="Voting has closed."
+        publicVote={{ for: 10, against: 5 }} ai={{ for: 3, against: 1 }} gov={GOV_VOTED} closedNote="Voting has closed."
       />
     );
     expect(screen.getByText('Voting has closed.')).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('VotingPanel', () => {
     render(
       <VotingPanel
         forLabel="Aye" againstLabel="No" isOpen={false} voted={null} onVote={() => {}}
-        citizen={{ for: 0, against: 0 }} ai={{ for: 3, against: 1 }} gov={GOV_NONE} closedNote="Withdrawn."
+        publicVote={{ for: 0, against: 0 }} ai={{ for: 3, against: 1 }} gov={GOV_NONE} closedNote="Withdrawn."
       />
     );
     expect(screen.getByText(/No parliamentary vote recorded/i)).toBeInTheDocument();

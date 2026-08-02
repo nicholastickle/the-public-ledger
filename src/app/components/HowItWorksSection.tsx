@@ -30,7 +30,7 @@ const STEPS = [
     number: '04',
     title: 'Watch the verdict unfold.',
     description:
-      'When Parliament divides, the ledger reveals how citizen opinion aligned — or diverged — from your elected representatives.',
+      'When Parliament divides, the ledger reveals how public opinion aligned — or diverged — from your elected representatives.',
     accent: false,
   },
 ];

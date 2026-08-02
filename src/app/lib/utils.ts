@@ -13,6 +13,14 @@ export function formatBillDate(isoDate: string): string {
   });
 }
 
+/** Numeric dd/mm/yyyy — used in dense table cells where the long form won't fit. */
+export function formatDateNumeric(isoDate: string): string {
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return 'TBD';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
 export function formatTimeAgo(isoDate: string): string {
   const diffMin = Math.floor((Date.now() - new Date(isoDate).getTime()) / 60_000);
   if (diffMin < 1) return 'just now';
