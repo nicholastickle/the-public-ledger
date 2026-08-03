@@ -405,6 +405,40 @@ body {
     color: var(--color-forest-green);
   }
 
+  /* Chamber footer — dark #0C1610 surface shared with the Bill Board, so its
+     link colours are the gold/parchment pairing used there rather than the
+     warm-brown pairing above (which only reads against light parchment). */
+  .footer-link {
+    color: rgba(250, 246, 237, 0.68);
+    text-decoration: none;
+    transition: color 0.12s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--color-aged-gold-light);
+  }
+
+  .footer-heading {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(184, 150, 12, 0.9);
+  }
+
+  /* Oversized brand wordmark bleeding off the bottom edge — the "modern site"
+     background-text treatment, sat behind the real content at low opacity. */
+  .footer-watermark {
+    font-family: var(--font-display), Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    color: rgba(250, 246, 237, 0.05);
+    letter-spacing: -0.02em;
+    line-height: 0.8;
+    white-space: nowrap;
+    user-select: none;
+  }
+
   /* search input in NavBar */
   .ledger-search-input {
     outline: none;
