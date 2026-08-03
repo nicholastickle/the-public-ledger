@@ -222,7 +222,7 @@ describe('DepartureBoardSection', () => {
   it('carries a vote cast in the modal back to the row', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
     fireEvent.click(screen.getByRole('button', { name: 'Test Reform Bill' }));
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Aye' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Vote Aye on Test Reform Bill' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
 
     expect(rows()[0]).toHaveAttribute('data-voted', 'true');

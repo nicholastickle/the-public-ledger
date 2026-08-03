@@ -11,10 +11,17 @@
  * to be a drop-in swap.
  */
 
+import type { ModelBrand } from '../components/ModelLogo';
+
 export type AiVerdict = 'approve' | 'reject';
 
 export interface AiModelOpinion {
-  model: 'Claude' | 'ChatGPT' | 'Gemini' | 'Grok';
+  /** The product family the verdict came from — what a reader recognises. */
+  model: ModelBrand;
+  /** The exact model version that cast this vote. Shown alongside the family
+   *  name so a verdict is always attributable to a specific model rather than
+   *  to "an AI" — a panel is only auditable if you know what was asked. */
+  modelVersion: string;
   vendor: string;
   color: string;
   verdict: AiVerdict;
@@ -62,11 +69,16 @@ const SUMMARY_OPENERS = [
   'Solves for a narrow but genuine issue without much collateral complexity.',
 ];
 
-const MODEL_META: Array<Pick<AiModelOpinion, 'model' | 'vendor' | 'color'>> = [
-  { model: 'Claude',  vendor: 'Anthropic', color: '#D97757' },
-  { model: 'ChatGPT', vendor: 'OpenAI',    color: '#10A37F' },
-  { model: 'Gemini',  vendor: 'Google',    color: '#4C8DF6' },
-  { model: 'Grok',    vendor: 'xAI',       color: '#8B8F97' },
+/** The panel, and the exact model version each seat votes with. Pinning the
+ *  version here rather than saying "the latest" keeps a recorded verdict
+ *  attributable: the panel's composition is part of the record, so bumping a
+ *  model is a deliberate edit to this list, not something that happens to a
+ *  historic vote behind the reader's back. */
+const MODEL_META: Array<Pick<AiModelOpinion, 'model' | 'modelVersion' | 'vendor' | 'color'>> = [
+  { model: 'Claude',  modelVersion: 'Claude Opus 5', vendor: 'Anthropic', color: '#D97757' },
+  { model: 'ChatGPT', modelVersion: 'GPT-5.1',       vendor: 'OpenAI',    color: '#10A37F' },
+  { model: 'Gemini',  modelVersion: 'Gemini 3 Pro',  vendor: 'Google',    color: '#4C8DF6' },
+  { model: 'Grok',    modelVersion: 'Grok 4.1',      vendor: 'xAI',       color: '#8B8F97' },
 ];
 
 export function generateAiVerdicts(title: string, seed: number): AiModelOpinion[] {

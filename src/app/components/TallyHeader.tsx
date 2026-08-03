@@ -1,6 +1,6 @@
 import InfoTip from './InfoTip';
 
-export type TallyKind = 'public' | 'ai' | 'government';
+export type TallyKind = 'public' | 'ai' | 'government' | 'own';
 
 const ICONS: Record<TallyKind, React.ReactNode> = {
   // Two figures — the voting public.
@@ -15,12 +15,17 @@ const ICONS: Record<TallyKind, React.ReactNode> = {
   government: (
     <path d="M3 7l3.6 3L12 4l5.4 6L21 7l-1.6 10H4.6L3 7Zm1.6 12h14.8v2H4.6v-2Z" />
   ),
+  // A ticked ballot paper — the citizen's own vote.
+  own: (
+    <path d="M5 2h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm11.3 5.3-5.6 5.6-2.4-2.4-1.6 1.6 4 4 7.2-7.2-1.6-1.6ZM7 17h10v2H7v-2Z" />
+  ),
 };
 
 export const TALLY_LABELS: Record<TallyKind, string> = {
   public: 'Public vote tally',
   ai: 'AI vote tally',
   government: 'Government vote tally',
+  own: 'Your vote',
 };
 
 /** Bills and statutory instruments are voted on at different points, so each
@@ -34,6 +39,7 @@ const TOOLTIPS: Record<'bill' | 'regulation', Record<TallyKind, string>> = {
     ai: 'Verdicts from the four-model AI panel, recorded at First Reading once the bill text is published, and fixed from then on.',
     government:
       'How Parliament itself divided. The decisive division is at Second Reading, on the principle of the bill; Committee and Report Stage divide on individual amendments, and Third Reading on the final text. Until Second Reading, the expected sitting date is shown.',
+    own: "Your own shadow vote. Cast it here while the bill is at First or Second Reading and your choice is recorded. If you do not vote before the window closes, this reads 'Did not vote'.",
   },
   regulation: {
     public:
@@ -41,7 +47,18 @@ const TOOLTIPS: Record<'bill' | 'regulation', Record<TallyKind, string>> = {
     ai: 'Verdicts from the four-model AI panel, recorded when the instrument is laid and its text published, and fixed from then on.',
     government:
       'How Parliament settled the instrument. An affirmative instrument needs an approving vote in both Houses before it can be made; a negative one becomes law automatically unless either House votes to annul it within the objection period. Until then, the parliamentary deadline is shown.',
+    own: "Your own shadow vote. Cast it here while the instrument is before Parliament and your choice is recorded. If you do not vote before the deadline, this reads 'Did not vote'.",
   },
+};
+
+/** The one-word column name. Used where the tally stands on its own — in the
+ *  detail modal there is no row of bills to give the icon context, so the
+ *  column says what it is in words as well. */
+export const TALLY_SHORT_LABELS: Record<TallyKind, string> = {
+  public: 'Public',
+  ai: 'AI',
+  government: 'Parliament',
+  own: 'Your vote',
 };
 
 interface Props {
@@ -49,20 +66,24 @@ interface Props {
   /** Which board's timeline the tooltip should describe. */
   context?: 'bill' | 'regulation';
   align?: 'left' | 'right';
+  /** Shows the column's name beside the icon. Off on the boards, where the
+   *  icon alone keeps the tally columns narrow. */
+  showLabel?: boolean;
 }
 
 /** Icon plus an InfoTip for the three tally columns, matching the text columns.
  *  The written meaning lives in the tooltip and, for assistive tech, in
  *  `sr-only` text on the icon. */
-export default function TallyHeader({ kind, context = 'bill', align }: Props) {
+export default function TallyHeader({ kind, context = 'bill', align, showLabel }: Props) {
   return (
     <span className="tally-header">
       <span className="tally-header__icon">
         <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15" aria-hidden="true">
           {ICONS[kind]}
         </svg>
-        <span className="sr-only">{TALLY_LABELS[kind]}</span>
+        {!showLabel && <span className="sr-only">{TALLY_LABELS[kind]}</span>}
       </span>
+      {showLabel && <span className="tally-header__label">{TALLY_SHORT_LABELS[kind]}</span>}
       <InfoTip label={TALLY_LABELS[kind]} tip={TOOLTIPS[context][kind]} align={align} />
     </span>
   );

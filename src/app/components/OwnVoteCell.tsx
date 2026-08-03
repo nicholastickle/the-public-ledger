@@ -30,12 +30,28 @@ export default function OwnVoteCell({ title, isOpen, myVote, onVote, forLabel, a
     onVote(choice);
   };
 
+  // The thumbs carry no text, so each says on hover which way it votes. The
+  // wording follows the surface — Aye/No on a bill, Approve/Annul on an
+  // instrument — rather than a generic yes/no, so the tooltip matches the words
+  // used everywhere else on the same screen.
   return (
     <span className="own-vote-buttons">
-      <button type="button" className="own-vote-btn own-vote-btn--for" aria-label={`Vote ${forLabel} on ${title}`} onClick={cast('for')}>
+      <button
+        type="button"
+        className="own-vote-btn own-vote-btn--for vote-tip"
+        data-tooltip={`Vote ${forLabel}`}
+        aria-label={`Vote ${forLabel} on ${title}`}
+        onClick={cast('for')}
+      >
         <ThumbIcon />
       </button>
-      <button type="button" className="own-vote-btn own-vote-btn--against" aria-label={`Vote ${againstLabel} on ${title}`} onClick={cast('against')}>
+      <button
+        type="button"
+        className="own-vote-btn own-vote-btn--against vote-tip"
+        data-tooltip={`Vote ${againstLabel}`}
+        aria-label={`Vote ${againstLabel} on ${title}`}
+        onClick={cast('against')}
+      >
         <ThumbIcon down />
       </button>
     </span>

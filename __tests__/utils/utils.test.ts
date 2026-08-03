@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatVotes, formatBillDate, formatDateNumeric, formatTimeAgo, formatCountdown, clipText } from '@/app/lib/utils';
+import { formatVotes, formatBillDate, formatDateNumeric, formatTimeAgo, formatCountdown, clipText, billSourceUrl, billPublicationsUrl } from '@/app/lib/utils';
 
 describe('formatVotes', () => {
   it('shows the exact count with thousands separators, never abbreviated', () => {
@@ -114,5 +114,17 @@ describe('clipText', () => {
 
   it('truncates with an ellipsis when over the limit', () => {
     expect(clipText('This is a much longer title than allowed', 12)).toBe('This is a m…');
+  });
+});
+
+describe('billSourceUrl', () => {
+  it('points at the bill\'s own record on Parliament\'s bills service', () => {
+    expect(billSourceUrl(1234)).toBe('https://bills.parliament.uk/bills/1234');
+  });
+});
+
+describe('billPublicationsUrl', () => {
+  it('points at the bill\'s published documents', () => {
+    expect(billPublicationsUrl(1234)).toBe('https://bills.parliament.uk/bills/1234/publications');
   });
 });

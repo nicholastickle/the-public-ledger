@@ -1,4 +1,6 @@
 import type { AiModelOpinion } from '../lib/mockVotes';
+import ModelLogo from './ModelLogo';
+import InfoTip from './InfoTip';
 
 interface Props {
   opinions: AiModelOpinion[];
@@ -12,22 +14,32 @@ interface Props {
 export default function AIVotePanel({ opinions, revealed }: Props) {
   return (
     <div>
-      <div className="flex items-center justify-between gap-sm mb-xs">
-        <span className="font-mono uppercase" style={{ color: '#B8960C', fontSize: '11px', letterSpacing: '0.16em' }}>
-          AI Commentary
-        </span>
-        <span className="font-mono" style={{ color: 'rgba(184,150,12,0.5)', fontSize: '10px', letterSpacing: '0.08em' }}>
-          Demo commentary · live model voting coming soon
-        </span>
-      </div>
-      <div className="ai-panel-scroll">
+      <span className="modal-section__heading">
+        AI Commentary
+        <InfoTip
+          align="left"
+          label="AI Commentary"
+          tip="One verdict per model, each cast by the named model version on the published text alone. Every verdict can be audited: the prompt each model was given and the reply it returned are both on the record. The panel is advisory — it carries no weight in the shadow vote and none in Parliament's."
+        />
+      </span>
+
+      {/* Wraps rather than scrolls: a horizontal scroller hides whichever models
+          fall off the right edge, and a panel you have to scroll to see all of
+          is a panel most readers only see half of. */}
+      <div className="ai-panel-grid">
         {opinions.map(op => (
           <div key={op.model} className="ai-panel-card">
-            <div className="flex items-center justify-between gap-sm mb-sm">
-              <div className="flex items-center gap-xs">
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: op.color }} />
-                <span className="font-medium" style={{ color: '#FAF6ED', fontSize: '13px' }}>{op.model}</span>
-                <span className="font-mono" style={{ color: 'rgba(184,150,12,0.55)', fontSize: '10px' }}>{op.vendor}</span>
+            {/* The vendor line sits on its own row rather than beside the
+                verdict badge — squeezed into the same row it truncates to
+                "Anthropic · C…", which tells a reader nothing. */}
+            <div className="flex items-center justify-between gap-sm">
+              <div className="flex items-center gap-xs min-w-0">
+                <span className="ai-panel-card__logo" style={{ color: op.color }}>
+                  <ModelLogo brand={op.model} />
+                </span>
+                <span className="font-medium truncate" style={{ color: '#FAF6ED', fontSize: '13px' }}>
+                  {op.modelVersion}
+                </span>
               </div>
               {revealed ? (
                 <span
@@ -53,9 +65,25 @@ export default function AIVotePanel({ opinions, revealed }: Props) {
                 </span>
               )}
             </div>
-            <p style={{ color: '#E8DFC8', fontSize: '12.5px', lineHeight: 1.5 }}>{op.summary}</p>
+            <p className="ai-panel-card__vendor font-mono">
+              {op.vendor} · {op.model}
+            </p>
+            <p className="mt-sm" style={{ color: '#E8DFC8', fontSize: '12.5px', lineHeight: 1.5 }}>{op.summary}</p>
             <p className="mt-xs" style={{ color: '#8FBF9F', fontSize: '12px', lineHeight: 1.5 }}>{op.merits}</p>
             <p className="mt-xxs" style={{ color: '#D89A9A', fontSize: '12px', lineHeight: 1.5 }}>{op.problems}</p>
+
+            {/* A verdict nobody can check is just an assertion. These open the
+                exact prompt the model was given and the reply it returned, so a
+                reader can judge the verdict rather than take it on trust.
+                Disabled until the panel runs against live models. */}
+            <div className="ai-panel-card__audit">
+              <button type="button" className="ledger-btn ledger-btn--sm" disabled title="Available once the panel runs against live models">
+                System prompt
+              </button>
+              <button type="button" className="ledger-btn ledger-btn--sm" disabled title="Available once the panel runs against live models">
+                Model response
+              </button>
+            </div>
           </div>
         ))}
       </div>

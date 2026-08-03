@@ -1432,7 +1432,8 @@ body {
      than its column, and while laid out it inflates the table wrapper's scroll
      width, giving the board a phantom horizontal scrollbar. */
   /* Tooltips sit above the table rather than over the first rows of data. */
-  .header-tip::after {
+  .header-tip::after,
+  .vote-tip::after {
     content: attr(data-tooltip);
     display: none;
     position: absolute;
@@ -1461,19 +1462,23 @@ body {
 
   /* Columns near either edge of the table anchor their tooltip to that edge, so
      a centred box does not hang off the side and get cut off. */
-  .header-tip[data-align='right']::after {
+  .header-tip[data-align='right']::after,
+  .vote-tip[data-align='right']::after {
     left: auto;
     right: -6px;
     transform: none;
   }
 
-  .header-tip[data-align='left']::after {
+  .header-tip[data-align='left']::after,
+  .vote-tip[data-align='left']::after {
     left: -6px;
     transform: none;
   }
 
   .header-tip:hover::after,
-  .header-tip:focus-visible::after {
+  .header-tip:focus-visible::after,
+  .vote-tip:hover::after,
+  .vote-tip:focus-visible::after {
     display: block;
   }
 
@@ -1503,6 +1508,15 @@ body {
   .tally-header__icon {
     display: inline-flex;
     color: #b8960c;
+  }
+
+  .tally-header__label {
+    margin-left: 7px;
+  }
+
+  /* No icon to sit beside, so no icon gap to clear. */
+  .tally-header__label--bare {
+    margin-left: 0;
   }
 
   /* ── Thumb tallies ───────────────────────────────────────────────── */
@@ -1580,6 +1594,24 @@ body {
   .own-vote-buttons {
     display: inline-flex;
     gap: 6px;
+  }
+
+  /* Same tooltip machinery as the column headers, sized for a button: the label
+     is two words, so it sits on one line rather than in a 260px paragraph box.
+     The thumbs are the one control in the table with no text on them, so what
+     each does has to be readable on hover as well as to a screen reader. */
+  .vote-tip {
+    position: relative;
+  }
+
+  .vote-tip::after {
+    width: auto;
+    white-space: nowrap;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 9px;
   }
 
   .own-vote-btn {
@@ -1712,7 +1744,8 @@ body {
       overflow-x: auto;
     }
 
-    .header-tip::after {
+    .header-tip::after,
+    .vote-tip::after {
       bottom: auto;
       top: calc(100% + 10px);
       width: 220px;
@@ -1769,22 +1802,62 @@ body {
 
   /* ── Modal shell ──────────────────────────────────────────────────── */
   .ledger-modal-panel {
-    background: #0a1a10;
+    --modal-bg: #0a1a10;
+    background: var(--modal-bg);
     border: 1px solid rgba(184, 150, 12, 0.4);
     border-radius: 8px;
-    padding: 28px;
+    padding: 28px 34px 28px 28px;
     max-width: 860px;
     max-height: 88vh;
-    overflow-y: auto;
+    /* `scroll`, not `auto`: the panel is always taller than the viewport in
+       practice, and a track that appears only once you start scrolling gives no
+       cue that there is more below the fold. */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
     box-shadow:
       0 24px 64px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(184, 150, 12, 0.1);
   }
 
+  /* macOS hides overlay scrollbars until they are used; styling the WebKit
+     scrollbar opts the panel out of that and keeps the track drawn.
+     Note the panel deliberately sets neither `scrollbar-width` nor
+     `scrollbar-color` — Chrome honours those in preference to these rules and
+     then paints a track too faint to see against the panel. Firefox, which has
+     no ::-webkit- support, gets them via @supports below. */
+  .ledger-modal-panel::-webkit-scrollbar {
+    width: 11px;
+  }
+
+  .ledger-modal-panel::-webkit-scrollbar-track {
+    background: rgba(184, 150, 12, 0.14);
+    border-left: 1px solid rgba(184, 150, 12, 0.22);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .ledger-modal-panel::-webkit-scrollbar-thumb {
+    background: rgba(184, 150, 12, 0.7);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .ledger-modal-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.9);
+    background-clip: content-box;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    .ledger-modal-panel {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(212, 175, 55, 0.8) rgba(184, 150, 12, 0.16);
+    }
+  }
+
   /* Regulation detail opens from the bronze-on-black board, so its panel
      matches — a shade lifted from the surface so it reads as sitting above it. */
   .ledger-modal-panel[data-board-theme='bronze'] {
-    background: #241c14;
+    --modal-bg: #241c14;
   }
 
   .ledger-modal-close {
@@ -1810,88 +1883,507 @@ body {
     color: #faf6ed;
   }
 
-  /* ── Horizontal stage timeline (modal) ───────────────────────────── */
+  /* Desktop padding costs a phone ~14% of the panel's usable width, which the
+     four-column vote table cannot spare. */
+  @media (max-width: 639px) {
+    .ledger-modal-panel {
+      padding: 24px 22px 24px 18px;
+    }
+  }
+
+  /* ── Stage timeline (modal) ──────────────────────────────────────── */
+  /* Three layouts over one DOM. Phone-first: a plain vertical timeline. */
   .board-timeline {
-    display: flex;
-    align-items: flex-start;
-    overflow-x: auto;
-    padding-top: 4px;
-    /* room for the angled label of the final step, which reaches past its column */
-    padding-right: 28px;
-    padding-bottom: 6px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(184, 150, 12, 0.35) transparent;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .board-timeline__step {
     position: relative;
-    flex: 1 1 96px;
-    min-width: 88px;
-    height: 108px;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: start;
+    padding-bottom: 14px;
+  }
+
+  .board-timeline__step:last-child {
+    padding-bottom: 0;
   }
 
   .board-timeline__node-row {
     display: flex;
-    align-items: center;
-    width: 100%;
+    justify-content: center;
+    padding-top: 3px;
   }
 
   .board-timeline__node {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 999px;
     border: 2px solid;
     flex-shrink: 0;
   }
 
+  /* Runs from just under the node to the very bottom of the step box — the
+     padding is inside that box, so the line meets the next node. */
   .board-timeline__connector {
-    height: 2px;
-    flex: 1;
+    position: absolute;
+    top: 19px;
+    bottom: 0;
+    left: 8px;
+    width: 2px;
   }
 
+  /* The angled leader only makes sense in the horizontal layout. */
   .board-timeline__leader {
-    position: absolute;
-    top: 13px;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    overflow: visible;
-    pointer-events: none;
+    display: none;
   }
 
   .board-timeline__label {
-    position: absolute;
     display: block;
-    top: 42px;
-    left: 34px;
-    width: 84px;
-    transform: rotate(17deg);
-    transform-origin: left top;
     font-family: var(--font-mono), monospace;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-align: left;
-    line-height: 1.3;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+  }
+
+  /* Two columns: read down the left, then down the right. The grid fills
+     column-first, which is why the component hands it a row count. */
+  @media (min-width: 600px) {
+    .board-timeline {
+      grid-auto-flow: column;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(var(--timeline-rows, 4), auto);
+      column-gap: 32px;
+    }
+  }
+
+  @media (min-width: 600px) and (max-width: 1023.98px) {
+    .board-timeline__step[data-col-end='true'] {
+      padding-bottom: 0;
+    }
+
+    .board-timeline__step[data-col-end='true'] .board-timeline__connector {
+      display: none;
+    }
+  }
+
+  /* Full horizontal run with angled labels, once there is width for it. */
+  @media (min-width: 1024px) {
+    .board-timeline {
+      display: flex;
+      align-items: flex-start;
+      padding-top: 4px;
+      /* room for the angled label of the final step, which reaches past its column */
+      padding-right: 44px;
+      /* the two-column layout's gutter would otherwise space the nodes apart and
+         push the last stages off the panel */
+      column-gap: 0;
+    }
+
+    .board-timeline__step {
+      display: block;
+      flex: 1 1 96px;
+      min-width: 92px;
+      height: 132px;
+      padding-bottom: 0;
+    }
+
+    .board-timeline__node-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      padding-top: 0;
+    }
+
+    .board-timeline__node {
+      width: 14px;
+      height: 14px;
+    }
+
+    .board-timeline__connector {
+      position: static;
+      height: 2px;
+      width: auto;
+      flex: 1;
+    }
+
+    .board-timeline__leader {
+      display: block;
+      position: absolute;
+      top: 13px;
+      left: 0;
+      width: 44px;
+      height: 48px;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    /* Set on the same 35° the leader's second segment runs at, picked up a short
+       gap past where that segment ends. */
+    .board-timeline__label {
+      position: absolute;
+      top: 47px;
+      left: 33px;
+      width: 104px;
+      transform: rotate(35deg);
+      transform-origin: left top;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-align: left;
+      line-height: 1.3;
+    }
   }
 
   /* ── AI vote panel ────────────────────────────────────────────────── */
-  .ai-panel-scroll {
-    display: flex;
+  /* Wraps instead of scrolling — cards share the width evenly and reflow from
+     four across to one as the viewport narrows. */
+  /* Two up rather than auto-fitting: a four-model panel auto-fits to 3 + 1 at
+     the widest sizes, which reads as a card left over. 2 × 2 stays balanced and
+     keeps the commentary at a comfortable measure. */
+  .ai-panel-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 6px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(184, 150, 12, 0.35) transparent;
+  }
+
+  @media (min-width: 640px) {
+    .ai-panel-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .ai-panel-card {
-    flex: 0 0 260px;
-    scroll-snap-align: start;
     background: rgba(250, 246, 237, 0.03);
     border: 1px solid rgba(184, 150, 12, 0.18);
     border-radius: 4px;
     padding: 14px 16px;
+    min-width: 0;
+  }
+
+  /* Indented to the width of the logo plus its gap, so it hangs under the model
+     version rather than under the mark. */
+  .ai-panel-card__vendor {
+    margin-top: 4px;
+    margin-left: 34px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: rgba(184, 150, 12, 0.6);
+  }
+
+  .ai-panel-card__audit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(184, 150, 12, 0.14);
+  }
+
+  .ai-panel-card__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    background: rgba(250, 246, 237, 0.06);
+    border: 1px solid currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ── Vote tally table (modal) ────────────────────────────────────── */
+  .vote-table__wrap {
+    border: 1px solid rgba(184, 150, 12, 0.2);
+    border-radius: 4px;
+    background: rgba(250, 246, 237, 0.02);
+  }
+
+  /* Same chrome as the board table, minus the board's min-width — one row of
+     four columns fits anywhere the modal does. */
+  .vote-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .vote-table thead th.ledger-table__cell--tally,
+  .vote-table thead th.ledger-table__cell--own,
+  .vote-table .ledger-table__cell--tally,
+  .vote-table .ledger-table__cell--own {
+    width: 25%;
+    text-align: center;
+  }
+
+  /* On phones the board folds its Your-vote column into the bill name, because
+     the board has a name column to fold it into. This table does not — it is
+     one row about one bill — so the column stays put at every width. */
+  .vote-table thead th.ledger-table__cell--own,
+  .vote-table tbody td.ledger-table__cell--own {
+    display: table-cell;
+  }
+
+  .vote-table thead th {
+    padding: 9px 8px 10px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .vote-table thead th .tally-header,
+  .vote-table thead th {
+    justify-content: center;
+  }
+
+  .vote-table .ledger-table__cell {
+    padding: 16px 8px;
+  }
+
+  .vote-table .own-vote-buttons,
+  .vote-table .own-vote {
+    justify-content: center;
+  }
+
+  /* The modal shows one bill, so the tally is the thing being read rather than
+     one cell in a scan of twenty rows — it can afford to be bigger here than on
+     the board, where the same components stay compact. */
+  .vote-table .thumb-tally {
+    gap: 14px;
+  }
+
+  .vote-table .thumb-tally__side {
+    gap: 6px;
+  }
+
+  .vote-table .thumb-tally svg,
+  .vote-table .own-vote svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .vote-table .thumb-tally__count {
+    font-size: 14px;
+  }
+
+  .vote-table .own-vote {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .vote-table .own-vote-buttons {
+    gap: 8px;
+  }
+
+  .vote-table .own-vote-btn {
+    width: 40px;
+    height: 34px;
+  }
+
+  .vote-table .own-vote-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .vote-table__prompt,
+  .vote-table__note {
+    margin-top: 10px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(184, 150, 12, 0.6);
+  }
+
+  .vote-table__prompt {
+    color: #d4af37;
+  }
+
+  /* Four columns in a phone-width panel leaves ~66px each — too little for
+     "Parliament" on one line beside its icon, so the header stacks instead. */
+  @media (max-width: 639px) {
+    .vote-table thead th {
+      padding: 8px 3px 9px;
+      font-size: 9.5px;
+      letter-spacing: 0.04em;
+    }
+
+    .vote-table thead th .tally-header {
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .vote-table thead th .tally-header .info-tip {
+      margin-left: 0;
+      top: 0;
+    }
+
+    .vote-table .ledger-table__cell {
+      padding: 12px 3px;
+    }
+
+    /* The pending date is the widest thing that can land in a tally cell, and
+       the columns are fixed at a quarter each — so it shrinks to fit rather
+       than spilling into the Your-vote column beside it. */
+    .vote-table .tally-cell__pending {
+      font-size: 9px;
+      padding: 2px 4px;
+      letter-spacing: 0;
+    }
+
+    /* "Did not vote" is wider than a quarter-column at this size; wrapping it
+       keeps it inside the table rather than running off the panel. */
+    .vote-table .own-vote--none {
+      white-space: normal;
+      line-height: 1.3;
+    }
+
+    /* The desktop table has room to enlarge the thumbs and counts; a phone's
+       quarter-column does not, so they go back to board scale here. */
+    .vote-table .thumb-tally svg,
+    .vote-table .own-vote svg,
+    .vote-table .own-vote-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .vote-table .thumb-tally__count {
+      font-size: 12px;
+    }
+
+    .vote-table .thumb-tally__side {
+      gap: 4px;
+    }
+
+    .vote-table .own-vote {
+      font-size: 11px;
+      gap: 4px;
+    }
+
+    .vote-table .own-vote-buttons {
+      gap: 5px;
+    }
+
+    .vote-table .own-vote-btn {
+      width: 30px;
+      height: 28px;
+    }
+  }
+
+  /* ── Read-more explainer ─────────────────────────────────────────── */
+  .read-more__para {
+    font-family: var(--font-sans), sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #e8dfc8;
+  }
+
+  .read-more__rest {
+    position: relative;
+    overflow: hidden;
+    /* Roughly five clipped lines under the full first paragraph — enough that
+       the reader can judge whether the rest is worth opening, with the fade
+       making it plain the text carries on. */
+    max-height: 116px;
+    transition: max-height 0.25s ease;
+  }
+
+  .read-more__rest[data-expanded='true'] {
+    max-height: 1600px;
+  }
+
+  .read-more__fade {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 56px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--modal-bg, #0a1a10) 82%);
+  }
+
+  /* Centred under the text it expands, so the control reads as belonging to the
+     block rather than trailing off its left edge. */
+  .read-more__toggle-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .read-more__chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .read-more__chevron[data-expanded='true'] {
+    transform: rotate(180deg);
+  }
+
+  /* ── Ledger button ───────────────────────────────────────────────── */
+  /* The one bordered control used inside the detail modals — read-more, links
+     out to Parliament, and the AI audit controls. Sharp 2px corners per
+     DESIGN.md; anything that reads as an action in a modal wears this. */
+  .ledger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.07);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .ledger-btn:hover {
+    background: rgba(212, 175, 55, 0.16);
+    border-color: rgba(212, 175, 55, 0.6);
+    color: #faf6ed;
+  }
+
+  .ledger-btn:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+  }
+
+  .ledger-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  .ledger-btn:disabled:hover {
+    background: rgba(212, 175, 55, 0.07);
+    border-color: rgba(212, 175, 55, 0.35);
+    color: #d4af37;
+  }
+
+  /* For controls that sit inside a card rather than on the panel itself. */
+  .ledger-btn--sm {
+    padding: 3px 8px;
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    gap: 4px;
+  }
+
+  /* ── Modal meta rows ─────────────────────────────────────────────── */
+  .modal-meta__label {
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #b8960c;
+  }
+
+  .modal-section__heading {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #b8960c;
+    margin-bottom: 12px;
   }
 
   /* ── Voting panel ─────────────────────────────────────────────────── */

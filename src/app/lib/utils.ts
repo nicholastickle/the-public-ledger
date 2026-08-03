@@ -47,6 +47,20 @@ export function formatCountdown(dateStr: string | null | undefined, closedLabel:
   return `closes in ${mins}m`;
 }
 
+/** The bill's own page on Parliament's bills service — the canonical record, and
+ *  where the full text and every published document for it live. Linking out to
+ *  Parliament rather than restating the text keeps the primary source one click
+ *  away without this site becoming an intermediary for it. */
+export function billSourceUrl(id: number): string {
+  return `https://bills.parliament.uk/bills/${id}`;
+}
+
+/** The bill's publications index — the drafts, amendment papers and explanatory
+ *  notes as published, for a reader who wants the text itself. */
+export function billPublicationsUrl(id: number): string {
+  return `https://bills.parliament.uk/bills/${id}/publications`;
+}
+
 /** Truncates to `n` characters with an ellipsis; returns an em dash for empty input. */
 export function clipText(s: string | null, n: number): string {
   if (!s) return '—';
