@@ -61,18 +61,7 @@ export default function Footer() {
         aria-hidden="true"
       />
 
-      {/* Oversized brand wordmark bleeding off the bottom edge, sat behind
-          everything else — the "modern site" background-text treatment. */}
-      <div className="absolute inset-x-0 bottom-0 z-0 overflow-hidden" aria-hidden="true">
-        <span
-          className="footer-watermark block text-center"
-          style={{ fontSize: 'clamp(3.5rem, 13vw, 11rem)', transform: 'translateY(30%)' }}
-        >
-          Public Ledger
-        </span>
-      </div>
-
-      <div className="relative z-10 flex flex-col lg:flex-row">
+      <div className="relative z-10 max-w-[1400px] mx-auto flex flex-col lg:flex-row">
         {/* Content half */}
         <div className="w-full lg:w-1/2 px-md sm:px-xl lg:px-3xl py-4xl">
           {/* Brand + slogan */}
@@ -148,6 +137,20 @@ export default function Footer() {
             style={{ background: 'linear-gradient(to right, #0C1610, transparent)' }}
           />
         </div>
+      </div>
+
+      {/* Oversized brand wordmark bleeding off the bottom edge — the "modern
+          site" background-text treatment. Layered above the chamber
+          illustration (not just the plain background) so its gold strokes
+          don't cut across individual letters; pointer-events-none keeps it
+          from stealing clicks off the real links underneath. */}
+      <div className="absolute inset-x-0 bottom-0 z-20 overflow-hidden pointer-events-none" aria-hidden="true">
+        <span
+          className="footer-watermark block text-center"
+          style={{ fontSize: 'clamp(3.5rem, 13vw, 11rem)', transform: 'translateY(30%)' }}
+        >
+          Public Ledger
+        </span>
       </div>
     </footer>
   );
