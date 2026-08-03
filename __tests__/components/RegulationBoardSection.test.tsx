@@ -147,7 +147,7 @@ describe('RegulationBoardSection', () => {
   it('carries a vote cast in the modal back to the row', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     fireEvent.click(screen.getByRole('button', { name: 'The Test (Amendment) Regulations 2026' }));
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Annul' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Vote Annul on/ }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
 
     expect(rows()[0]).toHaveAttribute('data-voted', 'true');

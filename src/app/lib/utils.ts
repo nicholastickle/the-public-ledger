@@ -61,6 +61,40 @@ export function billPublicationsUrl(id: number): string {
   return `https://bills.parliament.uk/bills/${id}/publications`;
 }
 
+/** The year a statutory instrument belongs to, which together with its number
+ *  is how legislation.gov.uk addresses it. Prefers the date it was laid, then
+ *  made, then last touched, and falls back to the year in its own title — SI
+ *  titles carry it by convention ("… Regulations 2026"). */
+export function regulationYear(reg: {
+  laid_date?: string | null;
+  made_date?: string | null;
+  last_update?: string | null;
+  title?: string;
+}): number {
+  for (const d of [reg.laid_date, reg.made_date, reg.last_update]) {
+    if (d) {
+      const year = new Date(d).getFullYear();
+      if (!Number.isNaN(year)) return year;
+    }
+  }
+  const fromTitle = reg.title?.match(/\b(19|20)\d{2}\b/)?.[0];
+  return fromTitle ? Number(fromTitle) : new Date().getFullYear();
+}
+
+/** The instrument as published on legislation.gov.uk — the made text, which is
+ *  the operative law. UK statutory instruments are addressed by year and
+ *  number, so both are needed to build the URL. */
+export function regulationSourceUrl(year: number, number: number): string {
+  return `https://www.legislation.gov.uk/uksi/${year}/${number}`;
+}
+
+/** The explanatory memorandum laid alongside the instrument — the department's
+ *  own account of what it does and why, and the closest thing an SI has to a
+ *  plain-English summary on the public record. */
+export function regulationMemorandumUrl(year: number, number: number): string {
+  return `https://www.legislation.gov.uk/uksi/${year}/${number}/memorandum/contents`;
+}
+
 /** Truncates to `n` characters with an ellipsis; returns an em dash for empty input. */
 export function clipText(s: string | null, n: number): string {
   if (!s) return '—';

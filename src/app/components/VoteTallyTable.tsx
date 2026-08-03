@@ -1,7 +1,7 @@
 import TallyHeader from './TallyHeader';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
-import type { Tally } from './VoteTallies';
+import type { Tally } from '../types/votes';
 import type { GovVote } from '../lib/mockVotes';
 
 interface Props {

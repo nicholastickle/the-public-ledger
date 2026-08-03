@@ -35,23 +35,34 @@ function rawStageIndex(stageName: string | null): number {
   return idx === -1 ? 1 : idx;
 }
 
+/** The full run of stages, always — a bill that died at Second Reading stopped
+ *  two stages into eight, and truncating the timeline there loses exactly that.
+ *  The stage it died at is marked `stopped`; everything after it is `unreached`,
+ *  drawn hollow behind a broken line. "Defeated" and "Withdrawn" are not stages
+ *  and get no node of their own; `billOutcome` states them in words instead. */
 function buildBillTimeline(bill: ParliamentBill): TimelineStep[] {
   if (bill.is_act) {
     return BILL_STAGE_ORDER.map(s => ({ label: s.label, state: 'done' }));
   }
   const idx = rawStageIndex(bill.current_stage_name);
   if (bill.is_defeated || bill.bill_withdrawn) {
-    const steps: TimelineStep[] = BILL_STAGE_ORDER.slice(0, idx + 1).map((s, i) => ({
+    return BILL_STAGE_ORDER.map((s, i) => ({
       label: s.label,
-      state: i < idx ? 'done' : 'stopped',
+      state: i < idx ? 'done' : i === idx ? 'stopped' : 'unreached',
     }));
-    steps.push({ label: bill.is_defeated ? 'Defeated' : 'Withdrawn', state: 'stopped' });
-    return steps;
   }
   return BILL_STAGE_ORDER.map((s, i) => ({
     label: s.label,
     state: i < idx ? 'done' : i === idx ? 'current' : 'upcoming',
   }));
+}
+
+/** What ended the bill's passage and where, for the banner under the timeline.
+ *  Null while the bill is still live or has passed. */
+function billOutcome(bill: ParliamentBill): string | null {
+  if (!bill.is_defeated && !bill.bill_withdrawn) return null;
+  const stage = BILL_STAGE_ORDER[rawStageIndex(bill.current_stage_name)].label;
+  return `${bill.is_defeated ? 'Defeated' : 'Withdrawn'} at ${stage}`;
 }
 
 function Divider() {
@@ -67,6 +78,7 @@ export default function BillDetailModal({ bill, votes, voted, onVote, onClose }:
   const gov = billGovVote(bill, votes);
   const aiOpinions = generateAiVerdicts(title, bill.id);
   const explainer = generateExplainer(title, bill.id);
+  const outcome = billOutcome(bill);
   const revealed = !vOpen || voted !== null;
 
   let closedNote: string | undefined;
@@ -141,6 +153,12 @@ export default function BillDetailModal({ bill, votes, voted, onVote, onClose }:
           />
         </span>
         <BoardStageTimeline steps={buildBillTimeline(bill)} />
+        {outcome && (
+          <p className="stage-outcome">
+            <span className="stage-outcome__dot" aria-hidden="true" />
+            {outcome}
+          </p>
+        )}
       </div>
 
       {/* 7 — the vote */}

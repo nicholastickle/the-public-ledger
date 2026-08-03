@@ -16,6 +16,22 @@ const OPEN_BILL: ParliamentBill = {
   parliament_last_update: '2026-07-01T09:00:00Z',
 };
 
+const DEFEATED_BILL: ParliamentBill = {
+  ...OPEN_BILL,
+  id: 3,
+  short_title: 'Test Defeated Bill',
+  current_stage_name: 'Second Reading',
+  is_defeated: true,
+};
+
+const WITHDRAWN_BILL: ParliamentBill = {
+  ...OPEN_BILL,
+  id: 4,
+  short_title: 'Test Withdrawn Bill',
+  current_stage_name: 'First Reading',
+  bill_withdrawn: '2026-07-12',
+};
+
 const ENACTED_BILL: ParliamentBill = {
   ...OPEN_BILL,
   id: 2,
@@ -146,6 +162,35 @@ describe('BillDetailModal', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(toggle);
     expect(screen.getByRole('button', { name: /Read less/i })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('keeps the whole stage run visible for a defeated bill, not just the part it travelled', () => {
+    render(<BillDetailModal bill={DEFEATED_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    const timeline = screen.getByRole('list', { name: /legislative progress/i });
+    // Stopping at Second Reading must not hide the six stages it never reached.
+    expect(within(timeline).getByText('Second Reading')).toBeInTheDocument();
+    expect(within(timeline).getByText('Royal Assent')).toBeInTheDocument();
+    expect(within(timeline).getAllByRole('listitem')).toHaveLength(8);
+  });
+
+  it('states the outcome and the stage it happened at, rather than adding a fake stage', () => {
+    render(<BillDetailModal bill={DEFEATED_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    expect(screen.getByText('Defeated at Second Reading')).toBeInTheDocument();
+    // "Defeated" is an outcome, not a stage, so it gets no node of its own.
+    const timeline = screen.getByRole('list', { name: /legislative progress/i });
+    expect(within(timeline).queryByText('Defeated')).not.toBeInTheDocument();
+  });
+
+  it('names the stage a withdrawn bill was withdrawn at', () => {
+    render(<BillDetailModal bill={WITHDRAWN_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    expect(screen.getByText('Withdrawn at First Reading')).toBeInTheDocument();
+  });
+
+  it('shows no outcome banner for a bill that is still live or has passed', () => {
+    const { container, rerender } = render(<BillDetailModal bill={OPEN_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    expect(container.querySelector('.stage-outcome')).not.toBeInTheDocument();
+    rerender(<BillDetailModal bill={ENACTED_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    expect(container.querySelector('.stage-outcome')).not.toBeInTheDocument();
   });
 
   it('calls onClose when the close button is clicked', () => {

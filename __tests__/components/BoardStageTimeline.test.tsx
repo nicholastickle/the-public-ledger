@@ -61,6 +61,38 @@ describe('BoardStageTimeline', () => {
     expect(steps.map(s => s.getAttribute('data-col-end'))).toEqual([null, 'true', null, 'true']);
   });
 
+  it('breaks the line out of the stage a measure stopped at, and every one after', () => {
+    const { container } = render(
+      <BoardStageTimeline
+        steps={[
+          { label: 'First Reading', state: 'done' },
+          { label: 'Second Reading', state: 'stopped' },
+          { label: 'Committee Stage', state: 'unreached' },
+          { label: 'Report Stage', state: 'unreached' },
+        ]}
+      />
+    );
+    const broken = Array.from(container.querySelectorAll('.board-timeline__connector'))
+      .map(c => c.getAttribute('data-broken'));
+    // Three connectors for four steps: solid into the stop, broken after it.
+    expect(broken).toEqual([null, 'true', 'true']);
+  });
+
+  it('keeps the line solid while a run is still live', () => {
+    const { container } = render(
+      <BoardStageTimeline
+        steps={[
+          { label: 'First Reading', state: 'done' },
+          { label: 'Second Reading', state: 'current' },
+          { label: 'Committee Stage', state: 'upcoming' },
+        ]}
+      />
+    );
+    const broken = Array.from(container.querySelectorAll('.board-timeline__connector'))
+      .map(c => c.getAttribute('data-broken'));
+    expect(broken).toEqual([null, null]);
+  });
+
   it('renders a stopped end-state step (e.g. Defeated)', () => {
     render(
       <BoardStageTimeline

@@ -1147,90 +1147,152 @@ body {
     --board-row-hover: rgba(250, 246, 237, 0.07);
   }
 
-  .board-surface[data-board-theme='bronze'] {
+  [data-board-theme='bronze'] {
     --board-head-bg: #1c1712;
     --board-band-bg: rgba(90, 60, 30, 0.26);
     --board-row-hover: rgba(250, 246, 237, 0.07);
   }
 
-  /* The regulation board's own chrome swaps gold for bronze/copper — scoped so
-     the Bill Board's table (which shares every one of these classes) keeps
-     its gold untouched. */
-  .board-surface[data-board-theme='bronze'] .ledger-table thead th {
-    color: #a8722f;
-    border-bottom-color: rgba(168, 114, 47, 0.32);
+  /* The regulation board's own chrome swaps gold for bronze/copper. Keyed on
+     the attribute alone rather than on `.board-surface`, because the regulation
+     detail modal carries the same attribute and needs the same swap — it opens
+     from this board and would otherwise render a gold table on a bronze panel. */
+  [data-board-theme='bronze'] .ledger-table thead th {
+    color: #c08a4a;
+    border-bottom-color: rgba(192, 138, 74, 0.32);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__stage-head {
-    border-top-color: rgba(168, 114, 47, 0.18);
-    border-bottom-color: rgba(168, 114, 47, 0.18);
+  [data-board-theme='bronze'] .ledger-table__stage-head {
+    border-top-color: rgba(192, 138, 74, 0.18);
+    border-bottom-color: rgba(192, 138, 74, 0.18);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__row+.ledger-table__row .ledger-table__cell {
-    border-top-color: rgba(168, 114, 47, 0.12);
+  [data-board-theme='bronze'] .ledger-table__row+.ledger-table__row .ledger-table__cell {
+    border-top-color: rgba(192, 138, 74, 0.12);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__row[data-voted='true'] {
-    background: rgba(201, 148, 79, 0.07);
+  [data-board-theme='bronze'] .ledger-table__row[data-voted='true'] {
+    background: rgba(221, 170, 106, 0.07);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__row[data-voted='true']:hover {
-    background: rgba(201, 148, 79, 0.11);
+  [data-board-theme='bronze'] .ledger-table__row[data-voted='true']:hover {
+    background: rgba(221, 170, 106, 0.11);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__cell--no {
-    color: rgba(168, 114, 47, 0.7);
+  [data-board-theme='bronze'] .ledger-table__cell--no {
+    color: rgba(192, 138, 74, 0.85);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__subtitle {
-    color: rgba(168, 114, 47, 0.62);
+  [data-board-theme='bronze'] .ledger-table__subtitle {
+    color: rgba(192, 138, 74, 0.8);
   }
 
-  .board-surface[data-board-theme='bronze'] .ledger-table__title:hover {
-    color: #c9944f;
-    text-decoration-color: rgba(201, 148, 79, 0.6);
+  [data-board-theme='bronze'] .ledger-table__title:hover {
+    color: #ddaa6a;
+    text-decoration-color: rgba(221, 170, 106, 0.6);
   }
 
-  .board-surface[data-board-theme='bronze'] .header-tip {
-    color: #a8722f;
+  [data-board-theme='bronze'] .header-tip {
+    color: #c08a4a;
   }
 
-  .board-surface[data-board-theme='bronze'] .header-tip::after {
-    border-color: rgba(168, 114, 47, 0.45);
+  [data-board-theme='bronze'] .header-tip::after {
+    border-color: rgba(192, 138, 74, 0.45);
   }
 
-  .board-surface[data-board-theme='bronze'] .info-tip {
-    color: rgba(168, 114, 47, 0.55);
+  [data-board-theme='bronze'] .info-tip {
+    color: rgba(192, 138, 74, 0.75);
   }
 
-  .board-surface[data-board-theme='bronze'] .info-tip:hover {
-    color: #c9944f;
+  [data-board-theme='bronze'] .info-tip:hover {
+    color: #ddaa6a;
   }
 
-  .board-surface[data-board-theme='bronze'] .tally-header__icon {
-    color: #a8722f;
+  [data-board-theme='bronze'] .tally-header__icon {
+    color: #c08a4a;
   }
 
-  .board-surface[data-board-theme='bronze'] .tally-cell__none {
-    color: rgba(168, 114, 47, 0.45);
+  [data-board-theme='bronze'] .tally-cell__none {
+    color: rgba(192, 138, 74, 0.65);
   }
 
-  .board-surface[data-board-theme='bronze'] .tally-cell__pending {
-    color: #c9944f;
-    background: rgba(201, 148, 79, 0.07);
-    border-color: rgba(201, 148, 79, 0.35);
+  [data-board-theme='bronze'] .tally-cell__pending {
+    color: #ddaa6a;
+    background: rgba(221, 170, 106, 0.07);
+    border-color: rgba(221, 170, 106, 0.35);
   }
 
-  .board-surface[data-board-theme='bronze'] .board-view-all {
-    color: #a8722f;
-    border-color: rgba(168, 114, 47, 0.45);
-    background: rgba(168, 114, 47, 0.06);
+  [data-board-theme='bronze'] .board-view-all {
+    color: #c08a4a;
+    border-color: rgba(192, 138, 74, 0.45);
+    background: rgba(192, 138, 74, 0.06);
   }
 
-  .board-surface[data-board-theme='bronze'] .board-view-all:hover {
-    color: #c9944f;
-    border-color: rgba(201, 148, 79, 0.8);
-    background: rgba(201, 148, 79, 0.14);
+  /* ── Bronze: detail-modal chrome ─────────────────────────────────── */
+  /* Everything the modal added during the bill work defaults to aged gold.
+     These are the same components on a bronze panel, so each gets its copper
+     equivalent rather than a second set of components. */
+  [data-board-theme='bronze'] .modal-meta__label,
+  [data-board-theme='bronze'] .modal-section__heading {
+    color: #c08a4a;
+  }
+
+  [data-board-theme='bronze'] .ledger-btn {
+    color: #ddaa6a;
+    background: rgba(221, 170, 106, 0.07);
+    border-color: rgba(221, 170, 106, 0.35);
+  }
+
+  [data-board-theme='bronze'] .ledger-btn:hover {
+    background: rgba(221, 170, 106, 0.16);
+    border-color: rgba(221, 170, 106, 0.6);
+    color: #faf6ed;
+  }
+
+  [data-board-theme='bronze'] .ledger-btn:disabled:hover {
+    background: rgba(221, 170, 106, 0.07);
+    border-color: rgba(221, 170, 106, 0.35);
+    color: #ddaa6a;
+  }
+
+  [data-board-theme='bronze'] .vote-table__wrap {
+    border-color: rgba(192, 138, 74, 0.2);
+  }
+
+  [data-board-theme='bronze'] .vote-table__prompt {
+    color: #ddaa6a;
+  }
+
+  [data-board-theme='bronze'] .vote-table__note {
+    color: rgba(192, 138, 74, 0.8);
+  }
+
+  [data-board-theme='bronze'] .ai-panel-card {
+    border-color: rgba(192, 138, 74, 0.18);
+  }
+
+  [data-board-theme='bronze'] .ai-panel-card__audit {
+    border-top-color: rgba(192, 138, 74, 0.14);
+  }
+
+  [data-board-theme='bronze'] .ai-panel-card__vendor {
+    color: rgba(192, 138, 74, 0.8);
+  }
+
+  /* The stage timeline takes its colours from these, so the current-stage node
+     and the leader lines run copper on this panel instead of gold. */
+  [data-board-theme='bronze'] {
+    --stage-current: #ddaa6a;
+    --stage-current-glow: rgba(221, 170, 106, 0.6);
+    --stage-upcoming: rgba(192, 138, 74, 0.45);
+    --stage-line: rgba(192, 138, 74, 0.3);
+    --stage-label-upcoming: rgba(192, 138, 74, 0.68);
+  }
+
+  [data-board-theme='bronze'] .board-view-all:hover {
+    color: #ddaa6a;
+    border-color: rgba(221, 170, 106, 0.8);
+    background: rgba(221, 170, 106, 0.14);
   }
 
   /* No overflow above the phone breakpoint: the table already fits there, and a
@@ -1935,6 +1997,18 @@ body {
     width: 2px;
   }
 
+  /* Dashed from the point a measure stopped: those stages were never travelled,
+     and a solid line would read as a route still open. Direction follows the
+     layout — the connector runs vertically until the horizontal breakpoint. */
+  .board-timeline__connector[data-broken='true'] {
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--stage-line, rgba(184, 150, 12, 0.18)) 0 3px,
+      transparent 3px 8px
+    );
+  }
+
   /* The angled leader only makes sense in the horizontal layout. */
   .board-timeline__leader {
     display: none;
@@ -1986,6 +2060,9 @@ body {
       display: block;
       flex: 1 1 96px;
       min-width: 92px;
+      /* Capped for short runs so four stages don't share out 780px between
+         them; unset for long ones, which need every pixel. */
+      max-width: var(--stage-step-max, none);
       height: 132px;
       padding-bottom: 0;
     }
@@ -2010,6 +2087,14 @@ body {
       flex: 1;
     }
 
+    .board-timeline__connector[data-broken='true'] {
+      background-image: repeating-linear-gradient(
+        to right,
+        var(--stage-line, rgba(184, 150, 12, 0.18)) 0 3px,
+        transparent 3px 8px
+      );
+    }
+
     .board-timeline__leader {
       display: block;
       position: absolute;
@@ -2027,7 +2112,7 @@ body {
       position: absolute;
       top: 47px;
       left: 33px;
-      width: 104px;
+      width: var(--stage-label-w, 104px);
       transform: rotate(35deg);
       transform-origin: left top;
       font-size: 12px;
@@ -2366,13 +2451,84 @@ body {
     gap: 4px;
   }
 
+  /* Tracking is what pushes the longest labels ("Instrument on
+     legislation.gov.uk") over a phone's panel width, and once one wraps the
+     trailing ↗ is laid out as its own flex item and strands itself against the
+     far edge. Tightening the label keeps every one of them on a single line. */
+  @media (max-width: 639px) {
+    .ledger-btn {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      padding: 5px 10px;
+      text-align: center;
+    }
+  }
+
   /* ── Modal meta rows ─────────────────────────────────────────────── */
+  /* A stacked label/value list. The label column is fixed so the values line up
+     down the left edge and read as a column rather than three loose pairs. */
+  .modal-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-meta__row {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .modal-meta__value {
+    color: #faf6ed;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 479px) {
+    .modal-meta__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+  }
+
   .modal-meta__label {
     font-family: var(--font-mono), monospace;
     font-size: 11px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #b8960c;
+  }
+
+  /* ── Stage outcome banner ────────────────────────────────────────── */
+  /* Sits under the timeline and says in words what the red node means. Being
+     defeated, withdrawn or annulled is not a stage — it is something that
+     happened *at* a stage — so it reads as a note on the run rather than
+     another node on the end of it. */
+  .stage-outcome {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 7px 12px;
+    font-family: var(--font-mono), monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 2px;
+  }
+
+  .stage-outcome__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+    flex-shrink: 0;
   }
 
   .modal-section__heading {

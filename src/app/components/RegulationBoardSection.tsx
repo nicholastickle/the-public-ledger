@@ -314,11 +314,11 @@ export default function RegulationBoardSection({ regulations }: Props) {
           <div>
             <div className="flex items-center gap-sm mb-sm">
               <span className="w-2 h-2 rounded-full animate-pulse inline-block" style={{ background: '#EF4444', boxShadow: '0 0 8px #EF444488' }} />
-              <span className="font-mono text-caption uppercase" style={{ color: '#A8722F', letterSpacing: '0.22em' }}>
+              <span className="font-mono text-caption uppercase" style={{ color: '#C08A4A', letterSpacing: '0.22em' }}>
                 Live · Statutory Instruments
               </span>
               {isDemo && (
-                <span className="font-mono" style={{ color: '#A8722F', fontSize: '9px', letterSpacing: '0.15em', opacity: 0.5, textTransform: 'uppercase', border: '1px solid rgba(168,114,47,0.3)', padding: '1px 6px', borderRadius: '2px' }}>
+                <span className="font-mono" style={{ color: '#C08A4A', fontSize: '9px', letterSpacing: '0.15em', opacity: 0.5, textTransform: 'uppercase', border: '1px solid rgba(168,114,47,0.3)', padding: '1px 6px', borderRadius: '2px' }}>
                   Demo
                 </span>
               )}
@@ -326,7 +326,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
             <h2 className="ledger-headline" style={{ color: '#FAF6ED', fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)', lineHeight: '1.08' }}>
               The Regulation Board.
             </h2>
-            <p className="font-mono" style={{ color: '#A8722F', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
+            <p className="font-mono" style={{ color: '#C08A4A', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
               Public shadow votes cast before the parliamentary deadline
             </p>
           </div>
@@ -334,7 +334,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
             <span className="font-mono font-semibold tabular-nums" style={{ color: '#FAF6ED', fontSize: '2.4rem', letterSpacing: '0.04em', lineHeight: 1 }}>
               {clock || '—:—:—'}
             </span>
-            <span className="font-mono" style={{ color: '#A8722F', fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+            <span className="font-mono" style={{ color: '#C08A4A', fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
               {date || ' '} · London
             </span>
           </div>

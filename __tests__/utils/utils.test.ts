@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatVotes, formatBillDate, formatDateNumeric, formatTimeAgo, formatCountdown, clipText, billSourceUrl, billPublicationsUrl } from '@/app/lib/utils';
+import { formatVotes, formatBillDate, formatDateNumeric, formatTimeAgo, formatCountdown, clipText, billSourceUrl, billPublicationsUrl, regulationYear, regulationSourceUrl, regulationMemorandumUrl } from '@/app/lib/utils';
 
 describe('formatVotes', () => {
   it('shows the exact count with thousands separators, never abbreviated', () => {
@@ -126,5 +126,36 @@ describe('billSourceUrl', () => {
 describe('billPublicationsUrl', () => {
   it('points at the bill\'s published documents', () => {
     expect(billPublicationsUrl(1234)).toBe('https://bills.parliament.uk/bills/1234/publications');
+  });
+});
+
+describe('regulationYear', () => {
+  it('prefers the date the instrument was laid', () => {
+    expect(regulationYear({ laid_date: '2026-07-01', made_date: '2025-01-01', title: 'The X Regulations 2024' })).toBe(2026);
+  });
+
+  it('falls back through made date and last update', () => {
+    expect(regulationYear({ laid_date: null, made_date: '2025-03-04' })).toBe(2025);
+    expect(regulationYear({ laid_date: null, made_date: null, last_update: '2024-11-30T09:00:00Z' })).toBe(2024);
+  });
+
+  it('falls back to the year carried in the instrument title', () => {
+    expect(regulationYear({ title: 'The Test (Amendment) Regulations 2023' })).toBe(2023);
+  });
+
+  it('falls back to the current year when nothing says otherwise', () => {
+    expect(regulationYear({ title: 'The Untitled Regulations' })).toBe(new Date().getFullYear());
+  });
+});
+
+describe('regulationSourceUrl', () => {
+  it('addresses the instrument by year and number on legislation.gov.uk', () => {
+    expect(regulationSourceUrl(2026, 412)).toBe('https://www.legislation.gov.uk/uksi/2026/412');
+  });
+});
+
+describe('regulationMemorandumUrl', () => {
+  it('points at the explanatory memorandum laid alongside it', () => {
+    expect(regulationMemorandumUrl(2026, 412)).toBe('https://www.legislation.gov.uk/uksi/2026/412/memorandum/contents');
   });
 });

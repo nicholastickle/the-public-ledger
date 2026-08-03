@@ -1,7 +1,7 @@
 import ThumbTally from './ThumbTally';
 import { formatDateNumeric } from '../lib/utils';
 import type { GovVote } from '../lib/mockVotes';
-import type { Tally } from './VoteTallies';
+import type { Tally } from '../types/votes';
 
 interface CellProps {
   forLabel: string;
