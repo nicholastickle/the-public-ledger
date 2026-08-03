@@ -1,34 +1,50 @@
 import Link from 'next/link';
 import CrownOrnament from './CrownOrnament';
+import ChamberIllustration from './ChamberIllustration';
+import FooterHowItWorksLink from './FooterHowItWorksLink';
 
-const COLUMNS = [
+type FooterLink = {
+  label: string;
+  /** null renders FooterHowItWorksLink instead — that item opens the shared
+   *  modal rather than navigating anywhere. */
+  href: string | null;
+  external?: boolean;
+};
+
+const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
-    heading: 'BILLS',
+    heading: 'The Boards',
     links: [
-      { label: 'All bills', href: '/bills' },
-      { label: 'Health & Care', href: '/health' },
-      { label: 'Economy', href: '/economy' },
-      { label: 'Housing', href: '/housing' },
-      { label: 'Environment', href: '/environment' },
-      { label: 'Justice', href: '/justice' },
+      { label: 'Bill Board', href: '/bills' },
+      { label: 'Regulations Board', href: '/regulations' },
+      { label: 'Elections Board', href: '/elections' },
+      { label: 'Lobby Board', href: '/lobby' },
     ],
   },
   {
-    heading: 'RESOURCES',
+    heading: 'AI & Platform',
     links: [
-      { label: 'How it works', href: '/how-it-works' },
-      { label: 'FAQ', href: '/faq' },
-      { label: 'Parliament API', href: '/api-docs' },
+      { label: 'AI Voting', href: '/ai-voting' },
+      { label: 'AI Round Table', href: '/ai-round-table' },
+      { label: 'How it works', href: null },
+      { label: 'Parliament API', href: '/parliament-api' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
       { label: 'Blog', href: '/blog' },
-      { label: 'Voting data', href: '/data' },
+      { label: 'About', href: '/about' },
+      { label: 'Contact', href: '/contact' },
+      { label: 'Press', href: '/press' },
     ],
   },
   {
-    heading: 'COMPANY',
+    heading: 'Legal & Social',
     links: [
-      { label: 'About', href: '/about' },
-      { label: 'Careers', href: '/careers' },
-      { label: 'Press', href: '/press' },
+      // Placeholder until there's a real account to link to.
+      { label: 'Twitter/X', href: '#' },
+      { label: 'GitHub Repo', href: 'https://github.com/nicholastickle/the-public-ledger', external: true },
       { label: 'Terms of Service', href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
     ],
@@ -37,143 +53,100 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer
-      style={{
-        background: 'var(--color-parchment-dark)',
-        borderTop: '2px solid rgba(184,150,12,0.35)',
-      }}
-    >
-      {/* Ornamental top rule */}
+    <footer className="relative overflow-hidden" style={{ background: '#0C1610' }}>
+      {/* Ornamental top rule — same gold hairline treatment as the Bill Board */}
       <div
-        className="w-full h-px"
-        style={{
-          background: 'linear-gradient(to right, transparent, rgba(184,150,12,0.5) 20%, rgba(184,150,12,0.5) 80%, transparent)',
-        }}
+        className="relative z-10 w-full h-px"
+        style={{ background: 'linear-gradient(to right, transparent, rgba(184,150,12,0.5) 20%, rgba(184,150,12,0.5) 80%, transparent)' }}
         aria-hidden="true"
       />
 
-      <div className="max-w-[1360px] mx-auto px-md sm:px-xl lg:px-3xl py-4xl">
+      {/* Oversized brand wordmark bleeding off the bottom edge, sat behind
+          everything else — the "modern site" background-text treatment. */}
+      <div className="absolute inset-x-0 bottom-0 z-0 overflow-hidden" aria-hidden="true">
+        <span
+          className="footer-watermark block text-center"
+          style={{ fontSize: 'clamp(3.5rem, 13vw, 11rem)', transform: 'translateY(30%)' }}
+        >
+          Public Ledger
+        </span>
+      </div>
 
-        {/* Top: brand + nav columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-xl mb-4xl">
-
-          {/* Brand column */}
-          <div className="sm:col-span-2 md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-xs mb-md no-underline group">
+      <div className="relative z-10 flex flex-col lg:flex-row">
+        {/* Content half */}
+        <div className="w-full lg:w-1/2 px-md sm:px-xl lg:px-3xl py-4xl">
+          {/* Brand + slogan */}
+          <div className="mb-3xl max-w-[26rem]">
+            <Link href="/" className="inline-flex items-center gap-xs mb-md no-underline">
               <CrownOrnament size={22} />
               <span
-                style={{
-                  fontFamily: 'var(--font-display), Georgia, "Times New Roman", serif',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  color: 'var(--color-forest-green)',
-                  letterSpacing: '-0.01em',
-                }}
+                className="font-display italic font-semibold"
+                style={{ fontSize: '15px', color: '#FAF6ED', letterSpacing: '-0.01em' }}
               >
                 The Public Ledger
               </span>
             </Link>
-
-            <p
-              className="text-body-sm leading-relaxed max-w-[18rem]"
-              style={{ color: '#4A3C2A' }}
-            >
-              Shadow parliament voting for every UK citizen. Your voice on the
-              bills that shape the country.
+            <p className="text-body-sm leading-relaxed" style={{ color: 'rgba(250,246,237,0.6)' }}>
+              Shadow parliament voting for British citizens ONLY. Your voice on the bills and regulations that shape the country.
             </p>
-
-            {/* Live indicator */}
-            <div className="flex items-center gap-xs mt-md">
-              <span
-                className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ backgroundColor: 'var(--color-forest-green)' }}
-              />
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono), monospace',
-                  fontSize: '10px',
-                  fontWeight: 500,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(27,67,50,0.55)',
-                }}
-              >
-                Session Active
-              </span>
-            </div>
           </div>
 
           {/* Nav columns */}
-          {COLUMNS.map((col) => (
-            <div key={col.heading}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-mono), monospace',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(184,150,12,0.9)',
-                  marginBottom: '14px',
-                  paddingBottom: '8px',
-                  borderBottom: '1px solid rgba(184,150,12,0.22)',
-                }}
-              >
-                {col.heading}
+          <div className="grid grid-cols-2 2xl:grid-cols-4 gap-xl mb-3xl">
+            {COLUMNS.map((col) => (
+              <div key={col.heading}>
+                <div
+                  className="footer-heading mb-md pb-xs"
+                  style={{ borderBottom: '1px solid rgba(184,150,12,0.22)' }}
+                >
+                  {col.heading}
+                </div>
+                <ul className="flex flex-col gap-sm">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      {link.href === null ? (
+                        <FooterHowItWorksLink />
+                      ) : link.external ? (
+                        <a href={link.href} target="_blank" rel="noopener noreferrer" className="footer-link text-body-sm">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className="footer-link text-body-sm">
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="flex flex-col gap-sm">
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="ledger-footer-link text-body-sm no-underline"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Bottom bar */}
+          <div
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm pt-lg"
+            style={{ borderTop: '1px solid rgba(184,150,12,0.18)' }}
+          >
+            <p className="font-mono" style={{ fontSize: '11px', color: 'rgba(250,246,237,0.4)', letterSpacing: '0.04em' }}>
+              © {new Date().getFullYear()} The Public Ledger. All rights reserved.
+            </p>
+            <p className="font-mono" style={{ fontSize: '11px', color: 'rgba(250,246,237,0.32)', letterSpacing: '0.04em' }}>
+              Not affiliated with the UK Parliament or any political party.
+            </p>
+          </div>
         </div>
 
-        {/* Ornamental divider */}
-        <div className="flex items-center gap-sm mb-lg" aria-hidden="true">
+        {/* Chamber half — desktop only; the illustration is decorative and
+            adds nothing at the widths where columns already stack to 1-up. */}
+        <div className="hidden lg:block relative lg:w-1/2 shrink-0" aria-hidden="true">
+          <div className="absolute inset-0" style={{ opacity: 0.4 }}>
+            <ChamberIllustration />
+          </div>
+          {/* Fades the illustration into the surface rather than a hard seam */}
           <div
-            className="flex-1 h-px"
-            style={{ background: 'linear-gradient(to right, rgba(184,150,12,0.35), transparent)' }}
+            className="absolute inset-y-0 left-0 w-1/3"
+            style={{ background: 'linear-gradient(to right, #0C1610, transparent)' }}
           />
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M5 0L10 5L5 10L0 5Z" fill="#B8960C" opacity="0.5" />
-          </svg>
-          <div
-            className="flex-1 h-px"
-            style={{ background: 'linear-gradient(to left, rgba(184,150,12,0.35), transparent)' }}
-          />
-        </div>
-
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm">
-          <p
-            style={{
-              fontFamily: 'var(--font-mono), monospace',
-              fontSize: '11px',
-              color: 'rgba(27,67,50,0.45)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            © {new Date().getFullYear()} The Public Ledger. All rights reserved.
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-mono), monospace',
-              fontSize: '11px',
-              color: 'rgba(27,67,50,0.38)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Not affiliated with the UK Parliament or any political party.
-          </p>
         </div>
       </div>
     </footer>
