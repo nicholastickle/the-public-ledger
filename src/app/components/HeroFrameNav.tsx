@@ -22,7 +22,7 @@ export default function HeroFrameNav() {
   const [howOpen, setHowOpen] = useState(false);
 
   return (
-    <div className="relative flex items-center justify-between gap-md pb-sm mb-sm sm:pb-lg sm:mb-xl">
+    <div className="relative flex items-center justify-between gap-md pb-sm mb-lg sm:pb-lg sm:mb-xl">
       {/* Logo */}
       <Link href="/" className="hero-nav__logo" aria-label="The Public Ledger — home">
         <CrownOrnament size={22} />
