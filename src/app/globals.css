@@ -744,20 +744,39 @@ body {
     flex-shrink: 0;
   }
 
+  /* Full-viewport backdrop so the panel sits over the navbar row itself
+     (not just the hero content below it) and a click anywhere outside the
+     panel closes the menu. */
+  .hero-nav__menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(4, 10, 6, 0.55);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+
   .hero-nav__menu {
     position: absolute;
-    top: 100%;
+    top: 0;
     left: 0;
     right: 0;
-    margin-top: 8px;
-    z-index: 20;
-    padding: 12px;
-    background: rgba(12, 22, 16, 0.97);
-    border: 1px solid rgba(184, 150, 12, 0.4);
-    border-radius: 2px;
+    padding: 16px;
+    background: rgba(12, 22, 16, 0.98);
+    border-bottom: 1px solid rgba(184, 150, 12, 0.4);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
+  }
+
+  .hero-nav__menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(184, 150, 12, 0.25);
   }
 
   /* ── Vote countdown ──────────────────────────────────────────────── */
@@ -1178,13 +1197,11 @@ body {
   .board-surface {
     --board-head-bg: #12291d;
     --board-band-bg: rgba(27, 67, 50, 0.24);
-    --board-row-hover: rgba(250, 246, 237, 0.07);
   }
 
   [data-board-theme='bronze'] {
     --board-head-bg: #1c1712;
     --board-band-bg: rgba(90, 60, 30, 0.26);
-    --board-row-hover: rgba(250, 246, 237, 0.07);
   }
 
   /* The regulation board's own chrome swaps gold for bronze/copper. Keyed on
@@ -1203,14 +1220,6 @@ body {
 
   [data-board-theme='bronze'] .ledger-table__row+.ledger-table__row .ledger-table__cell {
     border-top-color: rgba(192, 138, 74, 0.12);
-  }
-
-  [data-board-theme='bronze'] .ledger-table__row[data-voted='true'] {
-    background: rgba(221, 170, 106, 0.07);
-  }
-
-  [data-board-theme='bronze'] .ledger-table__row[data-voted='true']:hover {
-    background: rgba(221, 170, 106, 0.11);
   }
 
   [data-board-theme='bronze'] .ledger-table__cell--no {
@@ -1334,7 +1343,15 @@ body {
   .ledger-table__wrap {
     border: 1px solid rgba(184, 150, 12, 0.2);
     border-radius: 4px;
-    background: rgba(250, 246, 237, 0.02);
+    /* Matches the Bill Board section's own background so the table reads as
+       part of the same surface rather than a panel floated above it. */
+    background: #0C1610;
+  }
+
+  /* The Regulation Board is a different shade of near-black — match that
+     instead so its table blends the same way. */
+  [data-board-theme='bronze'] .ledger-table__wrap {
+    background: #14100c;
   }
 
   .ledger-table {
@@ -1404,24 +1421,10 @@ body {
 
   .ledger-table__row {
     cursor: pointer;
-    transition: background 0.12s ease;
-  }
-
-  .ledger-table__row:hover {
-    background: var(--board-row-hover, rgba(250, 246, 237, 0.07));
   }
 
   .ledger-table__row+.ledger-table__row .ledger-table__cell {
     border-top: 1px solid rgba(184, 150, 12, 0.12);
-  }
-
-  /* Rows the citizen has voted on read as "mine" at a glance while scanning. */
-  .ledger-table__row[data-voted='true'] {
-    background: rgba(212, 175, 55, 0.07);
-  }
-
-  .ledger-table__row[data-voted='true']:hover {
-    background: rgba(212, 175, 55, 0.11);
   }
 
   .ledger-table__cell {
@@ -1898,7 +1901,9 @@ body {
 
   /* ── Modal shell ──────────────────────────────────────────────────── */
   .ledger-modal-panel {
-    --modal-bg: #0a1a10;
+    /* Matches the Bill Board section background so the modal reads as the
+       same surface, not a separate panel. */
+    --modal-bg: #0C1610;
     background: var(--modal-bg);
     border: 1px solid rgba(184, 150, 12, 0.4);
     border-radius: 8px;
@@ -1951,9 +1956,9 @@ body {
   }
 
   /* Regulation detail opens from the bronze-on-black board, so its panel
-     matches — a shade lifted from the surface so it reads as sitting above it. */
+     matches the Regulation Board section background exactly. */
   .ledger-modal-panel[data-board-theme='bronze'] {
-    --modal-bg: #241c14;
+    --modal-bg: #14100c;
   }
 
   .ledger-modal-close {

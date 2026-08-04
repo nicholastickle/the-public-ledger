@@ -67,7 +67,7 @@ function UnionJackSeal({ size = 120 }: { size?: number }) {
 
 export default function HeroSection() {
   return (
-    <section className="overflow-hidden relative" style={{ backgroundColor: '#0c1610' }}>
+    <section className="overflow-hidden relative flex flex-col min-h-dvh sm:block sm:min-h-0" style={{ backgroundColor: '#0c1610' }}>
       {/* Parliament / Big Ben timelapse — now fully visible behind the content */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
@@ -82,8 +82,8 @@ export default function HeroSection() {
       {/* Legibility scrim — darkest on the left where the copy sits */}
       <div className="absolute inset-0 pointer-events-none hero-video-scrim" aria-hidden="true" />
 
-      <div className="relative z-10 max-w-[1500px] mx-auto px-md sm:px-xl lg:px-3xl py-xl lg:py-3xl">
-        <div className="ledger-frame relative">
+      <div className="relative z-10 max-w-[1500px] mx-auto px-md sm:px-xl lg:px-3xl py-xl lg:py-3xl flex-1 flex flex-col sm:block w-full">
+        <div className="ledger-frame relative flex-1 flex flex-col sm:block">
           {/* Filigree corners */}
           <div className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px]"><FiligreeCorner /></div>
           <div className="absolute top-0 right-0 translate-x-[2px] -translate-y-[2px]"><FiligreeCorner flipH /></div>
@@ -93,17 +93,23 @@ export default function HeroSection() {
           {/* Dark top-fade — guarantees nav legibility over bright sky in the video */}
           <div className="hero-frame-topfade" aria-hidden="true" />
 
-          <div className="relative z-10 px-lg sm:px-2xl lg:px-3xl py-lg sm:py-xl lg:py-2xl">
+          <div className="relative z-10 px-lg sm:px-2xl lg:px-3xl py-lg sm:py-xl lg:py-2xl flex-1 flex flex-col sm:block">
             {/* Navigation folded into the frame */}
             <HeroFrameNav />
 
-            {/* Main split: countdown + CTA (left) · nations map (right) */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-2xl lg:gap-4xl items-center">
+            {/* Main split: countdown + CTA (left) · nations map (right). On
+                phones this is the only content below the nav, so it grows to
+                fill the rest of the viewport height (min-h-dvh above) rather
+                than leaving dead space under the CTA. */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-2xl lg:gap-4xl items-stretch sm:items-center flex-1 sm:flex-none">
 
-              {/* LEFT — the vote is the hero */}
-              <div className="min-w-0">
+              {/* LEFT — the vote is the hero. Spaced out with `justify-between`
+                  on phones so the headline stays near the nav while the CTA
+                  settles toward the bottom of the frame, instead of the block
+                  clumping at the top with empty space below it. */}
+              <div className="min-w-0 flex flex-col justify-between sm:block">
                 <h1
-                  className="ledger-headline hero-ink-shadow mb-md"
+                  className="ledger-headline hero-ink-shadow mb-0 sm:mb-md"
                   style={{ color: '#FAF6ED', fontSize: 'clamp(2.4rem, 4.6vw, 4.2rem)', lineHeight: '1.04' }}
                 >
                   The Unofficial
@@ -111,11 +117,11 @@ export default function HeroSection() {
                   National Vote
                 </h1>
 
-                <p className="font-mono text-caption uppercase mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
+                <p className="font-mono text-caption uppercase mb-0 sm:mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
                   Wednesday 30 September 2026 · 20:00 BST
                 </p>
 
-                <div className="mb-xl">
+                <div className="mb-0 sm:mb-xl">
                   <VoteCountdown />
                 </div>
 
@@ -130,8 +136,11 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              {/* RIGHT — interactive 3D nations map with wax-seal cartouche */}
-              <div className="min-w-0">
+              {/* RIGHT — interactive 3D nations map with wax-seal cartouche.
+                  Hidden on phones only: it relies on hover to reveal each
+                  nation's flag, which phone viewports can't do, and its height
+                  was what pushed the rest of the hero below the fold there. */}
+              <div className="min-w-0 hidden sm:block">
                 <div className="relative mx-auto" style={{ maxWidth: '350px' }}>
                   <div className="hero-map-seal" aria-hidden="true">
                     <UnionJackSeal size={82} />
