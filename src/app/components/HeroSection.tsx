@@ -118,7 +118,7 @@ export default function HeroSection() {
                   National Vote
                 </h1>
 
-                <p className="font-mono text-caption uppercase mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
+                <p className="font-mono text-caption uppercase mb-2xl sm:mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
                   Wednesday 30 September 2026 · 20:00 BST
                 </p>
 
@@ -126,17 +126,22 @@ export default function HeroSection() {
                   <VoteCountdown />
                 </div>
 
+                {/* Equal spacers above and below the CTA centre it in the
+                    space between the countdown and the bottom of the frame,
+                    rather than pinning it flush to the bottom edge. */}
                 <div className="flex-1 sm:hidden" aria-hidden="true" />
 
-                <div className="flex flex-col gap-sm">
-                  <a href="/signup" className="btn-vote-hero self-start">
+                <div className="flex flex-col items-center sm:items-start gap-md sm:gap-sm">
+                  <a href="/signup" className="btn-vote-hero">
                     Vote Now
                     <span aria-hidden="true">→</span>
                   </a>
-                  <p className="font-mono text-caption uppercase hero-ink-shadow" style={{ color: 'rgba(232,200,64,0.8)', letterSpacing: '0.14em' }}>
+                  <p className="font-mono text-caption uppercase hero-ink-shadow text-center w-full sm:text-left sm:w-auto" style={{ color: 'rgba(232,200,64,0.8)', letterSpacing: '0.14em' }}>
                     Only British citizens are eligible to vote
                   </p>
                 </div>
+
+                <div className="flex-1 sm:hidden" aria-hidden="true" />
               </div>
 
               {/* RIGHT — interactive 3D nations map with wax-seal cartouche.
