@@ -103,13 +103,14 @@ export default function HeroSection() {
                 than leaving dead space under the CTA. */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-2xl lg:gap-4xl items-stretch sm:items-center flex-1 sm:flex-none">
 
-              {/* LEFT — the vote is the hero. Spaced out with `justify-between`
-                  on phones so the headline stays near the nav while the CTA
-                  settles toward the bottom of the frame, instead of the block
-                  clumping at the top with empty space below it. */}
-              <div className="min-w-0 flex flex-col justify-between sm:block">
+              {/* LEFT — the vote is the hero. On phones the headline/date/
+                  countdown keep the same tight rhythm as desktop — margins,
+                  not equal flex gaps — and a single spacer absorbs whatever
+                  height is left over, settling the CTA toward the bottom of
+                  the frame instead of scattering every element evenly. */}
+              <div className="min-w-0 flex flex-col sm:block">
                 <h1
-                  className="ledger-headline hero-ink-shadow mb-0 sm:mb-md"
+                  className="ledger-headline hero-ink-shadow mb-md"
                   style={{ color: '#FAF6ED', fontSize: 'clamp(2.4rem, 4.6vw, 4.2rem)', lineHeight: '1.04' }}
                 >
                   The Unofficial
@@ -117,13 +118,15 @@ export default function HeroSection() {
                   National Vote
                 </h1>
 
-                <p className="font-mono text-caption uppercase mb-0 sm:mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
+                <p className="font-mono text-caption uppercase mb-lg hero-ink-shadow" style={{ color: '#E8C840', letterSpacing: '0.16em' }}>
                   Wednesday 30 September 2026 · 20:00 BST
                 </p>
 
-                <div className="mb-0 sm:mb-xl">
+                <div className="mb-xl">
                   <VoteCountdown />
                 </div>
+
+                <div className="flex-1 sm:hidden" aria-hidden="true" />
 
                 <div className="flex flex-col gap-sm">
                   <a href="/signup" className="btn-vote-hero self-start">
