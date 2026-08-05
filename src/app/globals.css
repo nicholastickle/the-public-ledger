@@ -1961,10 +1961,21 @@ body {
     --modal-bg: #14100c;
   }
 
-  .ledger-modal-close {
+  /* Groups the close button with the sound toggle so the two sit side by
+     side in the panel's corner instead of competing for the same spot — the
+     toggle used to float at a fixed viewport position and land almost
+     exactly on top of this button. */
+  .ledger-modal-controls {
     position: absolute;
     top: 14px;
     right: 14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ledger-modal-close {
     width: 32px;
     height: 32px;
     display: inline-flex;
@@ -2629,13 +2640,15 @@ body {
   }
 
   /* ── Sound toggle ─────────────────────────────────────────────────── */
+  /* Rendered inline wherever it's needed — grouped with a nav's own menu
+     button, or beside a modal's close button — rather than floating at a
+     fixed viewport position. A fixed corner button collided with whichever
+     control (hamburger, modal close) happened to live in the same corner;
+     an inline one can't, because flex layout never overlaps siblings. */
   .sound-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 60;
-    width: 40px;
-    height: 40px;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2644,8 +2657,7 @@ body {
     border: 1px solid rgba(184, 150, 12, 0.4);
     color: #d4af37;
     cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: background 0.15s ease, transform 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
   }
 
   .sound-toggle:hover {
@@ -2657,5 +2669,52 @@ body {
     color: #faf6ed;
     border-color: rgba(212, 175, 55, 0.8);
     box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  }
+
+  /* Light variant for the parchment NavBar (bills pages), matching the
+     forest-green/gold pairing its own hamburger button already uses. */
+  .sound-toggle--light {
+    background: transparent;
+    border-color: rgba(184, 150, 12, 0.45);
+    color: var(--color-forest-green);
+  }
+
+  .sound-toggle--light:hover {
+    background: rgba(27, 67, 50, 0.07);
+  }
+
+  .sound-toggle--light[data-playing='true'] {
+    color: var(--color-forest-green);
+    border-color: rgba(27, 67, 50, 0.5);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+  }
+
+  /* Compact size to match .ledger-modal-close, which it sits beside. */
+  .sound-toggle--modal {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  /* Compact light variant for HowItWorksModal's parchment panel, matching
+     the size and colour of its own close button. */
+  .sound-toggle--howitworks {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    background: transparent;
+    border-color: transparent;
+    color: rgba(27, 67, 50, 0.45);
+  }
+
+  .sound-toggle--howitworks:hover {
+    color: var(--color-forest-green);
+    border-color: rgba(184, 150, 12, 0.3);
+    background: rgba(27, 67, 50, 0.06);
+  }
+
+  .sound-toggle--howitworks[data-playing='true'] {
+    color: var(--color-forest-green);
+    border-color: rgba(27, 67, 50, 0.35);
   }
 }

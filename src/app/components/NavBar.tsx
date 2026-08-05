@@ -2,6 +2,7 @@ import Link from 'next/link';
 import MobileMenu from './MobileMenu';
 import HowItWorksButton from './HowItWorksButton';
 import CrownOrnament from './CrownOrnament';
+import SoundToggleButton from './SoundToggleButton';
 
 export const NAV_LINKS = [
   { label: 'Bills', href: '/bills' },
@@ -80,8 +81,14 @@ export default function NavBar() {
           <Link href="/signup" className="btn-ledger-primary-sm">Sign Up</Link>
         </div>
 
-        {/* Hamburger — always */}
-        <MobileMenu />
+        {/* Sound toggle grouped with the hamburger rather than floating at a
+            fixed viewport corner — that's what previously put it on a
+            collision course with this button (they used to sit almost
+            exactly on top of each other). */}
+        <div className="flex items-center gap-xs shrink-0">
+          <SoundToggleButton className="sound-toggle sound-toggle--light" />
+          <MobileMenu />
+        </div>
       </div>
 
       {/* ── Row 2: Category nav ─────────────────────────────────────── */}

@@ -1,10 +1,11 @@
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import SoundToggle from '@/app/components/SoundToggle';
+import { SoundProvider } from '@/app/lib/SoundContext';
+import SoundToggleButton from '@/app/components/SoundToggleButton';
 
 /**
  * jsdom does not implement media playback, so play/pause/paused/currentTime are
- * stubbed on the prototype with just enough state to observe what the component
+ * stubbed on the prototype with just enough state to observe what the provider
  * does: whether it starts playback, whether it ever pauses, and whether it seeks.
  */
 const originals = {
@@ -38,7 +39,15 @@ function getAudio(container: HTMLElement): HTMLAudioElement {
   return el;
 }
 
-describe('SoundToggle', () => {
+function renderToggle() {
+  return render(
+    <SoundProvider>
+      <SoundToggleButton />
+    </SoundProvider>
+  );
+}
+
+describe('SoundToggleButton', () => {
   beforeEach(() => {
     isPlaying = false;
     currentTime = 0;
@@ -53,7 +62,7 @@ describe('SoundToggle', () => {
   });
 
   it('starts the tune muted on mount', () => {
-    const { container } = render(<SoundToggle />);
+    const { container } = renderToggle();
     const audio = getAudio(container);
 
     expect(play).toHaveBeenCalledTimes(1);
@@ -66,7 +75,7 @@ describe('SoundToggle', () => {
   });
 
   it('unmutes on click without restarting the tune', () => {
-    const { container } = render(<SoundToggle />);
+    const { container } = renderToggle();
     const audio = getAudio(container);
     currentTime = 12.5;
 
@@ -80,7 +89,7 @@ describe('SoundToggle', () => {
   });
 
   it('remutes on a second click and never pauses playback', () => {
-    const { container } = render(<SoundToggle />);
+    const { container } = renderToggle();
     const audio = getAudio(container);
 
     fireEvent.click(screen.getByRole('button', { name: /unmute rule britannia/i }));
@@ -95,7 +104,7 @@ describe('SoundToggle', () => {
 
   it('waits two seconds after the tune ends, then plays it again from the start', () => {
     vi.useFakeTimers();
-    const { container } = render(<SoundToggle />);
+    const { container } = renderToggle();
     const audio = getAudio(container);
     expect(play).toHaveBeenCalledTimes(1);
 
@@ -114,7 +123,7 @@ describe('SoundToggle', () => {
 
   it('keeps looping for repeat playthroughs', () => {
     vi.useFakeTimers();
-    const { container } = render(<SoundToggle />);
+    const { container } = renderToggle();
     const audio = getAudio(container);
 
     for (let i = 0; i < 3; i++) {
@@ -128,12 +137,40 @@ describe('SoundToggle', () => {
 
   it('starts on the first interaction when the browser refuses muted autoplay', async () => {
     stubMedia(() => Promise.reject(new Error('NotAllowedError')));
-    render(<SoundToggle />);
+    renderToggle();
 
     await waitFor(() => expect(play).toHaveBeenCalledTimes(1));
 
     stubMedia();
     fireEvent.pointerDown(window);
     expect(play).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares state across every button rendered under the same provider', () => {
+    render(
+      <SoundProvider>
+        <SoundToggleButton className="sound-toggle a" />
+        <SoundToggleButton className="sound-toggle b" />
+      </SoundProvider>
+    );
+    const buttons = screen.getAllByRole('button', { name: /unmute rule britannia/i });
+    expect(buttons).toHaveLength(2);
+
+    fireEvent.click(buttons[0]);
+
+    expect(screen.getAllByRole('button', { name: /mute rule britannia/i })).toHaveLength(2);
+  });
+
+  it('degrades to a harmless, muted no-op when rendered without a provider', () => {
+    render(<SoundToggleButton />);
+    const btn = screen.getByRole('button', { name: /unmute rule britannia/i });
+    expect(() => fireEvent.click(btn)).not.toThrow();
+    expect(screen.getByRole('button', { name: /unmute rule britannia/i })).toBeInTheDocument();
+  });
+
+  it('applies the className passed by the caller', () => {
+    renderToggle();
+    // default render uses the base "sound-toggle" class
+    expect(screen.getByRole('button', { name: /unmute rule britannia/i })).toHaveClass('sound-toggle');
   });
 });

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import CrownOrnament from './CrownOrnament';
 import HowItWorksModal from './HowItWorksModal';
+import SoundToggleButton from './SoundToggleButton';
 
 const NAV_LINKS = [
   { label: 'Bills', href: '/bills' },
@@ -47,29 +48,36 @@ export default function HeroFrameNav() {
         <Link href="/signup" className="hero-nav-btn hero-nav-btn--solid">Sign Up</Link>
       </div>
 
-      {/* Mobile hamburger. Hidden from assistive tech and the tab order while
-          the menu is open — it's covered by the overlay's own close button at
-          that point, so it shouldn't remain a second, indistinguishable
-          "Close menu" control. */}
-      <button
-        type="button"
-        className="hero-nav__burger lg:hidden"
-        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-        aria-expanded={menuOpen}
-        aria-hidden={menuOpen || undefined}
-        tabIndex={menuOpen ? -1 : undefined}
-        onClick={() => setMenuOpen((v) => !v)}
-      >
-        {menuOpen ? (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2 2L14 14M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        )}
-      </button>
+      {/* Sound toggle grouped with the hamburger rather than floating at a
+          fixed viewport corner — that's what previously put it on a collision
+          course with this button. */}
+      <div className="flex items-center gap-xs shrink-0">
+        <SoundToggleButton />
+
+        {/* Mobile hamburger. Hidden from assistive tech and the tab order
+            while the menu is open — it's covered by the overlay's own close
+            button at that point, so it shouldn't remain a second,
+            indistinguishable "Close menu" control. */}
+        <button
+          type="button"
+          className="hero-nav__burger lg:hidden"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          aria-hidden={menuOpen || undefined}
+          tabIndex={menuOpen ? -1 : undefined}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          {menuOpen ? (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 2L14 14M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* Mobile menu — a fixed overlay so it sits over the navbar row itself
           (not just the hero content below it), with its own title since the

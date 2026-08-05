@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import HowItWorksModal from '@/app/components/HowItWorksModal';
 
@@ -59,6 +59,36 @@ describe('HowItWorksModal', () => {
     render(<HowItWorksModal isOpen={true} onClose={onClose} />);
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('calls onClose on a leftward swipe across the panel', () => {
+    const onClose = vi.fn();
+    render(<HowItWorksModal isOpen={true} onClose={onClose} />);
+    const panel = screen.getByText('Step 01').closest('[class*="relative"]') as HTMLElement;
+    fireEvent.touchStart(panel, { touches: [{ clientX: 300, clientY: 200 }] });
+    fireEvent.touchEnd(panel, { changedTouches: [{ clientX: 200, clientY: 205 }] });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close on a short swipe or a mostly-vertical scroll', () => {
+    const onClose = vi.fn();
+    render(<HowItWorksModal isOpen={true} onClose={onClose} />);
+    const panel = screen.getByText('Step 01').closest('[class*="relative"]') as HTMLElement;
+
+    fireEvent.touchStart(panel, { touches: [{ clientX: 300, clientY: 200 }] });
+    fireEvent.touchEnd(panel, { changedTouches: [{ clientX: 270, clientY: 200 }] });
+
+    fireEvent.touchStart(panel, { touches: [{ clientX: 300, clientY: 100 }] });
+    fireEvent.touchEnd(panel, { changedTouches: [{ clientX: 250, clientY: 400 }] });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('renders a sound toggle beside the close button', () => {
+    render(<HowItWorksModal isOpen={true} onClose={vi.fn()} />);
+    const closeBtn = screen.getByRole('button', { name: 'Close' });
+    const controls = closeBtn.parentElement!;
+    expect(within(controls).getByRole('button', { name: /unmute rule britannia/i })).toBeInTheDocument();
   });
 
   it('resets to step 01 when reopened', () => {
