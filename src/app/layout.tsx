@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { SoundProvider } from "./lib/SoundContext";
@@ -24,6 +24,17 @@ export const metadata: Metadata = {
   title: 'The Public Ledger — Shadow Parliament Voting',
   description:
     'Cast your shadow vote on the same bills parliament is debating. See how public opinion compares to your elected representatives.',
+};
+
+// Matches the hero's dark background so mobile Safari tints its status bar
+// and toolbar to the site instead of leaving them their default white —
+// which otherwise reads as a stray white band above and below the page.
+// `viewportFit: 'cover'` lets the page paint edge-to-edge under those bars
+// (rather than stopping short of them), which is what lets Safari's bottom
+// toolbar pick up the page's own dark colour instead of falling back to white.
+export const viewport: Viewport = {
+  themeColor: '#0C1610',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
