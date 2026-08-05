@@ -9,6 +9,7 @@ import InfoTip from './InfoTip';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
 import BillDetailModal from './BillDetailModal';
+import BillCard from './BillCard';
 
 interface Props {
   bills: ParliamentBill[];
@@ -132,7 +133,7 @@ function stageDescription(stage: string): string {
   return STAGE_DESCRIPTIONS[stage.toLowerCase()] ?? 'This bill is making its way through Parliament.';
 }
 
-function stageLabel(bill: ParliamentBill): string {
+export function stageLabel(bill: ParliamentBill): string {
   if (bill.is_act) return 'Royal Assent';
   if (bill.is_defeated) return 'Defeated';
   if (bill.bill_withdrawn) return 'Withdrawn';
@@ -373,6 +374,35 @@ export default function DepartureBoardSection({ bills }: Props) {
               </tbody>
             ))}
           </table>
+        </div>
+
+        {/* ── Bill cards (phones) ──────────────────────────────────────
+            The table's own fold keeps its header within reach for the first
+            couple of rows, but a board running to a few dozen items scrolls
+            it away from everything after that. Below the phone breakpoint,
+            CSS swaps the table above for this card list — same groups, same
+            data, same modal on tap. */}
+        <div className="board-cards">
+          {groups.map(group => (
+            <div key={group.stage} className="board-cards__group">
+              <div className="board-cards__stage-head">
+                <span className="board-cards__stage-title">{group.stage}</span>
+                <InfoTip align="left" scope="stage" label={group.stage} tip={stageDescription(group.stage)} />
+              </div>
+              <div className="board-cards__stack">
+                {group.bills.map(bill => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    votes={votes[bill.id]}
+                    myVote={votedMap[bill.id]}
+                    onSelect={() => setSelectedId(bill.id)}
+                    onVote={choice => castVote(bill.id, choice)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Footer */}

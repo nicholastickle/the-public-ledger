@@ -1878,15 +1878,184 @@ body {
       padding-right: 8px;
     }
 
-    .thumb-tally {
+    /* Scoped to the table specifically — the board cards below use the same
+       ThumbTally/OwnVoteCell components but have the width to keep both sides
+       on one line, so they opt out of the narrow-column stacking here. */
+    .ledger-table .thumb-tally {
       flex-direction: column;
       align-items: flex-start;
       gap: 2px;
     }
 
-    .own-vote {
+    .ledger-table .own-vote {
       font-size: 10px;
     }
+  }
+
+  /* ── Board cards (phones) ────────────────────────────────────────────
+     Below the phone breakpoint the table's own fold keeps the header within
+     reach for the first couple of rows, but a board running to a few dozen
+     items scrolls the header away from everything after that — so phones get
+     one card per item instead of a squeezed row. Both markups render in the
+     DOM; this pair of rules is what shows exactly one of them. */
+  .board-cards {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .ledger-table__wrap {
+      display: none;
+    }
+
+    .board-cards {
+      display: block;
+    }
+  }
+
+  .board-cards__group + .board-cards__group {
+    margin-top: 4px;
+  }
+
+  /* Same band chrome as the table's stage/phase heading, just as a block
+     instead of a spanning table row. */
+  .board-cards__stage-head {
+    display: flex;
+    align-items: center;
+    padding: 9px 6px 8px;
+    background: var(--board-band-bg, rgba(27, 67, 50, 0.24));
+    border-top: 1px solid rgba(184, 150, 12, 0.18);
+    border-bottom: 1px solid rgba(184, 150, 12, 0.18);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .board-cards__group:first-of-type .board-cards__stage-head {
+    border-top: 0;
+  }
+
+  .board-cards__stage-title {
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(250, 246, 237, 0.62);
+  }
+
+  .board-cards__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 2px 4px;
+  }
+
+  .ledger-card {
+    position: relative;
+    border-radius: 6px;
+    padding: 12px 13px 13px;
+    background: rgba(250, 246, 237, 0.035);
+    border: 1px solid rgba(184, 150, 12, 0.16);
+    cursor: pointer;
+  }
+
+  [data-board-theme='bronze'] .ledger-card {
+    border-color: rgba(192, 138, 74, 0.16);
+  }
+
+  .ledger-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ledger-card__no {
+    font-size: 10px;
+    color: rgba(184, 150, 12, 0.5);
+  }
+
+  [data-board-theme='bronze'] .ledger-card__no {
+    color: rgba(192, 138, 74, 0.6);
+  }
+
+  /* Reuses the table's title/subtitle typography so a citizen who has learned
+     to read a row does not have to learn a second style for the same field. */
+  .ledger-card .ledger-table__title {
+    font-size: 15px;
+    margin-top: 7px;
+  }
+
+  .ledger-card .ledger-table__subtitle {
+    margin-top: 3px;
+  }
+
+  .ledger-card__meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 7px;
+    flex-wrap: wrap;
+  }
+
+  .ledger-card__meta-chip {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: rgba(250, 246, 237, 0.55);
+  }
+
+  .ledger-card__cta {
+    margin-top: 12px;
+  }
+
+  .ledger-card__tallies {
+    margin-top: 12px;
+    padding-top: 11px;
+    border-top: 1px solid rgba(250, 246, 237, 0.09);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .ledger-card__tally-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ledger-card__tally-row--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .ledger-card__tally-row--split .ledger-card__tally-row {
+    gap: 6px;
+  }
+
+  /* ── Big vote buttons — the card's primary action ────────────────────── */
+  .own-vote-buttons--lg {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .own-vote-btn--lg {
+    flex: 1;
+    width: auto;
+    height: 38px;
+    gap: 6px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .own-vote-btn__label {
+    white-space: nowrap;
+  }
+
+  .own-vote--lg {
+    display: flex;
+    font-size: 12px;
+    padding: 9px 0;
   }
 
   .voting-panel__pending {
