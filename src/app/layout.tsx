@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import SoundToggle from "./components/SoundToggle";
+import { SoundProvider } from "./lib/SoundContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +26,17 @@ export const metadata: Metadata = {
     'Cast your shadow vote on the same bills parliament is debating. See how public opinion compares to your elected representatives.',
 };
 
+// Matches the hero's dark background so mobile Safari tints its status bar
+// and toolbar to the site instead of leaving them their default white —
+// which otherwise reads as a stray white band above and below the page.
+// `viewportFit: 'cover'` lets the page paint edge-to-edge under those bars
+// (rather than stopping short of them), which is what lets Safari's bottom
+// toolbar pick up the page's own dark colour instead of falling back to white.
+export const viewport: Viewport = {
+  themeColor: '#0C1610',
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,8 +48,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <SoundToggle />
-        {children}
+        <SoundProvider>{children}</SoundProvider>
       </body>
     </html>
   );

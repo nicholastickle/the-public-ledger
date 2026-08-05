@@ -23,9 +23,16 @@ describe('HeroFrameNav', () => {
     expect(burger).toHaveAttribute('aria-expanded', 'false');
 
     fireEvent.click(burger);
+    // the burger sits behind the open overlay, so it drops out of the
+    // accessibility tree in favour of the overlay's own close button
+    expect(screen.queryByRole('button', { name: /open menu/i })).not.toBeInTheDocument();
     const close = screen.getByRole('button', { name: /close menu/i });
-    expect(close).toHaveAttribute('aria-expanded', 'true');
+    expect(close).toBeInTheDocument();
     // mobile menu now duplicates the nav links
     expect(screen.getAllByRole('link', { name: 'Bills' }).length).toBeGreaterThan(1);
+
+    fireEvent.click(close);
+    expect(screen.getByRole('button', { name: /open menu/i })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getAllByRole('link', { name: 'Bills' }).length).toBe(1);
   });
 });

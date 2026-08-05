@@ -1,7 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import SoundToggleButton from './SoundToggleButton';
+
+/** Swipe left by at least this many px, more horizontally than vertically, to
+ *  close — short enough to feel responsive, long enough that a normal
+ *  vertical scroll inside the panel never triggers it by accident. */
+const SWIPE_CLOSE_THRESHOLD = 60;
 
 const STEPS = [
   {
@@ -43,6 +49,7 @@ interface Props {
 
 export default function HowItWorksModal({ isOpen, onClose }: Props) {
   const [step, setStep] = useState(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // Reset to the first slide whenever the modal closes — adjusting state during
   // render on a prop change (React's recommended alternative to a setState effect).
@@ -65,6 +72,23 @@ export default function HowItWorksModal({ isOpen, onClose }: Props) {
 
   const isLastSlide = step === TOTAL_SLIDES - 1;
 
+  function onTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (dx < -SWIPE_CLOSE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      handleClose();
+    }
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-md"
@@ -82,36 +106,42 @@ export default function HowItWorksModal({ isOpen, onClose }: Props) {
           minHeight: 'min(540px, calc(100dvh - 80px))',
         }}
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          aria-label="Close"
-          className="absolute top-md right-md z-10 flex items-center justify-center w-7 h-7"
-          style={{
-            color: 'rgba(27,67,50,0.45)',
-            background: 'transparent',
-            border: '1px solid transparent',
-            borderRadius: '2px',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLButtonElement;
-            el.style.color = 'var(--color-forest-green)';
-            el.style.borderColor = 'rgba(184,150,12,0.3)';
-            el.style.background = 'rgba(27,67,50,0.06)';
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLButtonElement;
-            el.style.color = 'rgba(27,67,50,0.45)';
-            el.style.borderColor = 'transparent';
-            el.style.background = 'transparent';
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </button>
+        {/* Sound toggle grouped with the close button rather than floating at
+            a fixed viewport corner, so the two never overlap. */}
+        <div className="absolute top-md right-md z-10 flex items-center gap-xs">
+          <SoundToggleButton className="sound-toggle sound-toggle--howitworks" />
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="flex items-center justify-center w-7 h-7"
+            style={{
+              color: 'rgba(27,67,50,0.45)',
+              background: 'transparent',
+              border: '1px solid transparent',
+              borderRadius: '2px',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.color = 'var(--color-forest-green)';
+              el.style.borderColor = 'rgba(184,150,12,0.3)';
+              el.style.background = 'rgba(27,67,50,0.06)';
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.color = 'rgba(27,67,50,0.45)';
+              el.style.borderColor = 'transparent';
+              el.style.background = 'transparent';
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
 
         {/* Illustration area — fixed 168px on every slide */}
         <div
