@@ -34,10 +34,32 @@ describe('BillCard', () => {
     expect(screen.getByText('Commons')).toBeInTheDocument();
   });
 
-  it('hides all three tallies behind a lock while the vote is open and uncast', () => {
+  it('hides the Public and AI tallies behind a lock while the vote is open and uncast', () => {
     render(<BillCard bill={OPEN_BILL} onSelect={noop} onVote={noop} />);
-    expect(screen.getAllByTitle('Hidden until you vote')).toHaveLength(2); // public + AI
+    expect(screen.getAllByRole('button', { name: 'Hidden until you vote' })).toHaveLength(2); // public + AI
     expect(screen.queryByTitle('No parliamentary vote recorded')).not.toBeInTheDocument();
+  });
+
+  it('explains the lock on tap, without opening the detail modal', () => {
+    const onSelect = vi.fn();
+    render(<BillCard bill={OPEN_BILL} onSelect={onSelect} onVote={noop} />);
+    const [publicLock] = screen.getAllByRole('button', { name: 'Hidden until you vote' });
+    expect(screen.queryByText(/Cast your vote above to reveal/)).not.toBeInTheDocument();
+
+    fireEvent.click(publicLock);
+    expect(screen.getByText(/Cast your vote above to reveal/)).toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('shows the expected sitting date and explains it on tap, before Parliament has voted', () => {
+    const onSelect = vi.fn();
+    render(<BillCard bill={OPEN_BILL} votes={{ shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-12' }} onSelect={onSelect} onVote={noop} />);
+    const dateChip = screen.getByRole('button', { name: 'Government vote: 12/08/2026' });
+    expect(dateChip).toHaveTextContent('12/08/2026');
+
+    fireEvent.click(dateChip);
+    expect(screen.getByText(/Parliament divides on this bill at Second Reading/)).toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
   it('offers full-width Aye/No buttons while the window is open', () => {
@@ -57,7 +79,7 @@ describe('BillCard', () => {
 
   it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
     const { container } = render(<BillCard bill={OPEN_BILL} myVote="for" onSelect={noop} onVote={noop} />);
-    expect(screen.queryByTitle('Hidden until you vote')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Hidden until you vote' })).not.toBeInTheDocument();
     expect(container.querySelector('.own-vote--for')).toHaveTextContent('Aye');
   });
 

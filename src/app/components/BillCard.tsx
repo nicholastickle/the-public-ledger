@@ -1,8 +1,7 @@
 import type { ParliamentBill } from '../types/parliament';
 import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
-import TallyHeader from './TallyHeader';
-import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
+import CardTallyBlock from './CardTallyBlock';
 
 interface Props {
   bill: ParliamentBill;
@@ -46,27 +45,15 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
         <OwnVoteCell title={title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Aye" againstLabel="No" size="lg" />
       </div>
 
-      <div className="ledger-card__tallies">
-        <div className="ledger-card__tally-row">
-          <TallyHeader kind="public" />
-          <TallyCell
-            tally={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
-            revealed={revealed}
-            forLabel="Aye"
-            againstLabel="No"
-          />
-        </div>
-        <div className="ledger-card__tally-row--split">
-          <div className="ledger-card__tally-row">
-            <TallyHeader kind="ai" />
-            <TallyCell tally={billAiTally(bill)} revealed={revealed} forLabel="Aye" againstLabel="No" />
-          </div>
-          <div className="ledger-card__tally-row">
-            <TallyHeader kind="government" align="right" />
-            <GovTallyCell gov={billGovVote(bill, votes)} revealed={revealed} forLabel="Aye" againstLabel="No" />
-          </div>
-        </div>
-      </div>
+      <CardTallyBlock
+        context="bill"
+        forLabel="Aye"
+        againstLabel="No"
+        revealed={revealed}
+        publicTally={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
+        aiTally={billAiTally(bill)}
+        gov={billGovVote(bill, votes)}
+      />
     </article>
   );
 }

@@ -2009,26 +2009,104 @@ body {
     margin-top: 12px;
     padding-top: 11px;
     border-top: 1px solid rgba(250, 246, 237, 0.09);
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
   }
 
-  .ledger-card__tally-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .ledger-card__tally-row--split {
+  /* One row of icons — Public, AI, Government — and beneath it, in the same
+     column, that icon's value: a thumbs pair once revealed, a tap-to-explain
+     padlock while hidden, or (Government only) a tap-to-explain TBD/date
+     chip while Parliament hasn't voted. */
+  .ledger-card__tally-icons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
   }
 
-  .ledger-card__tally-row--split .ledger-card__tally-row {
-    gap: 6px;
+  .ledger-card__tally-icons .tally-header {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ledger-card__tally-values {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    margin-top: 7px;
+  }
+
+  .ledger-card__tally-value {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Narrower than the table's tally cell, so the thumbs stack rather than
+     sit side by side — same idea as the table's own phone-width fold, just
+     unconditional here since the card column is always this narrow. */
+  .ledger-card__tally-values .thumb-tally {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .ledger-card__tally-values .thumb-tally__side {
+    justify-content: center;
+  }
+
+  .ledger-card__lock {
+    display: inline-block;
+    font-size: 13px;
+    opacity: 0.55;
+  }
+
+  /* ── Tap-to-reveal tooltip (padlock, TBD/date) ───────────────────────
+     Hover-only tooltips don't work on a touchscreen, so this pair opens on
+     tap instead — see TapInfo. */
+  .tap-info {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .tap-info__trigger {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tap-info__bubble {
+    position: absolute;
+    top: calc(100% + 8px);
+    z-index: 30;
+    width: 190px;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    color: #faf6ed;
+    background: var(--board-head-bg, #12291d);
+    border: 1px solid rgba(184, 150, 12, 0.4);
+    border-radius: 3px;
+    padding: 8px 10px;
+    box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  }
+
+  [data-board-theme='bronze'] .tap-info__bubble {
+    background: #1c1712;
+    border-color: rgba(192, 138, 74, 0.4);
+  }
+
+  .tap-info__bubble--left {
+    left: 0;
+  }
+
+  .tap-info__bubble--center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .tap-info__bubble--right {
+    right: 0;
   }
 
   /* ── Big vote buttons — the card's primary action ────────────────────── */

@@ -34,9 +34,30 @@ describe('RegulationCard', () => {
     expect(screen.getByText('Negative procedure')).toBeInTheDocument();
   });
 
-  it('hides all three tallies behind a lock while the vote is open and uncast', () => {
+  it('hides the Public and AI tallies behind a lock while the vote is open and uncast', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
-    expect(screen.getAllByTitle('Hidden until you vote')).toHaveLength(2); // public + AI
+    expect(screen.getAllByRole('button', { name: 'Hidden until you vote' })).toHaveLength(2); // public + AI
+  });
+
+  it('explains the lock on tap, without opening the detail modal', () => {
+    const onSelect = vi.fn();
+    render(<RegulationCard reg={OPEN_REG} onSelect={onSelect} onVote={noop} />);
+    const [publicLock] = screen.getAllByRole('button', { name: 'Hidden until you vote' });
+
+    fireEvent.click(publicLock);
+    expect(screen.getByText(/Cast your vote above to reveal/)).toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('shows the parliamentary deadline and explains it on tap, before Parliament has settled it', () => {
+    const onSelect = vi.fn();
+    render(<RegulationCard reg={OPEN_REG} onSelect={onSelect} onVote={noop} />);
+    const dateChip = screen.getByRole('button', { name: 'Government vote: 10/08/2026' });
+    expect(dateChip).toHaveTextContent('10/08/2026');
+
+    fireEvent.click(dateChip);
+    expect(screen.getByText(/Parliament hasn't settled this yet/)).toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
   it('offers full-width Approve/Annul buttons while the window is open', () => {
@@ -56,7 +77,7 @@ describe('RegulationCard', () => {
 
   it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
     const { container } = render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
-    expect(screen.queryByTitle('Hidden until you vote')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Hidden until you vote' })).not.toBeInTheDocument();
     expect(container.querySelector('.own-vote--against')).toHaveTextContent('Annul');
   });
 

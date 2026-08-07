@@ -1,8 +1,7 @@
 import type { ParliamentRegulation } from '../types/parliament';
 import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from './RegulationBoardSection';
-import TallyHeader from './TallyHeader';
-import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
+import CardTallyBlock from './CardTallyBlock';
 
 interface Props {
   reg: ParliamentRegulation;
@@ -49,27 +48,15 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
         <OwnVoteCell title={reg.title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Approve" againstLabel="Annul" size="lg" />
       </div>
 
-      <div className="ledger-card__tallies">
-        <div className="ledger-card__tally-row">
-          <TallyHeader kind="public" context="regulation" />
-          <TallyCell
-            tally={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
-            revealed={revealed}
-            forLabel="Approve"
-            againstLabel="Annul"
-          />
-        </div>
-        <div className="ledger-card__tally-row--split">
-          <div className="ledger-card__tally-row">
-            <TallyHeader kind="ai" context="regulation" />
-            <TallyCell tally={regulationAiTally(reg)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
-          </div>
-          <div className="ledger-card__tally-row">
-            <TallyHeader kind="government" context="regulation" align="right" />
-            <GovTallyCell gov={regulationGovVote(reg, votes)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
-          </div>
-        </div>
-      </div>
+      <CardTallyBlock
+        context="regulation"
+        forLabel="Approve"
+        againstLabel="Annul"
+        revealed={revealed}
+        publicTally={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
+        aiTally={regulationAiTally(reg)}
+        gov={regulationGovVote(reg, votes)}
+      />
     </article>
   );
 }
