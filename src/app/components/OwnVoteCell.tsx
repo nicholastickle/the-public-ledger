@@ -34,16 +34,20 @@ export default function OwnVoteCell({ title, isOpen, myVote, onVote, forLabel, a
     onVote(choice);
   };
 
-  // The thumbs carry no text, so each says on hover which way it votes. The
-  // wording follows the surface — Aye/No on a bill, Approve/Annul on an
-  // instrument — rather than a generic yes/no, so the tooltip matches the words
-  // used everywhere else on the same screen.
+  // The small table buttons carry no text, so each says on hover which way
+  // it votes — the wording follows the surface (Aye/No on a bill, Approve/
+  // Annul on an instrument) rather than a generic yes/no. The card's large
+  // buttons already print that same label on the button itself, so they skip
+  // the tooltip: on a touchscreen a long-press on the button reads as a
+  // hover, popping up a tooltip that just repeats what's already printed.
+  const tipClass = size === 'sm' ? ' vote-tip' : '';
+
   return (
     <span className={`own-vote-buttons own-vote-buttons--${size}`}>
       <button
         type="button"
-        className={`own-vote-btn own-vote-btn--for own-vote-btn--${size} vote-tip`}
-        data-tooltip={`Vote ${forLabel}`}
+        className={`own-vote-btn own-vote-btn--for own-vote-btn--${size}${tipClass}`}
+        data-tooltip={size === 'sm' ? `Vote ${forLabel}` : undefined}
         aria-label={`Vote ${forLabel} on ${title}`}
         onClick={cast('for')}
       >
@@ -52,8 +56,8 @@ export default function OwnVoteCell({ title, isOpen, myVote, onVote, forLabel, a
       </button>
       <button
         type="button"
-        className={`own-vote-btn own-vote-btn--against own-vote-btn--${size} vote-tip`}
-        data-tooltip={`Vote ${againstLabel}`}
+        className={`own-vote-btn own-vote-btn--against own-vote-btn--${size}${tipClass}`}
+        data-tooltip={size === 'sm' ? `Vote ${againstLabel}` : undefined}
         aria-label={`Vote ${againstLabel} on ${title}`}
         onClick={cast('against')}
       >

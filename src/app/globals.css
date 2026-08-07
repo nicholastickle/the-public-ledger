@@ -1944,7 +1944,7 @@ body {
   .board-cards__stack {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
     padding: 12px 2px 4px;
   }
 
@@ -2024,10 +2024,15 @@ body {
     justify-content: center;
   }
 
+  /* Fixed to the height of the tallest state (a revealed, stacked thumbs
+     pair) so a lock resolving into a result never changes the card's
+     height — the reveal updates in place instead of pushing the card, and
+     everything below it, up or down. */
   .ledger-card__tally-values {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    align-items: start;
+    align-items: center;
+    min-height: 35px;
     margin-top: 7px;
   }
 
