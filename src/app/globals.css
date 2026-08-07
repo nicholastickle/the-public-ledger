@@ -2007,8 +2007,6 @@ body {
 
   .ledger-card__tallies {
     margin-top: 12px;
-    padding-top: 11px;
-    border-top: 1px solid rgba(250, 246, 237, 0.09);
   }
 
   /* One row of icons — Public, AI, Government — and beneath it, in the same
@@ -2036,6 +2034,14 @@ body {
   .ledger-card__tally-value {
     display: flex;
     justify-content: center;
+  }
+
+  /* The card's Government value is a bare date/TBD label — the dashed
+     border and tinted fill are the table's chrome, not the card's. */
+  .ledger-card__tally-value .tally-cell__pending {
+    background: none;
+    border: none;
+    padding: 0;
   }
 
   /* Narrower than the table's tally cell, so the thumbs stack rather than
