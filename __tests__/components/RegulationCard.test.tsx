@@ -31,7 +31,7 @@ describe('RegulationCard', () => {
 
   it('shows the procedure', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
-    expect(screen.getByText('Negative procedure')).toBeInTheDocument();
+    expect(screen.getByText('Negative')).toBeInTheDocument();
   });
 
   it('renders the same vote-tally table the detail modal uses', () => {
