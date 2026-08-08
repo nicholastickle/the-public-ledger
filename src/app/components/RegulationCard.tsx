@@ -54,12 +54,10 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
             <StageIcon />
             {regulationPhase(reg)}
           </span>
-          <span className="ledger-card__footer-dot" aria-hidden="true">·</span>
           <span className="ledger-card__footer-item">
             <ProcedureIcon />
             {procedureLabel(reg)}
           </span>
-          <span className="ledger-card__footer-dot" aria-hidden="true">·</span>
           <span className="ledger-card__footer-item font-mono tabular-nums">
             <NumberIcon />
             No. {reg.id}
