@@ -82,7 +82,7 @@ describe('RegulationBoardSection', () => {
     expect(screen.queryByRole('columnheader', { name: 'Phase' })).not.toBeInTheDocument();
     expect(Array.from(document.querySelectorAll('.ledger-table__stage-title')).map(t => t.textContent))
       .toEqual(['Pending Approval', 'Annul Window Open', 'Made', 'Annulled']);
-    expect(document.querySelector('.ledger-table__stage-head')!.getAttribute('colspan')).toBe('7');
+    expect(document.querySelector('.ledger-table__stage-head')!.getAttribute('colspan')).toBe('8');
   });
 
   it('explains every phase the board can band by', () => {
@@ -141,9 +141,15 @@ describe('RegulationBoardSection', () => {
     expect(row.textContent).not.toMatch(/Hidden until you vote/);
   });
 
-  it('opens the regulation detail modal from anywhere in the row', () => {
+  it('does not open the modal when clicking elsewhere in the row', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     fireEvent.click(cell(rows()[0], 'house'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens the regulation detail modal from the row-end arrow button', () => {
+    render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Open detail for The Test (Amendment) Regulations 2026' }));
     expect(within(screen.getByRole('dialog')).getByRole('heading', { name: /The Test \(Amendment\) Regulations 2026/i })).toBeInTheDocument();
   });
 

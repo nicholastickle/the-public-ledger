@@ -90,7 +90,7 @@ describe('DepartureBoardSection', () => {
     const bands = Array.from(document.querySelectorAll('.ledger-table__stage-head'));
     expect(bands.map(b => b.querySelector('.ledger-table__stage-title')!.textContent))
       .toEqual(['First Reading', 'Committee Stage']);
-    expect(bands[0].getAttribute('colspan')).toBe('7');
+    expect(bands[0].getAttribute('colspan')).toBe('8');
   });
 
   it('explains each stage with an InfoTip on its band', () => {
@@ -211,9 +211,15 @@ describe('DepartureBoardSection', () => {
     expect(within(dialog).getByRole('heading', { name: /Test Reform Bill/i })).toBeInTheDocument();
   });
 
-  it('opens the bill detail modal from anywhere in the row, not just the title', () => {
+  it('does not open the modal when clicking elsewhere in the row', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
     fireEvent.click(cell(rows()[0], 'house'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens the bill detail modal from the row-end arrow button', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Open detail for Test Reform Bill' }));
     expect(within(screen.getByRole('dialog')).getByRole('heading', { name: /Test Reform Bill/i })).toBeInTheDocument();
   });
 

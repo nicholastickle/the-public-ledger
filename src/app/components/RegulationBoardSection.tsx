@@ -8,6 +8,7 @@ import TallyHeader from './TallyHeader';
 import InfoTip from './InfoTip';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
+import TableRowArrow from './TableRowArrow';
 import RegulationDetailModal from './RegulationDetailModal';
 import RegulationCard from './RegulationCard';
 
@@ -216,9 +217,10 @@ function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: Parliame
   const revealed = !vOpen || myVote != null;
 
   return (
-    // The whole row opens the instrument. The title stays a real button so the
-    // row is still operable from the keyboard without a second tab stop.
-    <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined} onClick={onSelect}>
+    // Only the title and the trailing arrow open the instrument — the row
+    // itself carries no click handler, so a miss-click reaching for the vote
+    // buttons doesn't accidentally pop the modal open.
+    <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined}>
       <td className="ledger-table__cell ledger-table__cell--no font-mono tabular-nums">{reg.id}</td>
 
       <td className="ledger-table__cell ledger-table__cell--name">
@@ -264,6 +266,10 @@ function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: Parliame
 
       <td className="ledger-table__cell ledger-table__cell--own">
         <OwnVoteCell title={reg.title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Approve" againstLabel="Annul" />
+      </td>
+
+      <td className="ledger-table__cell ledger-table__cell--arrow">
+        <TableRowArrow label={reg.title} onSelect={onSelect} />
       </td>
     </tr>
   );
@@ -371,6 +377,9 @@ export default function RegulationBoardSection({ regulations }: Props) {
                     tip="Your own shadow vote. Cast it from this column or from the instrument detail while the voting window is open, and your choice is shown here. If you do not vote before the deadline, this column reads 'Did not vote'."
                   />
                 </th>
+                <th scope="col" className="ledger-table__cell--arrow">
+                  <span className="sr-only">Open detail</span>
+                </th>
               </tr>
             </thead>
             {/* One banded section per phase rather than a Phase column — the
@@ -379,7 +388,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
             {groups.map(group => (
               <tbody key={group.phase} className="ledger-table__group">
                 <tr className="ledger-table__stage-row">
-                  <th scope="colgroup" colSpan={7} className="ledger-table__stage-head" aria-label={group.phase}>
+                  <th scope="colgroup" colSpan={8} className="ledger-table__stage-head" aria-label={group.phase}>
                     <span className="ledger-table__stage-title">{group.phase}</span>
                     <InfoTip align="left" scope="stage" label={group.phase} tip={phaseDescription(group.phase)} />
                   </th>

@@ -79,8 +79,11 @@ function UnionJackSeal({ size = 120 }: { size?: number }) {
       {/* Serrated edge — alternating petals */}
       {Array.from({ length: 40 }).map((_, i) => {
         const angle = (i * 360) / 40 * (Math.PI / 180);
-        const x = cx + outerR * Math.cos(angle);
-        const y = cy + outerR * Math.sin(angle);
+        // Rounded to a fixed precision so the server and client — whose
+        // Math.cos/Math.sin can differ in the last bit — always serialize
+        // the same decimal string and avoid a hydration mismatch.
+        const x = Number((cx + outerR * Math.cos(angle)).toFixed(3));
+        const y = Number((cy + outerR * Math.sin(angle)).toFixed(3));
         const r = i % 2 === 0 ? size * 0.037 : size * 0.028;
         return <circle key={i} cx={x} cy={y} r={r} fill={i % 2 === 0 ? '#8B1A1A' : '#6A1212'} />;
       })}

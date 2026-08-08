@@ -1281,8 +1281,6 @@ body {
 
   [data-board-theme='bronze'] .tally-cell__pending {
     color: #ddaa6a;
-    background: rgba(221, 170, 106, 0.07);
-    border-color: rgba(221, 170, 106, 0.35);
   }
 
   [data-board-theme='bronze'] .board-view-all {
@@ -1390,7 +1388,7 @@ body {
   .ledger-table thead th {
     position: relative;
     font-family: var(--font-mono), monospace;
-    font-size: 12px;
+    font-size: 13px;
     /* Weight 500 so the label carries the same visual weight as the solid-fill
        column icons beside it — at 400 the icons read noticeably bolder. */
     font-weight: 500;
@@ -1408,8 +1406,8 @@ body {
      rather than a column repeating the same value down every row. */
   .ledger-table__stage-head {
     text-align: left;
-    padding: 1px 14px 2px;
-    line-height: 14px;
+    padding: 3px 14px 4px;
+    line-height: 16px;
     background: var(--board-band-bg, rgba(27, 67, 50, 0.24));
     border-top: 1px solid rgba(184, 150, 12, 0.18);
     border-bottom: 1px solid rgba(184, 150, 12, 0.18);
@@ -1421,7 +1419,7 @@ body {
 
   .ledger-table__stage-title {
     font-family: var(--font-mono), monospace;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -1439,8 +1437,13 @@ body {
     height: 10px;
   }
 
+  /* Fixed rather than content-driven: a pending row's date/TBD pill and vote
+     buttons are a different height than a revealed row's thumb tallies, so
+     without a floor the row would visibly grow or shrink the moment a vote
+     is cast. `height` on a `<tr>` acts as a minimum — content taller than
+     this (e.g. a wrapped title) still pushes the row further. */
   .ledger-table__row {
-    cursor: pointer;
+    height: 50px;
   }
 
   .ledger-table__row+.ledger-table__row .ledger-table__cell {
@@ -1449,7 +1452,7 @@ body {
 
   .ledger-table__cell {
     padding: 9px 14px;
-    font-size: 13px;
+    font-size: 14px;
     color: #faf6ed;
     vertical-align: middle;
   }
@@ -1457,7 +1460,7 @@ body {
   .ledger-table__cell--no {
     width: 64px;
     color: rgba(184, 150, 12, 0.7);
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .ledger-table__cell--name {
@@ -1468,7 +1471,7 @@ body {
      shorter House values sit comfortably inside it. */
   .ledger-table__cell--house {
     width: 112px;
-    font-size: 12px;
+    font-size: 13px;
     color: rgba(250, 246, 237, 0.72);
   }
 
@@ -1482,6 +1485,56 @@ body {
   .ledger-table thead th.ledger-table__cell--own {
     width: 116px;
     text-align: center;
+  }
+
+  .ledger-table__cell--arrow,
+  .ledger-table thead th.ledger-table__cell--arrow {
+    width: 44px;
+    text-align: center;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* The only other way (besides the title) to open the row's detail modal —
+     the row itself no longer carries a click handler, so a stray click
+     between the columns does nothing instead of surprising a voter reaching
+     for the buttons beside it. */
+  .ledger-table__arrow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: #d4af37;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: color 0.12s ease, background 0.12s ease;
+  }
+
+  @media (hover: hover) {
+    .ledger-table__arrow-btn:hover {
+      color: #f0d060;
+      background: rgba(212, 175, 55, 0.12);
+    }
+  }
+
+  .ledger-table__arrow-btn:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+  }
+
+  [data-board-theme='bronze'] .ledger-table__arrow-btn {
+    color: #c08a4a;
+  }
+
+  @media (hover: hover) {
+    [data-board-theme='bronze'] .ledger-table__arrow-btn:hover {
+      color: #ddaa6a;
+      background: rgba(221, 170, 106, 0.12);
+    }
   }
 
   .ledger-table__title {
@@ -1707,10 +1760,6 @@ body {
   .tally-cell__pending {
     font-size: 11px;
     color: #d4af37;
-    background: rgba(212, 175, 55, 0.07);
-    border: 1px dashed rgba(212, 175, 55, 0.35);
-    border-radius: 2px;
-    padding: 2px 6px;
     white-space: nowrap;
   }
 
