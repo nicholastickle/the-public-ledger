@@ -13,16 +13,6 @@ describe('OwnVoteCell', () => {
     expect(no).toHaveClass('vote-tip');
   });
 
-  it('drops the tooltip on the large card buttons — the label is already printed on the button', () => {
-    render(<OwnVoteCell title="Test Reform Bill" isOpen onVote={() => {}} forLabel="Aye" againstLabel="No" size="lg" />);
-    const aye = screen.getByRole('button', { name: 'Vote Aye on Test Reform Bill' });
-    const no = screen.getByRole('button', { name: 'Vote No on Test Reform Bill' });
-    expect(aye).not.toHaveClass('vote-tip');
-    expect(no).not.toHaveClass('vote-tip');
-    expect(aye).not.toHaveAttribute('data-tooltip');
-    expect(no).not.toHaveAttribute('data-tooltip');
-  });
-
   it('follows the surface wording on the regulation board', () => {
     render(<OwnVoteCell title="Test Regulations 2026" isOpen onVote={() => {}} forLabel="Approve" againstLabel="Annul" />);
     expect(screen.getByRole('button', { name: /Vote Approve on/ })).toHaveAttribute('data-tooltip', 'Vote Approve');

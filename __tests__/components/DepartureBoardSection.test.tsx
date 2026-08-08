@@ -65,8 +65,11 @@ describe('DepartureBoardSection', () => {
   it('renders one table row per bill with the documented columns', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL, COMMITTEE_BILL]} />);
     expect(rows()).toHaveLength(2);
+    // The phone card below repeats the same vote-tally table (with the same
+    // column headers) outside this desktop table, so headers are scoped to it.
+    const board = within(document.querySelector('.ledger-table__wrap')!);
     for (const name of ['No.', 'Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
+      expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
     // Every column but the bill number carries an explanatory InfoTip. The
     // phone card repeats the same tally InfoTips outside the table, so this

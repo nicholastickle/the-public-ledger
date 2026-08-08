@@ -1,7 +1,6 @@
 import type { ParliamentBill } from '../types/parliament';
 import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
-import OwnVoteCell from './OwnVoteCell';
-import CardTallyBlock from './CardTallyBlock';
+import VoteTallyTable from './VoteTallyTable';
 
 interface Props {
   bill: ParliamentBill;
@@ -14,10 +13,10 @@ interface Props {
 /** BillRow reshaped into a card for phones, where the table's own column fold
  *  leaves the header a full scroll away from anything past the first couple of
  *  rows. Tapping anywhere on the card opens the same detail modal as the row;
- *  OwnVoteCell already keeps its own clicks from bubbling into that. */
+ *  VoteTallyTable already keeps its own clicks from bubbling into that — it is
+ *  the same vote-tally table the detail modal uses, just narrower. */
 export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Props) {
   const vOpen = isVoteOpen(bill);
-  const revealed = !vOpen || myVote != null;
   const title = bill.short_title ?? bill.long_title ?? 'Untitled Bill';
   const status = billStatus(bill);
 
@@ -41,19 +40,20 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
         <span className="ledger-card__meta-chip font-mono">{billHouse(bill)}</span>
       </div>
 
-      <div className="ledger-card__cta">
-        <OwnVoteCell title={title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Aye" againstLabel="No" size="lg" />
+      <div className="ledger-card__vote">
+        <VoteTallyTable
+          title={title}
+          context="bill"
+          forLabel="Aye"
+          againstLabel="No"
+          isOpen={vOpen}
+          myVote={myVote ?? null}
+          onVote={onVote}
+          publicVote={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
+          ai={billAiTally(bill)}
+          gov={billGovVote(bill, votes)}
+        />
       </div>
-
-      <CardTallyBlock
-        context="bill"
-        forLabel="Aye"
-        againstLabel="No"
-        revealed={revealed}
-        publicTally={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
-        aiTally={billAiTally(bill)}
-        gov={billGovVote(bill, votes)}
-      />
     </article>
   );
 }

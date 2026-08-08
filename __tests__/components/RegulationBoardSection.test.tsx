@@ -61,8 +61,11 @@ describe('RegulationBoardSection', () => {
   it('renders one table row per regulation with the documented columns', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG, MADE_REG]} />);
     expect(rows()).toHaveLength(2);
+    // The phone card below repeats the same vote-tally table (with the same
+    // column headers) outside this desktop table, so headers are scoped to it.
+    const board = within(document.querySelector('.ledger-table__wrap')!);
     for (const name of ['No.', 'Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
+      expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
     // Every column but the instrument number carries an explanatory InfoTip.
     // The phone card repeats the same tally InfoTips outside the table, so

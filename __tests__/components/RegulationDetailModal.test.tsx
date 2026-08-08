@@ -107,17 +107,10 @@ describe('RegulationDetailModal', () => {
     expect(affTips.some(t => t?.includes('cannot be made until both Houses have actively approved it'))).toBe(true);
   });
 
-  it('renders the vote as the same three-column tally table the board uses', () => {
+  it('renders the vote as the same four-column table the board uses', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
     const headers = screen.getAllByRole('columnheader').map(h => h.getAttribute('aria-label'));
-    expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally']);
-  });
-
-  it('puts the vote buttons above the tally table, acting like the board card\'s', () => {
-    render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
-    const approve = screen.getByRole('button', { name: /Vote Approve on/ });
-    expect(approve).not.toHaveAttribute('data-tooltip');
-    expect(approve).not.toHaveClass('vote-tip');
+    expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']);
   });
 
   it('describes the columns against the instrument timeline, not the bill one', () => {
@@ -135,10 +128,10 @@ describe('RegulationDetailModal', () => {
     expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
   });
 
-  it('prints the instrument wording on the buttons themselves, full width', () => {
+  it('labels the vote thumbs with the instrument wording on hover', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
-    expect(screen.getByRole('button', { name: /Vote Approve on/ })).toHaveTextContent('Approve');
-    expect(screen.getByRole('button', { name: /Vote Annul on/ })).toHaveTextContent('Annul');
+    expect(screen.getByRole('button', { name: /Vote Approve on/ })).toHaveAttribute('data-tooltip', 'Vote Approve');
+    expect(screen.getByRole('button', { name: /Vote Annul on/ })).toHaveAttribute('data-tooltip', 'Vote Annul');
   });
 
   it('shows the parliamentary deadline while Parliament has not settled it', () => {

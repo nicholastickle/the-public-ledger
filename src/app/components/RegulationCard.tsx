@@ -1,7 +1,6 @@
 import type { ParliamentRegulation } from '../types/parliament';
 import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from './RegulationBoardSection';
-import OwnVoteCell from './OwnVoteCell';
-import CardTallyBlock from './CardTallyBlock';
+import VoteTallyTable from './VoteTallyTable';
 
 interface Props {
   reg: ParliamentRegulation;
@@ -19,7 +18,6 @@ function procedureLabel(reg: ParliamentRegulation): string {
  *  Board's equivalent and the rationale for the layout. */
 export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }: Props) {
   const vOpen = isVoteOpen(reg);
-  const revealed = !vOpen || myVote != null;
   const status = regulationStatus(reg);
 
   return (
@@ -44,19 +42,20 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
         <span className="ledger-card__meta-chip font-mono">{procedureLabel(reg)} procedure</span>
       </div>
 
-      <div className="ledger-card__cta">
-        <OwnVoteCell title={reg.title} isOpen={vOpen} myVote={myVote} onVote={onVote} forLabel="Approve" againstLabel="Annul" size="lg" />
+      <div className="ledger-card__vote">
+        <VoteTallyTable
+          title={reg.title}
+          context="regulation"
+          forLabel="Approve"
+          againstLabel="Annul"
+          isOpen={vOpen}
+          myVote={myVote ?? null}
+          onVote={onVote}
+          publicVote={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
+          ai={regulationAiTally(reg)}
+          gov={regulationGovVote(reg, votes)}
+        />
       </div>
-
-      <CardTallyBlock
-        context="regulation"
-        forLabel="Approve"
-        againstLabel="Annul"
-        revealed={revealed}
-        publicTally={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
-        aiTally={regulationAiTally(reg)}
-        gov={regulationGovVote(reg, votes)}
-      />
     </article>
   );
 }

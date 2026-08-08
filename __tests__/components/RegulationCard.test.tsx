@@ -34,36 +34,26 @@ describe('RegulationCard', () => {
     expect(screen.getByText('Negative procedure')).toBeInTheDocument();
   });
 
+  it('renders the same vote-tally table the detail modal uses', () => {
+    render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
+    const headers = screen.getAllByRole('columnheader').map(h => h.getAttribute('aria-label'));
+    expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']);
+  });
+
   it('hides the Public and AI tallies behind a lock while the vote is open and uncast', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
-    expect(screen.getAllByRole('button', { name: 'Hidden until you vote' })).toHaveLength(2); // public + AI
+    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
   });
 
-  it('explains the lock on tap, without opening the detail modal', () => {
-    const onSelect = vi.fn();
-    render(<RegulationCard reg={OPEN_REG} onSelect={onSelect} onVote={noop} />);
-    const [publicLock] = screen.getAllByRole('button', { name: 'Hidden until you vote' });
-
-    fireEvent.click(publicLock);
-    expect(screen.getByText(/Cast your vote above to reveal/)).toBeInTheDocument();
-    expect(onSelect).not.toHaveBeenCalled();
-  });
-
-  it('shows the parliamentary deadline and explains it on tap, before Parliament has settled it', () => {
-    const onSelect = vi.fn();
-    render(<RegulationCard reg={OPEN_REG} onSelect={onSelect} onVote={noop} />);
-    const dateChip = screen.getByRole('button', { name: 'Government vote: 10/08/2026' });
-    expect(dateChip).toHaveTextContent('10/08/2026');
-
-    fireEvent.click(dateChip);
-    expect(screen.getByText(/Parliament hasn't settled this yet/)).toBeInTheDocument();
-    expect(onSelect).not.toHaveBeenCalled();
-  });
-
-  it('offers full-width Approve/Annul buttons while the window is open', () => {
+  it('shows the parliamentary deadline before Parliament has settled it', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
-    expect(screen.getByRole('button', { name: 'Vote Approve on The Card Test Regulations 2026' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Vote Annul on The Card Test Regulations 2026' })).toBeInTheDocument();
+    expect(screen.getByText('10/08/2026')).toBeInTheDocument();
+  });
+
+  it('labels the vote thumbs with the instrument wording on hover', () => {
+    render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
+    expect(screen.getByRole('button', { name: /Vote Approve on The Card Test Regulations 2026/ })).toHaveAttribute('data-tooltip', 'Vote Approve');
+    expect(screen.getByRole('button', { name: /Vote Annul on The Card Test Regulations 2026/ })).toHaveAttribute('data-tooltip', 'Vote Annul');
   });
 
   it('casts a vote without opening the detail modal', () => {
@@ -75,13 +65,11 @@ describe('RegulationCard', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('reveals the tallies once a vote has been recorded, and shows the recorded choice as a muted button', () => {
-    render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
-    expect(screen.queryByRole('button', { name: 'Hidden until you vote' })).not.toBeInTheDocument();
-    const voted = screen.getByRole('button', { name: 'You voted Annul on The Card Test Regulations 2026' });
-    expect(voted).toHaveTextContent('Annul');
-    expect(voted).toBeDisabled();
+  it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
+    const { container } = render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
+    expect(screen.queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
     expect(screen.queryByRole('button', { name: /^Vote Approve/ })).not.toBeInTheDocument();
+    expect(container.querySelector('.own-vote--against')).toHaveTextContent('Annul');
   });
 
   it('opens the detail modal when the card is tapped anywhere', () => {

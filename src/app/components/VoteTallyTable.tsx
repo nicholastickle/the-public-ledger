@@ -21,11 +21,13 @@ interface Props {
   closedNote?: string;
 }
 
-/** The citizen's own vote — the same full-width buttons as the board card's —
- *  sits above the three-column tally table (public, AI panel, Parliament).
- *  Deliberately the same icons, thumbs and tooltips as the board: someone who
- *  has learned to read a row there should not have to learn a second layout
- *  here. */
+/** The same four columns as the board table — public, AI panel, Parliament, and
+ *  the citizen's own vote — rendered for a single item. Deliberately the same
+ *  icons, thumbs and tooltips as the board: someone who has learned to read a
+ *  row there should not have to learn a second layout here.
+ *
+ *  Column order matches the board exactly, so the two surfaces can be scanned
+ *  the same way. */
 export default function VoteTallyTable({
   title,
   context,
@@ -54,22 +56,10 @@ export default function VoteTallyTable({
 
   return (
     <div>
-      <div className="vote-table__own">
-        <OwnVoteCell
-          title={title}
-          isOpen={isOpen}
-          myVote={myVote ?? undefined}
-          onVote={onVote}
-          forLabel={forLabel}
-          againstLabel={againstLabel}
-          size="lg"
-        />
-      </div>
-
       <div className="vote-table__wrap">
         <table className="ledger-table vote-table">
           <caption className="sr-only">
-            How the public, the AI panel and Parliament voted on {title}.
+            How the public, the AI panel and Parliament voted on {title}, and your own vote.
           </caption>
           <thead>
             <tr>
@@ -81,6 +71,12 @@ export default function VoteTallyTable({
               </th>
               <th scope="col" className="ledger-table__cell--tally" aria-label="Government vote tally">
                 <TallyHeader kind="government" context={context} showLabel />
+              </th>
+              {/* Carries an icon like the other three: set as bare text beside
+                  three icon-led headers it sits on its own baseline and reads a
+                  shade lighter than them. */}
+              <th scope="col" className="ledger-table__cell--own" aria-label="Your vote">
+                <TallyHeader kind="own" context={context} align="right" showLabel />
               </th>
             </tr>
           </thead>
@@ -95,6 +91,16 @@ export default function VoteTallyTable({
               <td className="ledger-table__cell ledger-table__cell--tally">
                 <GovTallyCell gov={gov} revealed={revealed} forLabel={forLabel} againstLabel={againstLabel} />
               </td>
+              <td className="ledger-table__cell ledger-table__cell--own">
+                <OwnVoteCell
+                  title={title}
+                  isOpen={isOpen}
+                  myVote={myVote ?? undefined}
+                  onVote={onVote}
+                  forLabel={forLabel}
+                  againstLabel={againstLabel}
+                />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -102,7 +108,7 @@ export default function VoteTallyTable({
 
       {isOpen && !myVote && (
         <p className="vote-table__prompt font-mono">
-          Cast your vote above to unlock the three tallies.
+          Cast your vote in the last column to unlock the three tallies.
         </p>
       )}
       {!isOpen && closedNote && (
