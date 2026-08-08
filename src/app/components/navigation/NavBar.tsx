@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import MobileMenu from './MobileMenu';
+import SectionNavLink from './SectionNavLink';
 import HowItWorksButton from '../how-it-works/HowItWorksButton';
 import CrownOrnament from '../ornamental/CrownOrnament';
 import SoundToggleButton from '../ui/SoundToggleButton';
@@ -96,9 +97,9 @@ export default function NavBar() {
         <div className="max-w-[1360px] mx-auto px-md sm:px-xl lg:px-3xl overflow-x-auto no-scrollbar">
           <nav className="flex items-center h-10 gap-xxs" aria-label="Browse categories">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="ledger-nav-link flex-shrink-0">
+              <SectionNavLink key={link.href} href={link.href} className="ledger-nav-link flex-shrink-0">
                 {link.label}
-              </Link>
+              </SectionNavLink>
             ))}
           </nav>
         </div>

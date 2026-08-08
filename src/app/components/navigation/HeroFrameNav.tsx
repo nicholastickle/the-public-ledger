@@ -5,6 +5,7 @@ import { useState } from 'react';
 import CrownOrnament from '../ornamental/CrownOrnament';
 import HowItWorksModal from '../how-it-works/HowItWorksModal';
 import SoundToggleButton from '../ui/SoundToggleButton';
+import SectionNavLink from './SectionNavLink';
 
 const NAV_LINKS = [
   { label: 'Bills', href: '/#bills' },
@@ -33,9 +34,9 @@ export default function HeroFrameNav() {
       {/* Desktop links */}
       <nav className="hidden lg:flex items-center gap-xxs" aria-label="Primary">
         {NAV_LINKS.map((link) => (
-          <Link key={link.href} href={link.href} className="hero-nav-link">
+          <SectionNavLink key={link.href} href={link.href} className="hero-nav-link">
             {link.label}
-          </Link>
+          </SectionNavLink>
         ))}
         <button type="button" className="hero-nav-link" onClick={() => setHowOpen(true)}>
           How it works
@@ -115,7 +116,7 @@ export default function HeroFrameNav() {
 
             <nav className="flex flex-col gap-xxs" aria-label="Primary mobile">
               {NAV_LINKS.map((link) => (
-                <Link
+                <SectionNavLink
                   key={link.href}
                   href={link.href}
                   className="hero-nav-link"
@@ -123,7 +124,7 @@ export default function HeroFrameNav() {
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
-                </Link>
+                </SectionNavLink>
               ))}
               <button
                 type="button"

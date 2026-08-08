@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import SectionNavLink from './SectionNavLink';
 import HowItWorksModal from '../how-it-works/HowItWorksModal';
 
 const NAV_LINKS = [
@@ -54,7 +55,7 @@ export default function MobileMenu() {
           {/* Nav links */}
           <nav className="flex flex-col px-lg pt-lg pb-md gap-xxs">
             {NAV_LINKS.map((link) => (
-              <Link
+              <SectionNavLink
                 key={link.href}
                 href={link.href}
                 className="ledger-nav-link"
@@ -62,7 +63,7 @@ export default function MobileMenu() {
                 onClick={() => setOpen(false)}
               >
                 {link.label}
-              </Link>
+              </SectionNavLink>
             ))}
             <button
               className="ledger-nav-link text-left"

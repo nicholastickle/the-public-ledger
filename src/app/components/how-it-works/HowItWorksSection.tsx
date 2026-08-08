@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import SectionNavLink from '../navigation/SectionNavLink';
 
 const STEPS = [
   {
@@ -256,9 +256,9 @@ export default function HowItWorksSection() {
 
         {/* CTA */}
         <div className="flex justify-center mt-3xl md:mt-4xl">
-          <Link href="/#bills" className="btn-ledger-primary">
+          <SectionNavLink href="/#bills" className="btn-ledger-primary">
             Browse Active Bills
-          </Link>
+          </SectionNavLink>
         </div>
 
         {/* Footer motto */}

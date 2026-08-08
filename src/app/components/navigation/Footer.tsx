@@ -2,6 +2,7 @@ import Link from 'next/link';
 import CrownOrnament from '../ornamental/CrownOrnament';
 import ChamberIllustration from '../hero/ChamberIllustration';
 import FooterHowItWorksLink from './FooterHowItWorksLink';
+import SectionNavLink from './SectionNavLink';
 
 type FooterLink = {
   label: string;
@@ -99,6 +100,10 @@ export default function Footer() {
                         <a href={link.href} target="_blank" rel="noopener noreferrer" className="footer-link text-body-sm">
                           {link.label}
                         </a>
+                      ) : link.href.startsWith('/#') ? (
+                        <SectionNavLink href={link.href} className="footer-link text-body-sm">
+                          {link.label}
+                        </SectionNavLink>
                       ) : (
                         <Link href={link.href} className="footer-link text-body-sm">
                           {link.label}
