@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import StageTimeline from '@/app/components/StageTimeline';
+import StageTimeline from '@/app/components/board/StageTimeline';
 import type { ParliamentBillStage } from '@/app/types/parliament';
 
 const stageWithDivision: ParliamentBillStage = {

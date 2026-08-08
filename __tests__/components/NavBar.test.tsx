@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import NavBar from '@/app/components/NavBar';
+import NavBar from '@/app/components/navigation/NavBar';
 
 describe('NavBar', () => {
   it('renders the site logo text', () => {

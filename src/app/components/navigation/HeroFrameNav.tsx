@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import CrownOrnament from './CrownOrnament';
-import HowItWorksModal from './HowItWorksModal';
-import SoundToggleButton from './SoundToggleButton';
+import CrownOrnament from '../ornamental/CrownOrnament';
+import HowItWorksModal from '../how-it-works/HowItWorksModal';
+import SoundToggleButton from '../ui/SoundToggleButton';
 
 const NAV_LINKS = [
   { label: 'Bills', href: '/#bills' },

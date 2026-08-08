@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import HowItWorksModal from './HowItWorksModal';
+import HowItWorksModal from '../how-it-works/HowItWorksModal';
 
 /** "How it works" has no page of its own — it opens the same modal as the nav
  *  button (HowItWorksButton) — so the footer needs its own small client

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import VoteCountdown, { getRemaining } from '@/app/components/VoteCountdown';
+import VoteCountdown, { getRemaining } from '@/app/components/hero/VoteCountdown';
 
 describe('getRemaining', () => {
   it('breaks a positive diff into days/hours/mins/secs', () => {

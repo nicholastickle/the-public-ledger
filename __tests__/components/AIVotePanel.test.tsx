@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import AIVotePanel from '@/app/components/AIVotePanel';
+import AIVotePanel from '@/app/components/voting/AIVotePanel';
 import type { AiModelOpinion } from '@/app/lib/mockVotes';
 
 const OPINIONS: AiModelOpinion[] = [

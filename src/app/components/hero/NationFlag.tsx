@@ -1,6 +1,6 @@
 import { useId } from 'react';
-import type { UKNationKey } from '../data/uk-nations';
-import { WALES_FLAG_INNER } from '../data/wales-flag';
+import type { UKNationKey } from '../../data/uk-nations';
+import { WALES_FLAG_INNER } from '../../data/wales-flag';
 
 interface Props {
   nation: UKNationKey;

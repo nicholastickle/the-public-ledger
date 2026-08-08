@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import BillDetailModal from '@/app/components/BillDetailModal';
+import BillDetailModal from '@/app/components/cards/BillDetailModal';
 import type { ParliamentBill } from '@/app/types/parliament';
 
 const OPEN_BILL: ParliamentBill = {

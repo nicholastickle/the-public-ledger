@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import InfoTip from '@/app/components/InfoTip';
+import InfoTip from '@/app/components/ui/InfoTip';
 
 describe('InfoTip', () => {
   it('renders a real button, not a span, so it is tap-focusable on every browser', () => {

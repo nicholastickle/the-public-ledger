@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import RegulationBoardSection from '@/app/components/RegulationBoardSection';
+import RegulationBoardSection from '@/app/components/board/RegulationBoardSection';
 import type { ParliamentRegulation } from '@/app/types/parliament';
 
 const regAt = (overrides: Partial<ParliamentRegulation> & { id: number; title: string }): ParliamentRegulation => ({

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import HeroFrameNav from './HeroFrameNav';
+import HeroFrameNav from '../navigation/HeroFrameNav';
 import VoteCountdown from './VoteCountdown';
 import UKNationsMap from './UKNationsMap';
-import FiligreeCorner from './FiligreeCorner';
+import FiligreeCorner from '../ornamental/FiligreeCorner';
 
 // Tailwind's `sm` breakpoint — matches the `sm:min-h-0` that hands height
 // back to normal flow above this width.

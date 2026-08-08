@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import ModelLogo, { type ModelBrand } from '@/app/components/ModelLogo';
+import ModelLogo, { type ModelBrand } from '@/app/components/voting/ModelLogo';
 
 const BRANDS: ModelBrand[] = ['Claude', 'ChatGPT', 'Gemini', 'Grok'];
 

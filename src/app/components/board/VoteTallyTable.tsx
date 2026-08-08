@@ -1,8 +1,8 @@
 import TallyHeader from './TallyHeader';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
-import type { Tally } from '../types/votes';
-import type { GovVote } from '../lib/mockVotes';
+import type { Tally } from '../../types/votes';
+import type { GovVote } from '../../lib/mockVotes';
 
 interface Props {
   /** Names the item being voted on, for the vote buttons' accessible labels. */

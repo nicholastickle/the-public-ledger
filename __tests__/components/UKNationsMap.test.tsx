@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import UKNationsMap from '@/app/components/UKNationsMap';
+import UKNationsMap from '@/app/components/hero/UKNationsMap';
 import { UK_NATIONS } from '@/app/data/uk-nations';
 
 describe('UKNationsMap', () => {

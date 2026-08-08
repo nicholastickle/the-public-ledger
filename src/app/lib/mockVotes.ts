@@ -11,7 +11,7 @@
  * to be a drop-in swap.
  */
 
-import type { ModelBrand } from '../components/ModelLogo';
+import type { ModelBrand } from '../components/voting/ModelLogo';
 
 export type AiVerdict = 'approve' | 'reject';
 

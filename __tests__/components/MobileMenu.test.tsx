@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import MobileMenu from '@/app/components/MobileMenu';
+import MobileMenu from '@/app/components/navigation/MobileMenu';
 
 describe('MobileMenu', () => {
   it('renders the hamburger button', () => {

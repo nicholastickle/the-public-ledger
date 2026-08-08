@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import ChamberIllustration from '@/app/components/ChamberIllustration';
+import ChamberIllustration from '@/app/components/hero/ChamberIllustration';
 
 describe('ChamberIllustration', () => {
   it('renders an accessibility-hidden decorative svg', () => {

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import ReadMoreText from '@/app/components/ReadMoreText';
+import ReadMoreText from '@/app/components/cards/ReadMoreText';
 
 const PARAS = ['First paragraph.', 'Second paragraph.', 'Third paragraph.'];
 

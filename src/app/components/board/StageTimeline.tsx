@@ -1,5 +1,5 @@
-import type { ParliamentBillStage } from '../types/parliament';
-import { formatBillDate } from '../lib/utils';
+import type { ParliamentBillStage } from '../../types/parliament';
+import { formatBillDate } from '../../lib/utils';
 
 interface Props {
   stages: ParliamentBillStage[];

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import HeroFrameNav from '@/app/components/HeroFrameNav';
+import HeroFrameNav from '@/app/components/navigation/HeroFrameNav';
 
 describe('HeroFrameNav', () => {
   it('renders the wordmark and primary links', () => {

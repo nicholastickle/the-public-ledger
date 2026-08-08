@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import FooterHowItWorksLink from '@/app/components/FooterHowItWorksLink';
+import FooterHowItWorksLink from '@/app/components/navigation/FooterHowItWorksLink';
 
 describe('FooterHowItWorksLink', () => {
   it('renders a How it works trigger and no modal content until clicked', () => {

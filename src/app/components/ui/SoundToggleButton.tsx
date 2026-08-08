@@ -1,6 +1,6 @@
 'use client';
 
-import { useSound } from '../lib/SoundContext';
+import { useSound } from '../../lib/SoundContext';
 
 interface Props {
   /** Defaults to the dark ledger styling; pass a variant modifier for other

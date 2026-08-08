@@ -5,7 +5,7 @@ import {
   UK_NATIONS,
   UK_MAP_VIEWBOX,
   type UKNationKey,
-} from '../data/uk-nations';
+} from '../../data/uk-nations';
 import NationFlag from './NationFlag';
 
 const { width: VB_W, height: VB_H } = UK_MAP_VIEWBOX;

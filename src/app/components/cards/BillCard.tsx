@@ -1,6 +1,6 @@
-import type { ParliamentBill } from '../types/parliament';
-import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
-import VoteTallyTable from './VoteTallyTable';
+import type { ParliamentBill } from '../../types/parliament';
+import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from '../board/DepartureBoardSection';
+import VoteTallyTable from '../board/VoteTallyTable';
 import BookmarkButton from './BookmarkButton';
 import { StageIcon, NumberIcon, HouseIcon } from './CardMetaIcons';
 

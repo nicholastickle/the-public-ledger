@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import FiligreeCorner from '@/app/components/FiligreeCorner';
+import FiligreeCorner from '@/app/components/ornamental/FiligreeCorner';
 
 describe('FiligreeCorner', () => {
   it('renders an accessibility-hidden decorative svg', () => {

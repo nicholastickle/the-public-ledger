@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import HowItWorksModal from './HowItWorksModal';
+import HowItWorksModal from '../how-it-works/HowItWorksModal';
 
 const NAV_LINKS = [
   { label: 'Bills', href: '/#bills' },

@@ -1,4 +1,4 @@
-import { formatVotes } from '../lib/utils';
+import { formatVotes } from '../../lib/utils';
 
 const FOR_COLOR = '#10B981';
 const AGAINST_COLOR = '#EF4444';

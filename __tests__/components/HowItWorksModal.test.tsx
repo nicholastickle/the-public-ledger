@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import HowItWorksModal from '@/app/components/HowItWorksModal';
+import HowItWorksModal from '@/app/components/how-it-works/HowItWorksModal';
 
 describe('HowItWorksModal', () => {
   it('renders nothing when closed', () => {

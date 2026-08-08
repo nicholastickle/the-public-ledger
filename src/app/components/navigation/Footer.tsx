@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import CrownOrnament from './CrownOrnament';
-import ChamberIllustration from './ChamberIllustration';
+import CrownOrnament from '../ornamental/CrownOrnament';
+import ChamberIllustration from '../hero/ChamberIllustration';
 import FooterHowItWorksLink from './FooterHowItWorksLink';
 
 type FooterLink = {

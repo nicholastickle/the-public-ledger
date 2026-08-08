@@ -1,4 +1,4 @@
-import InfoTip from './InfoTip';
+import InfoTip from '../ui/InfoTip';
 
 export type TallyKind = 'public' | 'ai' | 'government' | 'own';
 

@@ -1,6 +1,6 @@
-import type { ParliamentRegulation } from '../types/parliament';
-import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from './RegulationBoardSection';
-import VoteTallyTable from './VoteTallyTable';
+import type { ParliamentRegulation } from '../../types/parliament';
+import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from '../board/RegulationBoardSection';
+import VoteTallyTable from '../board/VoteTallyTable';
 import BookmarkButton from './BookmarkButton';
 import { StageIcon, ProcedureIcon, NumberIcon } from './CardMetaIcons';
 

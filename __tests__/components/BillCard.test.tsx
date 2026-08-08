@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import BillCard from '@/app/components/BillCard';
+import BillCard from '@/app/components/cards/BillCard';
 import type { ParliamentBill } from '@/app/types/parliament';
 
 const billAt = (overrides: Partial<ParliamentBill> & { id: number; short_title: string }): ParliamentBill => ({

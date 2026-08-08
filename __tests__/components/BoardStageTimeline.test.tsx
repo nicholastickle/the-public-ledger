@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import BoardStageTimeline from '@/app/components/BoardStageTimeline';
+import BoardStageTimeline from '@/app/components/board/BoardStageTimeline';
 
 const FOUR = [
   { label: 'First Reading', state: 'done' },

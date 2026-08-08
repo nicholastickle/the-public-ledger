@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import NationFlag from '@/app/components/NationFlag';
+import NationFlag from '@/app/components/hero/NationFlag';
 
 describe('NationFlag', () => {
   it('renders the St George flag for England', () => {

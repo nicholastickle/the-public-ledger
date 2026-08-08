@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import MobileMenu from './MobileMenu';
-import HowItWorksButton from './HowItWorksButton';
-import CrownOrnament from './CrownOrnament';
-import SoundToggleButton from './SoundToggleButton';
+import HowItWorksButton from '../how-it-works/HowItWorksButton';
+import CrownOrnament from '../ornamental/CrownOrnament';
+import SoundToggleButton from '../ui/SoundToggleButton';
 
 export const NAV_LINKS = [
   { label: 'Bills', href: '/#bills' },

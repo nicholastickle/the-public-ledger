@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import SoundToggleButton from './SoundToggleButton';
+import SoundToggleButton from '../ui/SoundToggleButton';
 
 /** Swipe left by at least this many px, more horizontally than vertically, to
  *  close — short enough to feel responsive, long enough that a normal

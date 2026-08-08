@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ParliamentBill } from '../types/parliament';
-import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
+import type { ParliamentBill } from '../../types/parliament';
+import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../../lib/mockVotes';
 import TallyHeader from './TallyHeader';
-import InfoTip from './InfoTip';
+import InfoTip from '../ui/InfoTip';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
 import TableRowArrow from './TableRowArrow';
-import BillDetailModal from './BillDetailModal';
-import BillCard from './BillCard';
+import BillDetailModal from '../cards/BillDetailModal';
+import BillCard from '../cards/BillCard';
 
 interface Props {
   bills: ParliamentBill[];

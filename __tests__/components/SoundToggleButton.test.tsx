@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SoundProvider } from '@/app/lib/SoundContext';
-import SoundToggleButton from '@/app/components/SoundToggleButton';
+import SoundToggleButton from '@/app/components/ui/SoundToggleButton';
 
 /**
  * jsdom does not implement media playback, so play/pause/paused/currentTime are

@@ -1,14 +1,14 @@
-import type { ParliamentBill } from '../types/parliament';
-import { billStatus, isVoteOpen, billGovVote, billAiTally, billHouse, type BillVotes } from './DepartureBoardSection';
-import { generateAiVerdicts } from '../lib/mockVotes';
-import { generateExplainer } from '../lib/mockExplainer';
-import { formatBillDate, billSourceUrl, billPublicationsUrl } from '../lib/utils';
-import Modal from './Modal';
-import BoardStageTimeline, { type TimelineStep } from './BoardStageTimeline';
-import VoteTallyTable from './VoteTallyTable';
-import AIVotePanel from './AIVotePanel';
+import type { ParliamentBill } from '../../types/parliament';
+import { billStatus, isVoteOpen, billGovVote, billAiTally, billHouse, type BillVotes } from '../board/DepartureBoardSection';
+import { generateAiVerdicts } from '../../lib/mockVotes';
+import { generateExplainer } from '../../lib/mockExplainer';
+import { formatBillDate, billSourceUrl, billPublicationsUrl } from '../../lib/utils';
+import Modal from '../ui/Modal';
+import BoardStageTimeline, { type TimelineStep } from '../board/BoardStageTimeline';
+import VoteTallyTable from '../board/VoteTallyTable';
+import AIVotePanel from '../voting/AIVotePanel';
 import ReadMoreText from './ReadMoreText';
-import InfoTip from './InfoTip';
+import InfoTip from '../ui/InfoTip';
 
 interface Props {
   bill: ParliamentBill;

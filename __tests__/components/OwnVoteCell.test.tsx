@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import OwnVoteCell from '@/app/components/OwnVoteCell';
+import OwnVoteCell from '@/app/components/board/OwnVoteCell';
 
 describe('OwnVoteCell', () => {
   it('tells the reader which way each thumb votes, on hover and to a screen reader', () => {

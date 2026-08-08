@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { StageIcon, NumberIcon, HouseIcon, ProcedureIcon } from '@/app/components/CardMetaIcons';
+import { StageIcon, NumberIcon, HouseIcon, ProcedureIcon } from '@/app/components/cards/CardMetaIcons';
 
 describe('CardMetaIcons', () => {
   it.each([

@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, afterEach } from 'vitest';
-import HeroSection from '@/app/components/HeroSection';
+import HeroSection from '@/app/components/hero/HeroSection';
 
 function setViewport(width: number, height: number) {
   Object.defineProperty(window, 'innerWidth', { value: width, writable: true, configurable: true });

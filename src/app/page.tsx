@@ -1,7 +1,7 @@
-import HeroSection from './components/HeroSection';
-import DepartureBoardSection from './components/DepartureBoardSection';
-import RegulationBoardSection from './components/RegulationBoardSection';
-import Footer from './components/Footer';
+import HeroSection from './components/hero/HeroSection';
+import DepartureBoardSection from './components/board/DepartureBoardSection';
+import RegulationBoardSection from './components/board/RegulationBoardSection';
+import Footer from './components/navigation/Footer';
 import { fetchBills, fetchRegulations } from './lib/api';
 
 export default async function Home() {

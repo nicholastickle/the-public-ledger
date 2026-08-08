@@ -1,6 +1,6 @@
-import type { AiModelOpinion } from '../lib/mockVotes';
+import type { AiModelOpinion } from '../../lib/mockVotes';
 import ModelLogo from './ModelLogo';
-import InfoTip from './InfoTip';
+import InfoTip from '../ui/InfoTip';
 
 interface Props {
   opinions: AiModelOpinion[];

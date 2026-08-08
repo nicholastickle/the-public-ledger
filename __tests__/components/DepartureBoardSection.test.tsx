@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import DepartureBoardSection from '@/app/components/DepartureBoardSection';
+import DepartureBoardSection from '@/app/components/board/DepartureBoardSection';
 import type { ParliamentBill } from '@/app/types/parliament';
 
 const billAt = (overrides: Partial<ParliamentBill> & { id: number; short_title: string }): ParliamentBill => ({

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import RegulationDetailModal from '@/app/components/RegulationDetailModal';
+import RegulationDetailModal from '@/app/components/cards/RegulationDetailModal';
 import type { ParliamentRegulation } from '@/app/types/parliament';
 
 const PENDING_REG: ParliamentRegulation = {

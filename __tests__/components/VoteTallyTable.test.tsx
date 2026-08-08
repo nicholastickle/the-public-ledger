@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import VoteTallyTable from '@/app/components/VoteTallyTable';
+import VoteTallyTable from '@/app/components/board/VoteTallyTable';
 
 function setup(overrides: Partial<React.ComponentProps<typeof VoteTallyTable>> = {}) {
   const onVote = vi.fn();

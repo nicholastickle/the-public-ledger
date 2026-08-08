@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import BookmarkButton from '@/app/components/BookmarkButton';
+import BookmarkButton from '@/app/components/cards/BookmarkButton';
 
 describe('BookmarkButton', () => {
   it('starts unbookmarked', () => {
