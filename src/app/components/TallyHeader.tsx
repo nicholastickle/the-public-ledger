@@ -7,9 +7,11 @@ const ICONS: Record<TallyKind, React.ReactNode> = {
   public: (
     <path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.5.5a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5ZM9 12.75c-3 0-6 1.5-6 3.75V19h12v-2.5c0-2.25-3-3.75-6-3.75Zm7.5.75c-.62 0-1.2.06-1.73.17 1.02.87 1.73 2.02 1.73 3.33V19H21v-2.25c0-1.86-2.34-3.25-4.5-3.25Z" />
   ),
-  // A processor die — the AI panel.
+  // A processor die — the AI panel. Pins on top and bottom only: side pins
+  // were dropped because at this icon's rendered size (15px) they blurred
+  // into what read as a stray vertical rule between the header columns.
   ai: (
-    <path d="M9 2v2H7.5A2.5 2.5 0 0 0 5 6.5V8H3v2h2v4H3v2h2v1.5A2.5 2.5 0 0 0 7.5 20H9v2h2v-2h2v2h2v-2h1.5a2.5 2.5 0 0 0 2.5-2.5V16h2v-2h-2v-4h2V8h-2V6.5A2.5 2.5 0 0 0 16.5 4H15V2h-2v2h-2V2H9Zm0 7h6v6H9V9Z" />
+    <path d="M9 2v2H7.5A2.5 2.5 0 0 0 5 6.5v11A2.5 2.5 0 0 0 7.5 20H9v2h2v-2h2v2h2v-2h1.5a2.5 2.5 0 0 0 2.5-2.5V6.5A2.5 2.5 0 0 0 16.5 4H15V2h-2v2h-2V2H9Zm0 7h6v6H9V9Z" />
   ),
   // A crown — Parliament.
   government: (
