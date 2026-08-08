@@ -73,9 +73,10 @@ describe('DepartureBoardSection', () => {
     }
     // Every column but the bill number carries an explanatory InfoTip. The
     // phone card repeats the same tally InfoTips outside the table, so this
-    // checks at least one copy exists rather than exactly one.
+    // checks at least one copy exists rather than exactly one. InfoTip is a
+    // button whose accessible name comes from `aria-label`, not visible text.
     for (const label of ['Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getAllByText(`About the ${label} column`).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: `About the ${label} column` }).length).toBeGreaterThan(0);
     }
   });
 
@@ -97,9 +98,10 @@ describe('DepartureBoardSection', () => {
     render(<DepartureBoardSection bills={[first, COMMITTEE_BILL]} />);
 
     // The phone card repeats the same stage band outside the table, so this
-    // checks at least one copy exists rather than exactly one.
-    expect(screen.getAllByText('About the First Reading stage').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('About the Committee Stage stage').length).toBeGreaterThan(0);
+    // checks at least one copy exists rather than exactly one. InfoTip is a
+    // button whose accessible name comes from `aria-label`, not visible text.
+    expect(screen.getAllByRole('button', { name: 'About the First Reading stage' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: 'About the Committee Stage stage' }).length).toBeGreaterThan(0);
 
     const band = document.querySelector('.ledger-table__stage-head .info-tip')!;
     expect(band.getAttribute('data-tooltip')).toMatch(/formally introduced/);

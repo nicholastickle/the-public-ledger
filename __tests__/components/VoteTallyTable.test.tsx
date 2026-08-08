@@ -74,7 +74,9 @@ describe('VoteTallyTable', () => {
 
   it('replaces the buttons with a closed note once the window has shut', () => {
     setup({ isOpen: false, closedNote: 'Voting has closed.', gov: { status: 'voted', for: 320, against: 300 } });
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    // The column-header InfoTips are still buttons — only the Aye/No vote
+    // buttons themselves are withdrawn once the window has shut.
+    expect(screen.queryByRole('button', { name: /^Vote /i })).not.toBeInTheDocument();
     expect(screen.getByText('Voting has closed.')).toBeInTheDocument();
     expect(screen.getByText('Did not vote')).toBeInTheDocument();
     expect(screen.getByText('320')).toBeInTheDocument();

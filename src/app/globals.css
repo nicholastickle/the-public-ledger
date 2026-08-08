@@ -1527,6 +1527,13 @@ body {
 
   /* ── Column-header tooltips ──────────────────────────────────────── */
   .header-tip {
+    /* Reset the `<button>` chrome the trigger needs for native tap-focus. */
+    appearance: none;
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font: inherit;
     position: relative;
     display: inline-flex;
     color: #b8960c;
@@ -1586,8 +1593,15 @@ body {
     transform: none;
   }
 
-  .header-tip:focus-visible::after,
-  .vote-tip:focus-visible::after {
+  /* Plain `:focus`, not `:focus-visible` — a tap or click both land as
+     `:focus` but browsers withhold `:focus-visible` from pointer-triggered
+     focus (it exists to suppress focus *rings* after a mouse click, not to
+     hide content). This tooltip has no other reveal path on a device with no
+     hover, so gating it behind `:focus-visible` left it permanently
+     unreachable by touch — tapping the icon focused it without ever
+     satisfying the heuristic that shows the tooltip. */
+  .header-tip:focus::after,
+  .vote-tip:focus::after {
     display: block;
   }
 
@@ -1600,15 +1614,22 @@ body {
     }
   }
 
-  /* The circled "i" tucked against the bottom-right of its heading's text —
-     next to the label rather than at the far corner of a wide column, where it
-     would read as belonging to nothing in particular. */
+  /* The circled "i" tucked against its heading's text — next to the label
+     rather than at the far corner of a wide column, where it would read as
+     belonging to nothing in particular. Vertically centred by default, which
+     is correct everywhere the icon shares a flex row with its label
+     (`.tally-header`, modal headings) — the one exception is a bare board
+     `<th>`, where the icon sits in plain inline text flow rather than a flex
+     row and needs its own nudge to sit on the label's baseline (below). */
   .info-tip {
     margin-left: 5px;
     position: relative;
-    top: 3px;
     color: rgba(184, 150, 12, 0.55);
     transition: color 0.12s ease;
+  }
+
+  .ledger-table thead th > .info-tip {
+    top: 3px;
   }
 
   .info-tip:hover,

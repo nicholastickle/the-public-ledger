@@ -69,9 +69,10 @@ describe('RegulationBoardSection', () => {
     }
     // Every column but the instrument number carries an explanatory InfoTip.
     // The phone card repeats the same tally InfoTips outside the table, so
-    // this checks at least one copy exists rather than exactly one.
+    // this checks at least one copy exists rather than exactly one. InfoTip
+    // is a button whose accessible name comes from `aria-label`, not visible text.
     for (const label of ['Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getAllByText(`About the ${label} column`).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: `About the ${label} column` }).length).toBeGreaterThan(0);
     }
   });
 
@@ -94,8 +95,9 @@ describe('RegulationBoardSection', () => {
       expect(tip.getAttribute('data-tooltip')).not.toMatch(/is before Parliament\.$/);
     }
     // The phone card repeats the same phase band outside the table, so this
-    // checks at least one copy exists rather than exactly one.
-    expect(screen.getAllByText('About the Annul Window Open stage').length).toBeGreaterThan(0);
+    // checks at least one copy exists rather than exactly one. InfoTip is a
+    // button whose accessible name comes from `aria-label`, not visible text.
+    expect(screen.getAllByRole('button', { name: 'About the Annul Window Open stage' }).length).toBeGreaterThan(0);
   });
 
   it('shows the instrument number and its enabling Act in the row', () => {
