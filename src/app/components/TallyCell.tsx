@@ -15,7 +15,9 @@ interface CellProps {
 export function LockedTally() {
   return (
     <span className="tally-cell__locked" title="Hidden until you vote">
-      <span aria-hidden="true">🔒</span>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true">
+        <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
+      </svg>
       <span className="sr-only">Hidden until you vote</span>
     </span>
   );

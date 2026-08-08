@@ -1,6 +1,7 @@
 import type { ParliamentRegulation } from '../types/parliament';
 import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from './RegulationBoardSection';
 import VoteTallyTable from './VoteTallyTable';
+import BookmarkButton from './BookmarkButton';
 
 interface Props {
   reg: ParliamentRegulation;
@@ -56,6 +57,8 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
           gov={regulationGovVote(reg, votes)}
         />
       </div>
+
+      <BookmarkButton title={reg.title} />
     </article>
   );
 }

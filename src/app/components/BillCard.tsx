@@ -1,6 +1,7 @@
 import type { ParliamentBill } from '../types/parliament';
 import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
 import VoteTallyTable from './VoteTallyTable';
+import BookmarkButton from './BookmarkButton';
 
 interface Props {
   bill: ParliamentBill;
@@ -54,6 +55,8 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
           gov={billGovVote(bill, votes)}
         />
       </div>
+
+      <BookmarkButton title={title} />
     </article>
   );
 }

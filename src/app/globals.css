@@ -1259,6 +1259,10 @@ body {
     color: #c08a4a;
   }
 
+  [data-board-theme='bronze'] .tally-cell__locked {
+    color: #c08a4a;
+  }
+
   [data-board-theme='bronze'] .tally-cell__none {
     color: rgba(192, 138, 74, 0.65);
   }
@@ -1582,11 +1586,18 @@ body {
     transform: none;
   }
 
-  .header-tip:hover::after,
   .header-tip:focus-visible::after,
-  .vote-tip:hover::after,
   .vote-tip:focus-visible::after {
     display: block;
+  }
+
+  /* Hover-only so a press-and-hold on a touchscreen doesn't pop up a tooltip
+     that then sticks around until some unrelated tap elsewhere clears it. */
+  @media (hover: hover) {
+    .header-tip:hover::after,
+    .vote-tip:hover::after {
+      display: block;
+    }
   }
 
   /* The circled "i" tucked against the bottom-right of its heading's text —
@@ -1655,8 +1666,10 @@ body {
   }
 
   .tally-cell__locked {
-    font-size: 12px;
-    opacity: 0.5;
+    display: inline-flex;
+    align-items: center;
+    color: #b8960c;
+    opacity: 0.55;
     cursor: help;
   }
 
@@ -1959,7 +1972,9 @@ body {
   .ledger-card {
     position: relative;
     border-radius: 6px;
-    padding: 12px 13px 13px;
+    /* Extra room at the foot reserves a strip for the bookmark button so it
+       never sits over the vote table above it. */
+    padding: 12px 13px 40px;
     background: rgba(250, 246, 237, 0.035);
     border: 1px solid rgba(184, 150, 12, 0.16);
     cursor: pointer;
@@ -2009,9 +2024,75 @@ body {
     color: rgba(250, 246, 237, 0.55);
   }
 
-  /* The card uses the same vote-tally table as the modal, just narrower. */
+  /* The card uses the same vote-tally table as the modal, just narrower — and
+     trimmed further: no border/tint of its own (the card already has one), no
+     per-column info tooltip (no room, and the card's tap-to-open makes the
+     detail one tap away), no "cast your vote" hint (the table is the whole
+     card, there's nothing else it could mean). */
   .ledger-card__vote {
     margin-top: 10px;
+  }
+
+  .ledger-card__vote .vote-table__wrap {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .ledger-card__vote .info-tip {
+    display: none;
+  }
+
+  .ledger-card__vote .vote-table__prompt {
+    display: none;
+  }
+
+  .bookmark-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(18, 41, 29, 0.85);
+    border: 1px solid rgba(184, 150, 12, 0.3);
+    color: rgba(184, 150, 12, 0.75);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  @media (hover: hover) {
+    .bookmark-btn:hover {
+      border-color: rgba(184, 150, 12, 0.6);
+      color: #e8c840;
+    }
+  }
+
+  .bookmark-btn--active {
+    color: #d4af37;
+    border-color: rgba(212, 175, 55, 0.55);
+    background: rgba(212, 175, 55, 0.12);
+  }
+
+  [data-board-theme='bronze'] .bookmark-btn {
+    background: rgba(28, 23, 18, 0.85);
+    border-color: rgba(192, 138, 74, 0.3);
+    color: rgba(192, 138, 74, 0.75);
+  }
+
+  @media (hover: hover) {
+    [data-board-theme='bronze'] .bookmark-btn:hover {
+      border-color: rgba(192, 138, 74, 0.6);
+      color: #ddaa6a;
+    }
+  }
+
+  [data-board-theme='bronze'] .bookmark-btn--active {
+    color: #ddaa6a;
+    border-color: rgba(221, 170, 106, 0.55);
+    background: rgba(221, 170, 106, 0.12);
   }
 
   .voting-panel__pending {
@@ -2473,7 +2554,14 @@ body {
 
     .vote-table thead th .tally-header {
       flex-direction: column;
+      align-items: center;
       gap: 2px;
+    }
+
+    /* Stacked under the icon rather than beside it, so the row-layout gap
+       that shifted it right no longer applies. */
+    .vote-table thead th .tally-header__label {
+      margin-left: 0;
     }
 
     .vote-table thead th .tally-header .info-tip {
