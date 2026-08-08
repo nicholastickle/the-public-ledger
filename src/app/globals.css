@@ -153,8 +153,18 @@
 }
 
 /* Page defaults ────────────────────────────────────────────────────── */
+/* Mobile Safari (and similar touch browsers) paint the body's
+   background-color into the rubber-band/overscroll area revealed when a
+   user pulls past the top or bottom of the page to reload. body's default
+   was the neutral canvas-soft grey, which flashed against the brand's
+   parchment/forest-green surfaces — html is set too as a fallback, since
+   some browser versions read it instead of (or in addition to) body's. */
+html {
+  background-color: var(--color-forest-green);
+}
+
 body {
-  background-color: var(--color-canvas-soft);
+  background-color: var(--color-forest-green);
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
