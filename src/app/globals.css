@@ -1513,18 +1513,6 @@ body {
     color: rgba(184, 150, 12, 0.62);
   }
 
-  .stage-pill {
-    display: inline-block;
-    font-family: var(--font-mono), monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid;
-    border-radius: 2px;
-    padding: 2px 7px;
-    white-space: nowrap;
-  }
-
   /* ── Column-header tooltips ──────────────────────────────────────── */
   .header-tip {
     position: relative;
@@ -1972,9 +1960,7 @@ body {
   .ledger-card {
     position: relative;
     border-radius: 6px;
-    /* Extra room at the foot reserves a strip for the bookmark button so it
-       never sits over the vote table above it. */
-    padding: 12px 13px 40px;
+    padding: 12px 13px 14px;
     background: rgba(250, 246, 237, 0.035);
     border: 1px solid rgba(184, 150, 12, 0.16);
     cursor: pointer;
@@ -1984,44 +1970,58 @@ body {
     border-color: rgba(192, 138, 74, 0.16);
   }
 
-  .ledger-card__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .ledger-card__no {
-    font-size: 10px;
-    color: rgba(184, 150, 12, 0.5);
-  }
-
-  [data-board-theme='bronze'] .ledger-card__no {
-    color: rgba(192, 138, 74, 0.6);
-  }
-
   /* Reuses the table's title/subtitle typography so a citizen who has learned
      to read a row does not have to learn a second style for the same field. */
   .ledger-card .ledger-table__title {
     font-size: 15px;
-    margin-top: 7px;
   }
 
   .ledger-card .ledger-table__subtitle {
     margin-top: 3px;
   }
 
-  .ledger-card__meta {
+  /* Stage, number, house (bills) / stage, procedure, number (regulations) —
+     one row along the bottom, icon + label each, bookmark pinned to the end
+     of the same row rather than floated over the content above it. */
+  .ledger-card__footer {
     display: flex;
-    gap: 10px;
-    margin-top: 7px;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
   }
 
-  .ledger-card__meta-chip {
+  .ledger-card__footer-items {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .ledger-card__footer-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 10px;
     letter-spacing: 0.04em;
     color: rgba(250, 246, 237, 0.55);
+    white-space: nowrap;
+  }
+
+  .ledger-card__footer-item svg {
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+
+  .ledger-card__footer-dot {
+    color: rgba(184, 150, 12, 0.4);
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  [data-board-theme='bronze'] .ledger-card__footer-dot {
+    color: rgba(192, 138, 74, 0.45);
   }
 
   /* The card uses the same vote-tally table as the modal, just narrower — and
@@ -2061,11 +2061,9 @@ body {
   }
 
   .bookmark-btn {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    width: 26px;
-    height: 26px;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

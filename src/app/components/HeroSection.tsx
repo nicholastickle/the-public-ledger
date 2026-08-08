@@ -1,7 +1,47 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import HeroFrameNav from './HeroFrameNav';
 import VoteCountdown from './VoteCountdown';
 import UKNationsMap from './UKNationsMap';
 import FiligreeCorner from './FiligreeCorner';
+
+// Tailwind's `sm` breakpoint — matches the `sm:min-h-0` that hands height
+// back to normal flow above this width.
+const MOBILE_BREAKPOINT = 640;
+
+/** The phone hero's height, captured once on landing and held fixed from
+ *  then on. `svh` alone should already stop the hero resizing as the
+ *  browser's address bar/toolbar shows and hides while scrolling, but real
+ *  devices still slip through on some Chrome/Safari versions — so this
+ *  locks the height in JS as a hard backstop. Only a genuine width change
+ *  (device rotation, an actual window resize) triggers a re-measure; a
+ *  height-only change from the toolbar toggling is ignored. Returns `null`
+ *  on the server and at desktop widths, where the CSS breakpoint rules
+ *  already apply and no lock is wanted. */
+function useLockedMobileHeroHeight(): number | null {
+  const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    let lastWidth = window.innerWidth;
+
+    const capture = () => {
+      lastWidth = window.innerWidth;
+      setHeight(lastWidth < MOBILE_BREAKPOINT ? window.innerHeight : null);
+    };
+
+    capture();
+
+    const handleResize = () => {
+      if (window.innerWidth !== lastWidth) capture();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return height;
+}
 
 function UnionJackSeal({ size = 120 }: { size?: number }) {
   const cx = size / 2;
@@ -66,13 +106,20 @@ function UnionJackSeal({ size = 120 }: { size?: number }) {
 }
 
 export default function HeroSection() {
+  const lockedHeight = useLockedMobileHeroHeight();
+
   return (
     // svh, not dvh: dvh tracks the browser chrome's actual on-screen height,
     // which changes as the address bar hides/shows while scrolling — the
     // hero would grow and shrink under your thumb and shove every section
-    // below it up and down. svh locks to the smallest possible viewport
-    // (chrome fully expanded) so the hero's height never moves after paint.
-    <section className="overflow-hidden relative flex flex-col min-h-svh sm:block sm:min-h-0" style={{ backgroundColor: '#0c1610' }}>
+    // below it up and down. svh is the CSS-only fallback for the first paint;
+    // `lockedHeight` (see above) then pins the exact pixel height measured on
+    // landing so the hero holds steady even where a device's svh support
+    // still drifts with the toolbar.
+    <section
+      className="overflow-hidden relative flex flex-col min-h-svh sm:block sm:min-h-0"
+      style={{ backgroundColor: '#0c1610', ...(lockedHeight ? { minHeight: `${lockedHeight}px` } : null) }}
+    >
       {/* Parliament / Big Ben timelapse — now fully visible behind the content */}
       <video
         className="absolute inset-0 w-full h-full object-cover"

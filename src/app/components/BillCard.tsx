@@ -2,6 +2,7 @@ import type { ParliamentBill } from '../types/parliament';
 import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from './DepartureBoardSection';
 import VoteTallyTable from './VoteTallyTable';
 import BookmarkButton from './BookmarkButton';
+import { StageIcon, NumberIcon, HouseIcon } from './CardMetaIcons';
 
 interface Props {
   bill: ParliamentBill;
@@ -23,23 +24,9 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
 
   return (
     <article className="ledger-card" onClick={onSelect}>
-      <div className="ledger-card__top">
-        <span className="ledger-card__no font-mono tabular-nums">No. {bill.id}</span>
-        {/* The specific stage, not the coarser status bucket — the same word
-            the table's stage band groups this card under, so it still reads
-            correctly once scrolled away from that band. */}
-        <span className="stage-pill" style={{ color: status.color, borderColor: `${status.color}73`, background: `${status.color}1f` }}>
-          {stageLabel(bill)}
-        </span>
-      </div>
-
       <button type="button" className="ledger-table__title" onClick={onSelect}>
         {title}
       </button>
-
-      <div className="ledger-card__meta">
-        <span className="ledger-card__meta-chip font-mono">{billHouse(bill)}</span>
-      </div>
 
       <div className="ledger-card__vote">
         <VoteTallyTable
@@ -56,7 +43,29 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
         />
       </div>
 
-      <BookmarkButton title={title} />
+      <div className="ledger-card__footer">
+        <div className="ledger-card__footer-items">
+          {/* The specific stage, not the coarser status bucket — the same word
+              the table's stage band groups this card under, so it still reads
+              correctly once scrolled away from that band. */}
+          <span className="ledger-card__footer-item" style={{ color: status.color }}>
+            <StageIcon />
+            {stageLabel(bill)}
+          </span>
+          <span className="ledger-card__footer-dot" aria-hidden="true">·</span>
+          <span className="ledger-card__footer-item font-mono tabular-nums">
+            <NumberIcon />
+            No. {bill.id}
+          </span>
+          <span className="ledger-card__footer-dot" aria-hidden="true">·</span>
+          <span className="ledger-card__footer-item">
+            <HouseIcon />
+            {billHouse(bill)}
+          </span>
+        </div>
+
+        <BookmarkButton title={title} />
+      </div>
     </article>
   );
 }
