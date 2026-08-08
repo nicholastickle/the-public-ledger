@@ -23,10 +23,10 @@ function setup(overrides: Partial<React.ComponentProps<typeof VoteTallyTable>> =
 }
 
 describe('VoteTallyTable', () => {
-  it('renders the same four columns as the board, in the same order', () => {
+  it('renders the three tally columns, in the same order as the board', () => {
     setup();
     const headers = screen.getAllByRole('columnheader').map(h => h.getAttribute('aria-label'));
-    expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']);
+    expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally']);
   });
 
   it('names each tally column in words as well as by icon', () => {
@@ -34,10 +34,9 @@ describe('VoteTallyTable', () => {
     expect(screen.getByText('Public')).toBeInTheDocument();
     expect(screen.getByText('AI')).toBeInTheDocument();
     expect(screen.getByText('Parliament')).toBeInTheDocument();
-    expect(screen.getByText('Your vote')).toBeInTheDocument();
   });
 
-  it('gives all four headers the same wrapper so they sit on one line', () => {
+  it('gives all three headers the same wrapper so they sit on one line', () => {
     const { container } = render(
       <VoteTallyTable
         title="Test Reform Bill" context="bill" forLabel="Aye" againstLabel="No"
@@ -45,14 +44,20 @@ describe('VoteTallyTable', () => {
         publicVote={{ for: 1, against: 1 }} ai={{ for: 1, against: 1 }} gov={{ status: 'none' }}
       />
     );
-    expect(container.querySelectorAll('thead .tally-header')).toHaveLength(4);
+    expect(container.querySelectorAll('thead .tally-header')).toHaveLength(3);
+  });
+
+  it('offers full-width Aye/No buttons above the table while the vote is open', () => {
+    setup();
+    expect(screen.getByRole('button', { name: 'Vote Aye on Test Reform Bill' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vote No on Test Reform Bill' })).toBeInTheDocument();
   });
 
   it('withholds every tally until the citizen has voted', () => {
     setup();
     expect(screen.getAllByText(/Hidden until you vote/i).length).toBe(2);
     expect(screen.queryByText('100')).not.toBeInTheDocument();
-    expect(screen.getByText(/Cast your vote in the last column/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cast your vote above/i)).toBeInTheDocument();
   });
 
   it('shows the scheduled division date rather than a locked tally while Parliament is pending', () => {
@@ -66,15 +71,21 @@ describe('VoteTallyTable', () => {
     expect(screen.getByText('40')).toBeInTheDocument();
   });
 
-  it('casts a vote from the Your vote column', () => {
+  it('casts a vote from the buttons above the table', () => {
     const { onVote } = setup();
-    fireEvent.click(screen.getByRole('button', { name: /Vote No on Test Reform Bill/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Vote No on Test Reform Bill' }));
     expect(onVote).toHaveBeenCalledWith('against');
+  });
+
+  it('keeps only the chosen button, muted, once a vote is cast', () => {
+    setup({ myVote: 'for' });
+    expect(screen.getByRole('button', { name: 'You voted Aye on Test Reform Bill' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: /^Vote No/ })).not.toBeInTheDocument();
   });
 
   it('replaces the buttons with a closed note once the window has shut', () => {
     setup({ isOpen: false, closedNote: 'Voting has closed.', gov: { status: 'voted', for: 320, against: 300 } });
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Vote /i })).not.toBeInTheDocument();
     expect(screen.getByText('Voting has closed.')).toBeInTheDocument();
     expect(screen.getByText('Did not vote')).toBeInTheDocument();
     expect(screen.getByText('320')).toBeInTheDocument();

@@ -1230,9 +1230,13 @@ body {
     color: rgba(192, 138, 74, 0.8);
   }
 
-  [data-board-theme='bronze'] .ledger-table__title:hover {
-    color: #ddaa6a;
-    text-decoration-color: rgba(221, 170, 106, 0.6);
+  /* Hover-only so a tap on a touchscreen doesn't leave the title looking
+     "stuck" underlined until the next unrelated tap clears :hover. */
+  @media (hover: hover) {
+    [data-board-theme='bronze'] .ledger-table__title:hover {
+      color: #ddaa6a;
+      text-decoration-color: rgba(221, 170, 106, 0.6);
+    }
   }
 
   [data-board-theme='bronze'] .header-tip {
@@ -1481,9 +1485,13 @@ body {
     transition: text-decoration-color 0.12s ease, color 0.12s ease;
   }
 
-  .ledger-table__title:hover {
-    color: var(--color-aged-gold-light);
-    text-decoration-color: rgba(212, 175, 55, 0.6);
+  /* Hover-only so a tap on a touchscreen doesn't leave the title looking
+     "stuck" underlined until the next unrelated tap clears :hover. */
+  @media (hover: hover) {
+    .ledger-table__title:hover {
+      color: var(--color-aged-gold-light);
+      text-decoration-color: rgba(212, 175, 55, 0.6);
+    }
   }
 
   .ledger-table__title:focus-visible {
@@ -1913,7 +1921,7 @@ body {
   }
 
   .board-cards__group + .board-cards__group {
-    margin-top: 4px;
+    margin-top: 28px;
   }
 
   /* Same band chrome as the table's stage/phase heading, just as a block
@@ -2509,6 +2517,12 @@ body {
   }
 
   /* ── Vote tally table (modal) ────────────────────────────────────── */
+  /* The citizen's own vote sits above the table as full-width buttons — the
+     same control as the board card's — rather than as a fourth column. */
+  .vote-table__own {
+    margin-bottom: 14px;
+  }
+
   .vote-table__wrap {
     border: 1px solid rgba(184, 150, 12, 0.2);
     border-radius: 4px;
@@ -2516,26 +2530,16 @@ body {
   }
 
   /* Same chrome as the board table, minus the board's min-width — one row of
-     four columns fits anywhere the modal does. */
+     three columns fits anywhere the modal does. */
   .vote-table {
     min-width: 0;
     table-layout: fixed;
   }
 
   .vote-table thead th.ledger-table__cell--tally,
-  .vote-table thead th.ledger-table__cell--own,
-  .vote-table .ledger-table__cell--tally,
-  .vote-table .ledger-table__cell--own {
-    width: 25%;
+  .vote-table .ledger-table__cell--tally {
+    width: 33.333%;
     text-align: center;
-  }
-
-  /* On phones the board folds its Your-vote column into the bill name, because
-     the board has a name column to fold it into. This table does not — it is
-     one row about one bill — so the column stays put at every width. */
-  .vote-table thead th.ledger-table__cell--own,
-  .vote-table tbody td.ledger-table__cell--own {
-    display: table-cell;
   }
 
   .vote-table thead th {
@@ -2553,11 +2557,6 @@ body {
     padding: 16px 8px;
   }
 
-  .vote-table .own-vote-buttons,
-  .vote-table .own-vote {
-    justify-content: center;
-  }
-
   /* The modal shows one bill, so the tally is the thing being read rather than
      one cell in a scan of twenty rows — it can afford to be bigger here than on
      the board, where the same components stay compact. */
@@ -2569,33 +2568,13 @@ body {
     gap: 6px;
   }
 
-  .vote-table .thumb-tally svg,
-  .vote-table .own-vote svg {
+  .vote-table .thumb-tally svg {
     width: 17px;
     height: 17px;
   }
 
   .vote-table .thumb-tally__count {
     font-size: 14px;
-  }
-
-  .vote-table .own-vote {
-    font-size: 12px;
-    gap: 6px;
-  }
-
-  .vote-table .own-vote-buttons {
-    gap: 8px;
-  }
-
-  .vote-table .own-vote-btn {
-    width: 40px;
-    height: 34px;
-  }
-
-  .vote-table .own-vote-btn svg {
-    width: 17px;
-    height: 17px;
   }
 
   .vote-table__prompt,
@@ -2635,26 +2614,17 @@ body {
     }
 
     /* The pending date is the widest thing that can land in a tally cell, and
-       the columns are fixed at a quarter each — so it shrinks to fit rather
-       than spilling into the Your-vote column beside it. */
+       the columns are fixed at a third each — so it shrinks to fit rather
+       than overflowing the cell. */
     .vote-table .tally-cell__pending {
       font-size: 9px;
       padding: 2px 4px;
       letter-spacing: 0;
     }
 
-    /* "Did not vote" is wider than a quarter-column at this size; wrapping it
-       keeps it inside the table rather than running off the panel. */
-    .vote-table .own-vote--none {
-      white-space: normal;
-      line-height: 1.3;
-    }
-
     /* The desktop table has room to enlarge the thumbs and counts; a phone's
-       quarter-column does not, so they go back to board scale here. */
-    .vote-table .thumb-tally svg,
-    .vote-table .own-vote svg,
-    .vote-table .own-vote-btn svg {
+       narrower column does not, so they go back to board scale here. */
+    .vote-table .thumb-tally svg {
       width: 14px;
       height: 14px;
     }
@@ -2665,20 +2635,6 @@ body {
 
     .vote-table .thumb-tally__side {
       gap: 4px;
-    }
-
-    .vote-table .own-vote {
-      font-size: 11px;
-      gap: 4px;
-    }
-
-    .vote-table .own-vote-buttons {
-      gap: 5px;
-    }
-
-    .vote-table .own-vote-btn {
-      width: 30px;
-      height: 28px;
     }
   }
 

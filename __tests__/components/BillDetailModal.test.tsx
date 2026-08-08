@@ -98,12 +98,19 @@ describe('BillDetailModal', () => {
     expect(screen.getByText('Commons')).toBeInTheDocument();
   });
 
-  it('renders the vote as a four-column table matching the board', () => {
+  it('renders the vote as a three-column tally table matching the board', () => {
     render(<BillDetailModal bill={OPEN_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByRole('columnheader', { name: /public vote tally/i })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /ai vote tally/i })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /government vote tally/i })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /your vote/i })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: /your vote/i })).not.toBeInTheDocument();
+  });
+
+  it('puts the vote buttons above the tally table, acting like the board card\'s', () => {
+    render(<BillDetailModal bill={OPEN_BILL} voted={null} onVote={() => {}} onClose={() => {}} />);
+    const aye = screen.getByRole('button', { name: 'Vote Aye on Test Reform Bill' });
+    expect(aye).not.toHaveAttribute('data-tooltip');
+    expect(aye).not.toHaveClass('vote-tip');
   });
 
   it('explains each column with the same info tooltips the board uses', () => {
