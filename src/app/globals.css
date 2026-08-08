@@ -2042,6 +2042,16 @@ body {
     background: transparent;
   }
 
+  /* The government-vote date/TBD is a plain fact, not a call to action — no
+     chip chrome needed once the table around it already reads as the card.
+     Three classes deep so it still wins over the narrow-width ".vote-table
+     .tally-cell__pending" padding override declared later in the file. */
+  .board-cards .ledger-card__vote .tally-cell__pending {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
   .ledger-card__vote .info-tip {
     display: none;
   }
