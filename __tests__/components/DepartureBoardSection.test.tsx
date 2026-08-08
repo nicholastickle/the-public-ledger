@@ -65,12 +65,17 @@ describe('DepartureBoardSection', () => {
   it('renders one table row per bill with the documented columns', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL, COMMITTEE_BILL]} />);
     expect(rows()).toHaveLength(2);
+    // The phone card below repeats the same vote-tally table (with the same
+    // column headers) outside this desktop table, so headers are scoped to it.
+    const board = within(document.querySelector('.ledger-table__wrap')!);
     for (const name of ['No.', 'Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
+      expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
-    // Every column but the bill number carries an explanatory InfoTip.
+    // Every column but the bill number carries an explanatory InfoTip. The
+    // phone card repeats the same tally InfoTips outside the table, so this
+    // checks at least one copy exists rather than exactly one.
     for (const label of ['Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByText(`About the ${label} column`)).toBeInTheDocument();
+      expect(screen.getAllByText(`About the ${label} column`).length).toBeGreaterThan(0);
     }
   });
 
@@ -91,8 +96,10 @@ describe('DepartureBoardSection', () => {
     const first = billAt({ id: 301, short_title: 'First Reading Bill', current_stage_name: 'First Reading' });
     render(<DepartureBoardSection bills={[first, COMMITTEE_BILL]} />);
 
-    expect(screen.getByText('About the First Reading stage')).toBeInTheDocument();
-    expect(screen.getByText('About the Committee Stage stage')).toBeInTheDocument();
+    // The phone card repeats the same stage band outside the table, so this
+    // checks at least one copy exists rather than exactly one.
+    expect(screen.getAllByText('About the First Reading stage').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('About the Committee Stage stage').length).toBeGreaterThan(0);
 
     const band = document.querySelector('.ledger-table__stage-head .info-tip')!;
     expect(band.getAttribute('data-tooltip')).toMatch(/formally introduced/);
@@ -147,7 +154,9 @@ describe('DepartureBoardSection', () => {
 
   it('shows "Did not vote" once the window has closed with no vote cast', () => {
     render(<DepartureBoardSection bills={[COMMITTEE_BILL]} />);
-    expect(screen.getByText('Did not vote')).toBeInTheDocument();
+    // The phone card renders the same "Did not vote" text alongside the row,
+    // so this is scoped to the table row it's actually testing.
+    expect(within(rows()[0] as HTMLElement).getByText('Did not vote')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Vote Aye/ })).not.toBeInTheDocument();
   });
 
@@ -193,7 +202,9 @@ describe('DepartureBoardSection', () => {
 
   it('opens the bill detail modal when the bill title is clicked', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Test Reform Bill' }));
+    // The phone card renders its own title button for the same bill, so this
+    // is scoped to the table row it's actually testing.
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Test Reform Bill' }));
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByRole('heading', { name: /Test Reform Bill/i })).toBeInTheDocument();
   });
@@ -214,14 +225,14 @@ describe('DepartureBoardSection', () => {
 
   it('closes the modal when the close button is clicked', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Test Reform Bill' }));
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Test Reform Bill' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('carries a vote cast in the modal back to the row', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Test Reform Bill' }));
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Test Reform Bill' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Vote Aye on Test Reform Bill' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
 

@@ -67,7 +67,12 @@ function UnionJackSeal({ size = 120 }: { size?: number }) {
 
 export default function HeroSection() {
   return (
-    <section className="overflow-hidden relative flex flex-col min-h-dvh sm:block sm:min-h-0" style={{ backgroundColor: '#0c1610' }}>
+    // svh, not dvh: dvh tracks the browser chrome's actual on-screen height,
+    // which changes as the address bar hides/shows while scrolling — the
+    // hero would grow and shrink under your thumb and shove every section
+    // below it up and down. svh locks to the smallest possible viewport
+    // (chrome fully expanded) so the hero's height never moves after paint.
+    <section className="overflow-hidden relative flex flex-col min-h-svh sm:block sm:min-h-0" style={{ backgroundColor: '#0c1610' }}>
       {/* Parliament / Big Ben timelapse — now fully visible behind the content */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
@@ -99,7 +104,7 @@ export default function HeroSection() {
 
             {/* Main split: countdown + CTA (left) · nations map (right). On
                 phones this is the only content below the nav, so it grows to
-                fill the rest of the viewport height (min-h-dvh above) rather
+                fill the rest of the viewport height (min-h-svh above) rather
                 than leaving dead space under the CTA. */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-2xl lg:gap-4xl items-stretch sm:items-center flex-1 sm:flex-none">
 

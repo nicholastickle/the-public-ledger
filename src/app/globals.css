@@ -1230,9 +1230,13 @@ body {
     color: rgba(192, 138, 74, 0.8);
   }
 
-  [data-board-theme='bronze'] .ledger-table__title:hover {
-    color: #ddaa6a;
-    text-decoration-color: rgba(221, 170, 106, 0.6);
+  /* Hover-only so a tap on a touchscreen doesn't leave the title looking
+     "stuck" underlined until the next unrelated tap clears :hover. */
+  @media (hover: hover) {
+    [data-board-theme='bronze'] .ledger-table__title:hover {
+      color: #ddaa6a;
+      text-decoration-color: rgba(221, 170, 106, 0.6);
+    }
   }
 
   [data-board-theme='bronze'] .header-tip {
@@ -1252,6 +1256,10 @@ body {
   }
 
   [data-board-theme='bronze'] .tally-header__icon {
+    color: #c08a4a;
+  }
+
+  [data-board-theme='bronze'] .tally-cell__locked {
     color: #c08a4a;
   }
 
@@ -1481,9 +1489,13 @@ body {
     transition: text-decoration-color 0.12s ease, color 0.12s ease;
   }
 
-  .ledger-table__title:hover {
-    color: var(--color-aged-gold-light);
-    text-decoration-color: rgba(212, 175, 55, 0.6);
+  /* Hover-only so a tap on a touchscreen doesn't leave the title looking
+     "stuck" underlined until the next unrelated tap clears :hover. */
+  @media (hover: hover) {
+    .ledger-table__title:hover {
+      color: var(--color-aged-gold-light);
+      text-decoration-color: rgba(212, 175, 55, 0.6);
+    }
   }
 
   .ledger-table__title:focus-visible {
@@ -1574,11 +1586,18 @@ body {
     transform: none;
   }
 
-  .header-tip:hover::after,
   .header-tip:focus-visible::after,
-  .vote-tip:hover::after,
   .vote-tip:focus-visible::after {
     display: block;
+  }
+
+  /* Hover-only so a press-and-hold on a touchscreen doesn't pop up a tooltip
+     that then sticks around until some unrelated tap elsewhere clears it. */
+  @media (hover: hover) {
+    .header-tip:hover::after,
+    .vote-tip:hover::after {
+      display: block;
+    }
   }
 
   /* The circled "i" tucked against the bottom-right of its heading's text —
@@ -1647,8 +1666,10 @@ body {
   }
 
   .tally-cell__locked {
-    font-size: 12px;
-    opacity: 0.5;
+    display: inline-flex;
+    align-items: center;
+    color: #b8960c;
+    opacity: 0.55;
     cursor: help;
   }
 
@@ -1878,15 +1899,205 @@ body {
       padding-right: 8px;
     }
 
-    .thumb-tally {
+    /* Scoped to the table specifically — the board cards below use the same
+       ThumbTally/OwnVoteCell components but have the width to keep both sides
+       on one line, so they opt out of the narrow-column stacking here. */
+    .ledger-table .thumb-tally {
       flex-direction: column;
       align-items: flex-start;
       gap: 2px;
     }
 
-    .own-vote {
+    .ledger-table .own-vote {
       font-size: 10px;
     }
+  }
+
+  /* ── Board cards (phones) ────────────────────────────────────────────
+     Below the phone breakpoint the table's own fold keeps the header within
+     reach for the first couple of rows, but a board running to a few dozen
+     items scrolls the header away from everything after that — so phones get
+     one card per item instead of a squeezed row. Both markups render in the
+     DOM; this pair of rules is what shows exactly one of them. */
+  .board-cards {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .ledger-table__wrap {
+      display: none;
+    }
+
+    .board-cards {
+      display: block;
+    }
+  }
+
+  .board-cards__group + .board-cards__group {
+    margin-top: 28px;
+  }
+
+  /* Same band chrome as the table's stage/phase heading, just as a block
+     instead of a spanning table row. */
+  .board-cards__stage-head {
+    display: flex;
+    align-items: center;
+    padding: 9px 6px 8px;
+    background: var(--board-band-bg, rgba(27, 67, 50, 0.24));
+    border-top: 1px solid rgba(184, 150, 12, 0.18);
+    border-bottom: 1px solid rgba(184, 150, 12, 0.18);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .board-cards__group:first-of-type .board-cards__stage-head {
+    border-top: 0;
+  }
+
+  .board-cards__stage-title {
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(250, 246, 237, 0.62);
+  }
+
+  .board-cards__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 2px 4px;
+  }
+
+  .ledger-card {
+    position: relative;
+    border-radius: 6px;
+    /* Extra room at the foot reserves a strip for the bookmark button so it
+       never sits over the vote table above it. */
+    padding: 12px 13px 40px;
+    background: rgba(250, 246, 237, 0.035);
+    border: 1px solid rgba(184, 150, 12, 0.16);
+    cursor: pointer;
+  }
+
+  [data-board-theme='bronze'] .ledger-card {
+    border-color: rgba(192, 138, 74, 0.16);
+  }
+
+  .ledger-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ledger-card__no {
+    font-size: 10px;
+    color: rgba(184, 150, 12, 0.5);
+  }
+
+  [data-board-theme='bronze'] .ledger-card__no {
+    color: rgba(192, 138, 74, 0.6);
+  }
+
+  /* Reuses the table's title/subtitle typography so a citizen who has learned
+     to read a row does not have to learn a second style for the same field. */
+  .ledger-card .ledger-table__title {
+    font-size: 15px;
+    margin-top: 7px;
+  }
+
+  .ledger-card .ledger-table__subtitle {
+    margin-top: 3px;
+  }
+
+  .ledger-card__meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 7px;
+    flex-wrap: wrap;
+  }
+
+  .ledger-card__meta-chip {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: rgba(250, 246, 237, 0.55);
+  }
+
+  /* The card uses the same vote-tally table as the modal, just narrower — and
+     trimmed further: no tint of its own on either row, so the table reads as
+     part of the card rather than a box drawn on top of it (its border stays),
+     no per-column info tooltip (no room, and the card's tap-to-open makes the
+     detail one tap away), no "cast your vote" hint (the table is the whole
+     card, there's nothing else it could mean). */
+  .ledger-card__vote {
+    margin-top: 10px;
+  }
+
+  .ledger-card__vote .vote-table__wrap {
+    background: transparent;
+  }
+
+  .ledger-card__vote .vote-table thead tr {
+    background: transparent;
+  }
+
+  /* The government-vote date/TBD is a plain fact, not a call to action — no
+     chip chrome needed once the table around it already reads as the card.
+     Three classes deep so it still wins over the narrow-width ".vote-table
+     .tally-cell__pending" padding override declared later in the file. */
+  .board-cards .ledger-card__vote .tally-cell__pending {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .ledger-card__vote .info-tip {
+    display: none;
+  }
+
+  .ledger-card__vote .vote-table__prompt {
+    display: none;
+  }
+
+  .bookmark-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    color: rgba(184, 150, 12, 0.75);
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  @media (hover: hover) {
+    .bookmark-btn:hover {
+      color: #e8c840;
+    }
+  }
+
+  .bookmark-btn--active {
+    color: #d4af37;
+  }
+
+  [data-board-theme='bronze'] .bookmark-btn {
+    color: rgba(192, 138, 74, 0.75);
+  }
+
+  @media (hover: hover) {
+    [data-board-theme='bronze'] .bookmark-btn:hover {
+      color: #ddaa6a;
+    }
+  }
+
+  [data-board-theme='bronze'] .bookmark-btn--active {
+    color: #ddaa6a;
   }
 
   .voting-panel__pending {
@@ -2229,7 +2440,7 @@ body {
     flex-shrink: 0;
   }
 
-  /* ── Vote tally table (modal) ────────────────────────────────────── */
+  /* ── Vote tally table (modal + card) ─────────────────────────────── */
   .vote-table__wrap {
     border: 1px solid rgba(184, 150, 12, 0.2);
     border-radius: 4px;
@@ -2253,7 +2464,8 @@ body {
 
   /* On phones the board folds its Your-vote column into the bill name, because
      the board has a name column to fold it into. This table does not — it is
-     one row about one bill — so the column stays put at every width. */
+     one row about one bill or instrument — so the column stays put at every
+     width. */
   .vote-table thead th.ledger-table__cell--own,
   .vote-table tbody td.ledger-table__cell--own {
     display: table-cell;
@@ -2270,8 +2482,12 @@ body {
     justify-content: center;
   }
 
+  /* Reserves room for the tallest state each cell can hold (a revealed,
+     stacked thumbs pair) so a lock resolving into a result never changes the
+     table's — and so the card's or modal's — height. */
   .vote-table .ledger-table__cell {
     padding: 16px 8px;
+    min-height: 52px;
   }
 
   .vote-table .own-vote-buttons,
@@ -2343,7 +2559,14 @@ body {
 
     .vote-table thead th .tally-header {
       flex-direction: column;
+      align-items: center;
       gap: 2px;
+    }
+
+    /* Stacked under the icon rather than beside it, so the row-layout gap
+       that shifted it right no longer applies. */
+    .vote-table thead th .tally-header__label {
+      margin-left: 0;
     }
 
     .vote-table thead th .tally-header .info-tip {
@@ -2353,6 +2576,7 @@ body {
 
     .vote-table .ledger-table__cell {
       padding: 12px 3px;
+      min-height: 44px;
     }
 
     /* The pending date is the widest thing that can land in a tally cell, and

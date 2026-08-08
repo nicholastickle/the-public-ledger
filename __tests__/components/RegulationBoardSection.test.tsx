@@ -61,12 +61,17 @@ describe('RegulationBoardSection', () => {
   it('renders one table row per regulation with the documented columns', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG, MADE_REG]} />);
     expect(rows()).toHaveLength(2);
+    // The phone card below repeats the same vote-tally table (with the same
+    // column headers) outside this desktop table, so headers are scoped to it.
+    const board = within(document.querySelector('.ledger-table__wrap')!);
     for (const name of ['No.', 'Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
+      expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
     // Every column but the instrument number carries an explanatory InfoTip.
+    // The phone card repeats the same tally InfoTips outside the table, so
+    // this checks at least one copy exists rather than exactly one.
     for (const label of ['Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getByText(`About the ${label} column`)).toBeInTheDocument();
+      expect(screen.getAllByText(`About the ${label} column`).length).toBeGreaterThan(0);
     }
   });
 
@@ -88,7 +93,9 @@ describe('RegulationBoardSection', () => {
       // generic line, which reads as an omission rather than an explanation.
       expect(tip.getAttribute('data-tooltip')).not.toMatch(/is before Parliament\.$/);
     }
-    expect(screen.getByText('About the Annul Window Open stage')).toBeInTheDocument();
+    // The phone card repeats the same phase band outside the table, so this
+    // checks at least one copy exists rather than exactly one.
+    expect(screen.getAllByText('About the Annul Window Open stage').length).toBeGreaterThan(0);
   });
 
   it('shows the instrument number and its enabling Act in the row', () => {
@@ -114,7 +121,9 @@ describe('RegulationBoardSection', () => {
 
   it('shows "Did not vote" once the window has closed with no vote cast', () => {
     render(<RegulationBoardSection regulations={[MADE_REG]} />);
-    expect(screen.getByText('Did not vote')).toBeInTheDocument();
+    // The phone card renders the same "Did not vote" text alongside the row,
+    // so this is scoped to the table row it's actually testing.
+    expect(within(rows()[0] as HTMLElement).getByText('Did not vote')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Vote Approve/ })).not.toBeInTheDocument();
   });
 
@@ -146,7 +155,9 @@ describe('RegulationBoardSection', () => {
 
   it('carries a vote cast in the modal back to the row', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'The Test (Amendment) Regulations 2026' }));
+    // The phone card renders its own title button for the same instrument, so
+    // this is scoped to the table row it's actually testing.
+    fireEvent.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'The Test (Amendment) Regulations 2026' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Vote Annul on/ }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
 

@@ -9,6 +9,7 @@ import InfoTip from './InfoTip';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
 import RegulationDetailModal from './RegulationDetailModal';
+import RegulationCard from './RegulationCard';
 
 interface Props {
   regulations: ParliamentRegulation[];
@@ -147,7 +148,7 @@ function phaseDescription(phase: string): string {
   return PHASE_DESCRIPTIONS[phase] ?? 'This instrument is before Parliament.';
 }
 
-function regulationPhase(reg: ParliamentRegulation): string {
+export function regulationPhase(reg: ParliamentRegulation): string {
   if (reg.status === 'pending') {
     return reg.procedure === 'affirmative' ? 'Pending Approval' : 'Annul Window Open';
   }
@@ -396,6 +397,30 @@ export default function RegulationBoardSection({ regulations }: Props) {
               </tbody>
             ))}
           </table>
+        </div>
+
+        {/* ── Regulation cards (phones) — see DepartureBoardSection for why. */}
+        <div className="board-cards">
+          {groups.map(group => (
+            <div key={group.phase} className="board-cards__group">
+              <div className="board-cards__stage-head">
+                <span className="board-cards__stage-title">{group.phase}</span>
+                <InfoTip align="left" scope="stage" label={group.phase} tip={phaseDescription(group.phase)} />
+              </div>
+              <div className="board-cards__stack">
+                {group.regulations.map(reg => (
+                  <RegulationCard
+                    key={reg.id}
+                    reg={reg}
+                    votes={votes[reg.id]}
+                    myVote={votedMap[reg.id]}
+                    onSelect={() => setSelectedId(reg.id)}
+                    onVote={choice => castVote(reg.id, choice)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Footer */}
