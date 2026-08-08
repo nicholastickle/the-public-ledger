@@ -1593,15 +1593,21 @@ body {
     transform: none;
   }
 
-  /* Plain `:focus`, not `:focus-visible` — a tap or click both land as
-     `:focus` but browsers withhold `:focus-visible` from pointer-triggered
-     focus (it exists to suppress focus *rings* after a mouse click, not to
-     hide content). This tooltip has no other reveal path on a device with no
-     hover, so gating it behind `:focus-visible` left it permanently
-     unreachable by touch — tapping the icon focused it without ever
-     satisfying the heuristic that shows the tooltip. */
-  .header-tip:focus::after,
+  /* `:focus-visible` — reliable for real keyboard Tab navigation, which is
+     the only path left for `.header-tip` to cover here: tap/click toggle it
+     via the `data-open` rule below instead, because real mobile WebKit does
+     not reliably leave a tapped button matching `:focus` the way a synthetic
+     click does in desktop testing, so a CSS-only reveal left the tooltip
+     unreachable by touch. `.vote-tip` has no such JS toggle, so it still
+     covers click/tap with plain `:focus`. */
+  .header-tip:focus-visible::after,
   .vote-tip:focus::after {
+    display: block;
+  }
+
+  /* InfoTip's own click-toggled state (see InfoTip.tsx) — the touch-reliable
+     path for `.header-tip`. */
+  .header-tip[data-open='true']::after {
     display: block;
   }
 
