@@ -153,8 +153,20 @@
 }
 
 /* Page defaults ────────────────────────────────────────────────────── */
+/* Mobile Safari (and similar touch browsers) paint the body's
+   background-color into the rubber-band/overscroll area revealed when a
+   user pulls past the top or bottom of the page to reload. body's default
+   was the neutral canvas-soft grey, which flashed against the brand's dark
+   surfaces — html is set too as a fallback, since some browser versions
+   read it instead of (or in addition to) body's. #0C1610 is the same dark
+   green used for the Bill Board, Regulation Board chrome, and footer (see
+   DepartureBoardSection.tsx and the modal/footer chrome below). */
+html {
+  background-color: #0C1610;
+}
+
 body {
-  background-color: var(--color-canvas-soft);
+  background-color: #0C1610;
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
