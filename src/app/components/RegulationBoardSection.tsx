@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import type { ParliamentRegulation } from '../types/parliament';
 import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
 import TallyHeader from './TallyHeader';
@@ -310,6 +309,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
     // Board, but with the gold accent swapped for a warmer bronze/copper so
     // the two boards read as different metals, not different hues.
     <section
+      id="regulations"
       className="board-surface"
       data-board-theme="bronze"
       style={{ background: '#14100c', borderTop: '2px solid rgba(168,114,47,0.45)' }}
@@ -430,13 +430,6 @@ export default function RegulationBoardSection({ regulations }: Props) {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end mt-lg">
-          <Link href="/regulations" className="board-view-all font-mono no-underline shrink-0">
-            View all →
-          </Link>
         </div>
       </div>
 

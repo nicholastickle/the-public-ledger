@@ -33,8 +33,7 @@ const LINE_IDLE = 'var(--stage-line, rgba(184,150,12,0.18))';
 const LABEL_UPCOMING = 'var(--stage-label-upcoming, rgba(184,150,12,0.45))';
 
 /** Stage progress for the detail modal — dark-ledger themed, distinct from the
- *  light-theme StageTimeline used on /bills/[id] (which renders division
- *  results, not this).
+ *  light-theme StageTimeline (which renders division results, not this).
  *
  *  One DOM, three layouts, chosen in CSS by how much width there is:
  *   · phone   — a plain vertical timeline, nodes joined top to bottom

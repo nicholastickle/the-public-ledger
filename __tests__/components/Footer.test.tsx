@@ -27,8 +27,8 @@ describe('Footer', () => {
 
   it('renders every requested board and platform link', () => {
     render(<Footer />);
-    expect(screen.getByRole('link', { name: 'Bill Board' })).toHaveAttribute('href', '/bills');
-    expect(screen.getByRole('link', { name: 'Regulations Board' })).toHaveAttribute('href', '/regulations');
+    expect(screen.getByRole('link', { name: 'Bill Board' })).toHaveAttribute('href', '/#bills');
+    expect(screen.getByRole('link', { name: 'Regulations Board' })).toHaveAttribute('href', '/#regulations');
     expect(screen.getByRole('link', { name: 'Elections Board' })).toHaveAttribute('href', '/elections');
     expect(screen.getByRole('link', { name: 'Lobby Board' })).toHaveAttribute('href', '/lobby');
     expect(screen.getByRole('link', { name: 'AI Voting' })).toHaveAttribute('href', '/ai-voting');

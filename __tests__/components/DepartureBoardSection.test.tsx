@@ -54,9 +54,9 @@ describe('DepartureBoardSection', () => {
     expect(screen.getAllByText('Test Reform Bill').length).toBeGreaterThan(0);
   });
 
-  it('keeps the board footer to the "View all →" link alone', () => {
+  it('has no footer content — the board is the whole list, not a preview', () => {
     render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/bills');
+    expect(screen.queryByRole('link', { name: /View all/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/connect the backend/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bills tracked/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/UK Parliament API/i)).not.toBeInTheDocument();

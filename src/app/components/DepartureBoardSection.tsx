@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import type { ParliamentBill } from '../types/parliament';
 import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../lib/mockVotes';
 import TallyHeader from './TallyHeader';
@@ -285,7 +284,7 @@ export default function DepartureBoardSection({ bills }: Props) {
   return (
     // Flat forest green edge to edge — no gradient, so the board reads as one
     // continuous surface and the step to the Regulation Board is a clean cut.
-    <section className="board-surface" style={{ background: '#0C1610' }}>
+    <section id="bills" className="board-surface" style={{ background: '#0C1610' }}>
       {/* 1400px is the brand page width (DESIGN.md `--ds-page-width`); beyond it
           the table's slack all lands in the Bill column and pushes House and
           Stage far from the name they describe. */}
@@ -412,13 +411,6 @@ export default function DepartureBoardSection({ bills }: Props) {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end mt-lg">
-          <Link href="/bills" className="board-view-all font-mono no-underline shrink-0">
-            View all →
-          </Link>
         </div>
       </div>
 

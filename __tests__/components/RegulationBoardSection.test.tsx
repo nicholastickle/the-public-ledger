@@ -50,9 +50,9 @@ describe('RegulationBoardSection', () => {
     expect(screen.getAllByText(/The Test \(Amendment\) Regulations 2026/i).length).toBeGreaterThan(0);
   });
 
-  it('keeps the board footer to the "View all →" link alone', () => {
+  it('has no footer content — the board is the whole list, not a preview', () => {
     render(<RegulationBoardSection regulations={[]} />);
-    expect(screen.getByRole('link', { name: /View all/i })).toHaveAttribute('href', '/regulations');
+    expect(screen.queryByRole('link', { name: /View all/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/connect the backend/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/regulations tracked/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/UK Parliament SI API/i)).not.toBeInTheDocument();

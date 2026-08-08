@@ -5,8 +5,8 @@ import CrownOrnament from './CrownOrnament';
 import SoundToggleButton from './SoundToggleButton';
 
 export const NAV_LINKS = [
-  { label: 'Bills', href: '/bills' },
-  { label: 'Regulations', href: '/regulations' },
+  { label: 'Bills', href: '/#bills' },
+  { label: 'Regulations', href: '/#regulations' },
   { label: 'Elections', href: '/elections' },
   { label: 'Lobby', href: '/lobby' },
 ];

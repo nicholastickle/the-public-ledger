@@ -256,7 +256,7 @@ export default function HowItWorksSection() {
 
         {/* CTA */}
         <div className="flex justify-center mt-3xl md:mt-4xl">
-          <Link href="/bills" className="btn-ledger-primary">
+          <Link href="/#bills" className="btn-ledger-primary">
             Browse Active Bills
           </Link>
         </div>

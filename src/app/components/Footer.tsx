@@ -15,8 +15,8 @@ const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: 'The Boards',
     links: [
-      { label: 'Bill Board', href: '/bills' },
-      { label: 'Regulations Board', href: '/regulations' },
+      { label: 'Bill Board', href: '/#bills' },
+      { label: 'Regulations Board', href: '/#regulations' },
       { label: 'Elections Board', href: '/elections' },
       { label: 'Lobby Board', href: '/lobby' },
     ],
