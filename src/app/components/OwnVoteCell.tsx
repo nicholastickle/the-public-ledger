@@ -20,14 +20,48 @@ interface Props {
  *  kept off the surrounding row so voting never also opens the detail modal. */
 export default function OwnVoteCell({ title, isOpen, myVote, onVote, forLabel, againstLabel, size = 'sm' }: Props) {
   if (myVote) {
+    if (size === 'sm') {
+      return (
+        <span className={`own-vote own-vote--${myVote} own-vote--${size}`}>
+          <ThumbIcon down={myVote === 'against'} />
+          {myVote === 'for' ? forLabel : againstLabel}
+        </span>
+      );
+    }
+    // The card keeps the choice as a button rather than collapsing to a row
+    // of text — dropping only the option not taken, and muting the one that
+    // was, so the CTA still reads as "a button, now settled" rather than a
+    // label that could be confused for a static status line.
+    const label = myVote === 'for' ? forLabel : againstLabel;
     return (
-      <span className={`own-vote own-vote--${myVote} own-vote--${size}`}>
-        <ThumbIcon down={myVote === 'against'} />
-        {myVote === 'for' ? forLabel : againstLabel}
+      <span className={`own-vote-buttons own-vote-buttons--${size}`}>
+        <button
+          type="button"
+          className={`own-vote-btn own-vote-btn--${myVote} own-vote-btn--${size} own-vote-btn--muted`}
+          disabled
+          aria-label={`You voted ${label} on ${title}`}
+        >
+          <ThumbIcon down={myVote === 'against'} />
+          <span className="own-vote-btn__label">{label}</span>
+        </button>
       </span>
     );
   }
-  if (!isOpen) return <span className={`own-vote own-vote--none own-vote--${size}`}>Did not vote</span>;
+  if (!isOpen) {
+    if (size === 'sm') return <span className={`own-vote own-vote--none own-vote--${size}`}>Did not vote</span>;
+    return (
+      <span className={`own-vote-buttons own-vote-buttons--${size}`}>
+        <button
+          type="button"
+          className={`own-vote-btn own-vote-btn--none own-vote-btn--${size}`}
+          disabled
+          aria-label={`Did not vote on ${title}`}
+        >
+          <span className="own-vote-btn__label">Did not vote</span>
+        </button>
+      </span>
+    );
+  }
 
   const cast = (choice: 'for' | 'against') => (e: React.MouseEvent) => {
     e.stopPropagation();

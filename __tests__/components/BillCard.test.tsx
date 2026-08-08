@@ -77,10 +77,13 @@ describe('BillCard', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
-    const { container } = render(<BillCard bill={OPEN_BILL} myVote="for" onSelect={noop} onVote={noop} />);
+  it('reveals the tallies once a vote has been recorded, and shows the recorded choice as a muted button', () => {
+    render(<BillCard bill={OPEN_BILL} myVote="for" onSelect={noop} onVote={noop} />);
     expect(screen.queryByRole('button', { name: 'Hidden until you vote' })).not.toBeInTheDocument();
-    expect(container.querySelector('.own-vote--for')).toHaveTextContent('Aye');
+    const voted = screen.getByRole('button', { name: 'You voted Aye on Card Test Bill' });
+    expect(voted).toHaveTextContent('Aye');
+    expect(voted).toBeDisabled();
+    expect(screen.queryByRole('button', { name: /^Vote No/ })).not.toBeInTheDocument();
   });
 
   it('opens the detail modal when the card is tapped anywhere', () => {

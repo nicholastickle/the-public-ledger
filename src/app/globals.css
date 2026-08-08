@@ -1945,7 +1945,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 12px 2px 4px;
+    padding: 18px 2px 4px;
   }
 
   .ledger-card {
@@ -2141,10 +2141,31 @@ body {
     white-space: nowrap;
   }
 
-  .own-vote--lg {
-    display: flex;
-    font-size: 12px;
-    padding: 9px 0;
+  .own-vote-btn:disabled {
+    cursor: default;
+  }
+
+  /* The choice the citizen made, kept as a button rather than collapsed to
+     text — quieted relative to the active call-to-action colour so it reads
+     as settled, but still tinted to the side it belongs to. */
+  .own-vote-btn--muted.own-vote-btn--for {
+    color: rgba(16, 185, 129, 0.65);
+    border-color: rgba(16, 185, 129, 0.25);
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  .own-vote-btn--muted.own-vote-btn--against {
+    color: rgba(239, 68, 68, 0.65);
+    border-color: rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  /* "Did not vote" — genuinely neutral, since there's no choice to tint it
+     with. Spans the full width the two vote buttons occupied together. */
+  .own-vote-btn--none {
+    color: rgba(250, 246, 237, 0.4);
+    border-color: rgba(250, 246, 237, 0.16);
+    background: rgba(250, 246, 237, 0.04);
   }
 
   .voting-panel__pending {

@@ -75,10 +75,13 @@ describe('RegulationCard', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
-    const { container } = render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
+  it('reveals the tallies once a vote has been recorded, and shows the recorded choice as a muted button', () => {
+    render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
     expect(screen.queryByRole('button', { name: 'Hidden until you vote' })).not.toBeInTheDocument();
-    expect(container.querySelector('.own-vote--against')).toHaveTextContent('Annul');
+    const voted = screen.getByRole('button', { name: 'You voted Annul on The Card Test Regulations 2026' });
+    expect(voted).toHaveTextContent('Annul');
+    expect(voted).toBeDisabled();
+    expect(screen.queryByRole('button', { name: /^Vote Approve/ })).not.toBeInTheDocument();
   });
 
   it('opens the detail modal when the card is tapped anywhere', () => {
