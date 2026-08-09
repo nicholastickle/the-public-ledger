@@ -12,7 +12,7 @@ For every request, create a to-do list at the start and check off each item as i
 
 After any change to infrastructure (hosting, third-party services, environment variables) or to production/dev dependencies in `package.json`, update both `CLAUDE.md` and `README.md` in the same commit to keep the documentation in sync.
 
-After completing any task, run the full test suite (`npm run test:run`). If any tests are failing — regardless of whether they are related to the code you just changed — fix them before considering the task done.
+After completing any task, run the full test suite (`cd frontend && npm run test:run`). If any tests are failing — regardless of whether they are related to the code you just changed — fix them before considering the task done.
 
 ## What this repo is
 
@@ -32,6 +32,7 @@ When implementing any feature that touches bills, voting, or results, check both
 
 ### Frontend (Next.js)
 ```bash
+cd frontend
 npm run dev         # Dev server at localhost:3000
 npm run build       # Production build
 npm run start       # Production server
@@ -50,14 +51,23 @@ cd backend && python -m pytest tests/ -q
 
 ### Monorepo layout
 
+Two independently-deployed halves, kept as siblings so it's never ambiguous which side a file belongs to: `frontend/` (Vercel, root directory set to `frontend`) and `backend/` (FastAPI, hosting per the Infrastructure table below).
+
 ```
 the-public-ledger/
-├── src/app/              # Next.js 16 frontend (App Router)
-│   ├── components/       # UI components, organised by feature section
-│   ├── data/             # Static content — no CMS
-│   ├── api/              # Next.js API routes (auth cookies, thin proxies only)
-│   ├── lib/              # Shared frontend utilities
-│   └── types/            # TypeScript types
+├── frontend/             # Next.js 16 frontend (App Router) — Vercel root directory
+│   ├── src/app/
+│   │   ├── components/   # UI components, organised by feature section
+│   │   ├── data/         # Static content — no CMS
+│   │   ├── api/          # Next.js API routes (auth cookies, thin proxies only)
+│   │   ├── lib/          # Shared frontend utilities
+│   │   └── types/        # TypeScript types
+│   ├── __tests__/        # Frontend tests (Vitest)
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── data/
+│   │   └── utils/
+│   └── package.json      # Frontend deps
 ├── backend/              # FastAPI Python backend
 │   ├── main.py           # App entry point — registers routers, startup/shutdown
 │   ├── core/
@@ -69,17 +79,13 @@ the-public-ledger/
 │   ├── migrations/       # SQL files: 001_description.sql, 002_…, etc.
 │   ├── tests/            # Python unit + integration tests
 │   └── requirements.txt
-├── __tests__/            # Frontend tests (Vitest)
-│   ├── api/
-│   ├── components/
-│   ├── data/
-│   └── utils/
-└── package.json          # Frontend deps
+├── CLAUDE.md / README.md / DESIGN.md / TODO.md   # Repo-level docs — not inside either half
+└── .husky/               # Git hooks — repo-root-relative; pre-commit `cd`s into frontend/
 ```
 
 ### Frontend conventions
 
-App Router + TypeScript throughout. No pages directory.
+App Router + TypeScript throughout. No pages directory. All frontend paths below are relative to `frontend/`.
 
 `src/app/page.tsx` and route `page.tsx` files import components only — no inline JSX. Sections are components under `src/app/components/`. Data is fetched at the page level and passed as props; components never fetch their own data. Push `"use client"` as deep into the tree as possible.
 
@@ -99,7 +105,7 @@ FastAPI + Python 3.12, async throughout. All business logic lives in `backend/se
 - **Pydantic models:** every request body and response shape gets a Pydantic model defined in the relevant `api/v1/` file.
 - **Dependency injection:** FastAPI `Depends()` for auth and rate-limiting; services are initialised once in `main.py` startup and stored on `app.state`.
 - **Non-blocking writes:** use `asyncio.create_task()` for fire-and-forget DB persistence in the hot path — do not `await` them.
-- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run as a dedicated step before the server starts — not in the lifespan handler — to avoid races when multiple instances restart simultaneously. On Fly.io, wire this up as a `release_command`. Next migration number: 001 until the first one is written.
+- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run as a dedicated step before the server starts — not in the lifespan handler — to avoid races when multiple instances restart simultaneously. On Fly.io, wire this up as a `release_command`. Next migration number: 005.
 - **Admin routes:** require `is_admin=True` on the user row — no middleware flag.
 - **Error handling:** `HTTPException` for client errors; `logger.exception()` for unexpected errors; Sentry for production tracking.
 - **New API endpoint checklist:** add router file in `api/v1/`, Pydantic models in the same file, register router in `main.py`, add service method in `services/`, add migration if schema changes.
@@ -111,6 +117,8 @@ FastAPI + Python 3.12, async throughout. All business logic lives in `backend/se
 - Table naming: snake_case, plural (e.g. `users`, `documents`, `query_logs`).
 - Every table needs `created_at TIMESTAMPTZ DEFAULT now()`.
 - RLS policies enforce ownership; the service role key (`SUPABASE_SERVICE_ROLE_KEY`) is only used server-side in the FastAPI app — never exposed to the browser.
+- **Append-only tables** (e.g. `votes`): give them an `INSERT ... WITH CHECK (auth.uid() = user_id)` and a `SELECT ... USING (auth.uid() = user_id)` policy, and no `UPDATE`/`DELETE` policy at all — RLS defaults to deny, so this makes a row physically impossible to alter or remove once written, not just discouraged by convention. Use this pattern for anything the product principles require to be immutable.
+- **Users table:** `profiles`, keyed `id UUID PRIMARY KEY REFERENCES auth.users(id)`, populated automatically by a trigger on `auth.users` insert (see `backend/migrations/004_profiles_and_votes.sql`) — don't hand-manage profile row creation in application code.
 
 ## Design System & Tailwind v4
 
@@ -192,7 +200,7 @@ All external links must include `target="_blank"` and `rel="noopener noreferrer"
 
 ## Backend
 
-The FastAPI backend lives entirely in `backend/`. Next.js API routes (`src/app/api/`) are for frontend concerns only (auth cookies, lightweight proxies) — they do not contain business logic.
+The FastAPI backend lives entirely in `backend/`. Next.js API routes (`frontend/src/app/api/`) are for frontend concerns only (auth cookies, lightweight proxies) — they do not contain business logic.
 
 ### Directory structure
 
@@ -209,7 +217,7 @@ The FastAPI backend lives entirely in `backend/`. Next.js API routes (`src/app/a
 
 ### Auth
 
-Use Supabase Auth directly — it handles OTP, OAuth, JWTs, and session management out of the box via the Supabase Python SDK. Do not build a custom OTP or session system; call `supabase.auth.*` methods instead. The Next.js API route at `src/app/api/auth/` sets the session cookie after Supabase issues a JWT; the FastAPI backend verifies it on each request using `dependencies.py`.
+Use Supabase Auth directly — it handles OTP, OAuth, JWTs, and session management out of the box via the Supabase Python SDK. Do not build a custom OTP or session system; call `supabase.auth.*` methods instead. The Next.js API route at `frontend/src/app/api/auth/` sets the session cookie after Supabase issues a JWT; the FastAPI backend verifies it on each request using `dependencies.py`.
 
 ### Service layer
 
@@ -256,7 +264,7 @@ page.setViewport({ width: 375, height: 812 })
 
 ### Iteration loop (repeat 3 times)
 
-1. Start the dev server in the background if not already running: `npm run dev`
+1. Start the dev server in the background if not already running: `cd frontend && npm run dev`
 2. Wait ~3 seconds for it to be ready, then navigate: `mcp__puppeteer__puppeteer_navigate` → `http://localhost:3000`
 3. For **each of the four breakpoints** above, resize the viewport and take a screenshot of every changed section.
 4. Inspect all four screenshots — check layout, colours, spacing, and typography against DESIGN.md tokens. Note any issues.
@@ -281,17 +289,15 @@ When hosting on Fly.io, run migrations as a release command so they complete bef
 | Service | Purpose | Key env vars |
 |---|---|---|
 | Vercel | Frontend hosting + CI/CD | — |
-| Supabase | Postgres database + Auth | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (migrations only — deployment secret, not in `.env`) |
-| FastAPI (backend) | Python API server — APScheduler runs RSS poll (every 5 min) + nightly full sync | `ENVIRONMENT`, `CORS_ORIGINS` |
-| UK Parliament APIs | Bills, stages, Commons/Lords divisions — public REST APIs, no key required | — |
+| Supabase | Postgres database + Auth — provisioned via the Vercel Marketplace integration (`vercel integration add supabase`), which auto-injects env vars into the linked Vercel project | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` (backend-only, used by ad-hoc scripts to sign in a test user), `SUPABASE_DB_URL` (migrations only — deployment secret, not in `.env`; use the non-pooling connection string) |
+| FastAPI (backend) | Python API server — APScheduler runs: bill RSS poll + division sync (every 5 min), regulation sync (every 30 min — no RSS-equivalent exists for statutory instruments, see `regulation_sync.py`), nightly full bill + division sync (02:00) | `ENVIRONMENT`, `CORS_ORIGINS` |
+| UK Parliament APIs | Bills, stages, Commons/Lords divisions, Statutory Instruments — public REST APIs, no key required | — |
 
 [Expand this table as services are added — include storage, email, analytics once wired up.]
 
 ## Environment variables
 
-When changing `.env`, update `.env.example` in the same commit. When adding new variables, also set them in the Vercel project dashboard.
-
-Add a `.env.example` file with all required variables (values redacted) when the first secrets are added.
+Each half keeps its own example file, next to the `.env`/`.env.local` it documents — there is no repo-root `.env.example`: `frontend/.env.example` and `backend/.env.example`. When changing either `.env`, update the matching example file in the same commit. When adding new variables, also set them in the Vercel project dashboard (frontend) or the backend's deployment secrets.
 
 ## Unit tests
 
@@ -299,8 +305,10 @@ Add a `.env.example` file with all required variables (values redacted) when the
 
 ### Frontend (Vitest)
 
+All paths below are relative to `frontend/`.
+
 - `npm run test` — watch mode for development
-- `npm run test:run` — single-pass (used by the pre-commit hook)
+- `npm run test:run` — single-pass (used by the pre-commit hook, which `cd`s into `frontend/` first)
 - Config: `vitest.config.ts` / `vitest.setup.ts`
 
 File placement:

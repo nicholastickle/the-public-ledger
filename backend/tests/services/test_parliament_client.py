@@ -33,9 +33,17 @@ async def test_get_bills_passes_pagination_params() -> None:
 
 @pytest.mark.asyncio
 async def test_get_bill_stages_calls_correct_url() -> None:
-    client, http = _make_client([])
+    client, http = _make_client({"items": []})
     await client.get_bill_stages(99)
     http.get.assert_called_once_with(f"{BILLS_API_BASE}/Bills/99/Stages")
+
+
+@pytest.mark.asyncio
+async def test_get_bill_stages_unwraps_items_envelope() -> None:
+    # The live API wraps stages in {"items": [...]}, not a bare array.
+    client, http = _make_client({"items": [{"id": 1, "description": "1st reading"}]})
+    result = await client.get_bill_stages(99)
+    assert result == [{"id": 1, "description": "1st reading"}]
 
 
 @pytest.mark.asyncio

@@ -1,11 +1,49 @@
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
+
+from core.dependencies import get_current_user
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+# Never add `originating_house` to any response model here. It identifies the
+# political/institutional source of a bill and must never surface — see the
+# "Product principle: impartiality" section in CLAUDE.md. The column stays in
+# the DB; it just never leaves this API.
+
+
+class StageDetail(BaseModel):
+    id: int
+    stage_name: str | None
+    house: str | None
+    sort_order: int | None
+    last_update: str | None
+    sittings: list[str]
+    # Deliberately no division/vote-count field here — this endpoint is reachable
+    # during the voting flow, and parliamentary results must never be shown before
+    # or during a citizen's own vote. See GET /bills/{id}/result for the gated view.
+
+
+class BillSummary(BaseModel):
+    id: int
+    short_title: str | None
+    long_title: str | None
+    current_house: str | None
+    current_stage_name: str | None
+    is_act: bool
+    is_defeated: bool
+    bill_withdrawn: str | None
+    parliament_last_update: str | None
+    detail_url: str | None
+
+
+class BillDetail(BillSummary):
+    introduced_session_id: int | None
+    summary: str | None
 
 
 class DivisionResult(BaseModel):
@@ -21,32 +59,10 @@ class DivisionResult(BaseModel):
     division_number: int | None
 
 
-class StageDetail(BaseModel):
-    id: int
+class StageResult(BaseModel):
+    stage_id: int
     stage_name: str | None
-    house: str | None
-    sort_order: int | None
-    last_update: str | None
-    sittings: list[str]
     divisions: list[DivisionResult]
-
-
-class BillSummary(BaseModel):
-    id: int
-    short_title: str | None
-    long_title: str | None
-    originating_house: str | None
-    current_house: str | None
-    current_stage_name: str | None
-    is_act: bool
-    is_defeated: bool
-    bill_withdrawn: str | None
-    parliament_last_update: str | None
-
-
-class BillDetail(BillSummary):
-    introduced_session_id: int | None
-    summary: str | None
 
 
 @router.get("/bills", response_model=list[BillSummary])
@@ -60,8 +76,8 @@ async def list_bills(
 ) -> list[dict]:
     db = request.app.state.supabase
     query = db.table("bills").select(
-        "id, short_title, long_title, originating_house, current_house, "
-        "current_stage_name, is_act, is_defeated, bill_withdrawn, parliament_last_update"
+        "id, short_title, long_title, current_house, "
+        "current_stage_name, is_act, is_defeated, bill_withdrawn, parliament_last_update, detail_url"
     )
 
     if status == "active":
@@ -88,9 +104,9 @@ async def get_bill(bill_id: int, request: Request) -> dict:
     result = (
         db.table("bills")
         .select(
-            "id, short_title, long_title, originating_house, current_house, "
+            "id, short_title, long_title, current_house, "
             "current_stage_name, is_act, is_defeated, bill_withdrawn, "
-            "parliament_last_update, introduced_session_id, summary"
+            "parliament_last_update, detail_url, introduced_session_id, summary"
         )
         .eq("id", bill_id)
         .single()
@@ -106,12 +122,7 @@ async def get_bill_stages(bill_id: int, request: Request) -> list[dict]:
     db = request.app.state.supabase
     result = (
         db.table("bill_stages")
-        .select(
-            "id, stage_name, house, sort_order, last_update, "
-            "bill_stage_sittings(sitting_date), "
-            "parliamentary_divisions(division_id, house, division_date, title, "
-            "aye_count, no_count, content_count, not_content_count, did_pass, division_number)"
-        )
+        .select("id, stage_name, house, sort_order, last_update, bill_stage_sittings(sitting_date)")
         .eq("bill_id", bill_id)
         .order("sort_order")
         .execute()
@@ -126,7 +137,43 @@ async def get_bill_stages(bill_id: int, request: Request) -> list[dict]:
             "sort_order": row.get("sort_order"),
             "last_update": row.get("last_update"),
             "sittings": [s["sitting_date"] for s in row.get("bill_stage_sittings") or []],
-            "divisions": row.get("parliamentary_divisions") or [],
+        })
+    return stages
+
+
+@router.get("/bills/{bill_id}/result", response_model=list[StageResult])
+async def get_bill_result(
+    bill_id: int, request: Request, user: dict = Depends(get_current_user)
+) -> list[dict]:
+    """Aggregate (never per-MP) parliamentary Aye/No counts — gated on the caller
+    having already cast their own shadow vote on this bill. Never call this from
+    anywhere in the voting flow itself."""
+    db = request.app.state.supabase
+    vote_service = request.app.state.vote_service
+    if not vote_service.has_voted(user["id"], bill_id=bill_id):
+        raise HTTPException(status_code=403, detail="Cast your vote on this bill before viewing the result")
+
+    result = (
+        db.table("bill_stages")
+        .select(
+            "id, stage_name, "
+            "parliamentary_divisions(division_id, house, division_date, title, "
+            "aye_count, no_count, content_count, not_content_count, did_pass, division_number)"
+        )
+        .eq("bill_id", bill_id)
+        .order("sort_order")
+        .execute()
+    )
+
+    stages = []
+    for row in result.data or []:
+        divisions = row.get("parliamentary_divisions") or []
+        if not divisions:
+            continue
+        stages.append({
+            "stage_id": row["id"],
+            "stage_name": row.get("stage_name"),
+            "divisions": divisions,
         })
     return stages
 

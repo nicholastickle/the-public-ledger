@@ -50,22 +50,39 @@ class BillSyncService:
 
         logger.info("Full bill sync complete — %d bills processed", synced)
 
-    async def sync_bills_from_rss(self) -> None:
-        """Poll RSS feed and re-sync only recently updated bills."""
+    async def sync_bills_from_rss(self) -> list[int]:
+        """Poll RSS feed and re-sync only recently updated bills. Returns the IDs
+        successfully synced, so callers (e.g. the scheduler) can chain further
+        per-bill work like division sync without re-fetching the RSS feed."""
         logger.info("RSS poll: checking for updated bills")
         try:
             bill_ids = await self._parliament.get_rss_updated_bill_ids()
         except Exception:
             logger.exception("Failed to fetch Parliament RSS feed")
-            return
+            return []
 
+        synced_ids = []
         for bill_id in bill_ids:
             try:
                 await self.sync_single_bill(bill_id)
+                synced_ids.append(bill_id)
             except Exception:
                 logger.exception("Failed to sync bill %d from RSS", bill_id)
 
         logger.info("RSS poll complete — %d bills checked", len(bill_ids))
+        return synced_ids
+
+    async def get_active_bill_ids(self) -> list[int]:
+        """Bill IDs currently in progress — not yet an Act, not defeated, not withdrawn."""
+        result = (
+            self._db.table("bills")
+            .select("id")
+            .eq("is_act", False)
+            .eq("is_defeated", False)
+            .is_("bill_withdrawn", "null")
+            .execute()
+        )
+        return [row["id"] for row in (result.data or [])]
 
     async def sync_single_bill(self, bill_id: int) -> None:
         bill_data = await self._parliament.get_bill(bill_id)
@@ -89,6 +106,7 @@ class BillSyncService:
             "bill_type_id": data.get("billTypeId"),
             "summary": data.get("summary"),
             "parliament_last_update": data.get("lastUpdate"),
+            "detail_url": f"https://bills.parliament.uk/bills/{data['billId']}",
         }
         self._db.table("bills").upsert(row, on_conflict="id").execute()
 

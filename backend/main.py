@@ -7,12 +7,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 
-from api.v1 import bills, health
+from api.v1 import bills, health, regulations, votes
 from core.config import settings
 from services.bill_sync import BillSyncService
 from services.division_sync import DivisionSyncService
 from services.parliament_client import ParliamentClient
+from services.regulation_sync import RegulationSyncService
 from services.scheduler import create_scheduler
+from services.vote_service import VoteService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,13 +30,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     bill_sync = BillSyncService(supabase, parliament)
     division_sync = DivisionSyncService(supabase, parliament)
+    regulation_sync = RegulationSyncService(supabase, parliament)
+    vote_service = VoteService(supabase)
 
     app.state.supabase = supabase
     app.state.parliament = parliament
     app.state.bill_sync = bill_sync
     app.state.division_sync = division_sync
+    app.state.regulation_sync = regulation_sync
+    app.state.vote_service = vote_service
 
-    scheduler = create_scheduler(bill_sync, division_sync)
+    scheduler = create_scheduler(bill_sync, division_sync, regulation_sync)
     scheduler.start()
     logger.info("Scheduler started")
 
@@ -57,3 +63,5 @@ app.add_middleware(
 
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(bills.router, prefix="/api/v1")
+app.include_router(regulations.router, prefix="/api/v1")
+app.include_router(votes.router, prefix="/api/v1")

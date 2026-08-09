@@ -39,19 +39,22 @@ The original publication eventually folded in the late 20th century, unable to a
 
 - **Frontend** — Next.js 16 (App Router), TypeScript, Tailwind CSS v4, hosted on Vercel
 - **Backend** — FastAPI (Python 3.12), APScheduler for background sync jobs
-- **Database** — Supabase (Postgres + Auth)
-- **Data** — UK Parliament Bills API, Commons Votes API, Lords Votes API (all public, no key required)
+- **Database** — Supabase (Postgres + Auth), provisioned via the Vercel Marketplace integration
+- **Data** — UK Parliament Bills API, Commons Votes API, Lords Votes API, Statutory Instruments API (all public, no key required)
 
 ### Running locally
 
 ```bash
 # Frontend
-npm run dev
+cd frontend && npm run dev
 
 # Backend
-cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+cd backend
+python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# Migrations (requires SUPABASE_DB_URL)
+# Migrations (requires SUPABASE_DB_URL — the direct/non-pooling connection string,
+# not the pooled one the frontend uses; see backend/migrate.py)
 cd backend && python -m migrate
 ```
 

@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 BILLS_API_BASE = "https://bills-api.parliament.uk/api/v1"
 COMMONS_VOTES_BASE = "https://commonsvotes-api.parliament.uk"
 LORDS_VOTES_BASE = "https://lordsvotes-api.parliament.uk"
+STATUTORY_INSTRUMENTS_API_BASE = "https://statutoryinstruments-api.parliament.uk/api/v2"
 
 
 class ParliamentClient:
@@ -19,7 +20,7 @@ class ParliamentClient:
         self,
         skip: int = 0,
         take: int = 50,
-        sort_order: int = 4,  # 4 = Updated (newest first)
+        sort_order: str = "DateUpdatedDescending",
     ) -> dict:
         params: dict = {"Skip": skip, "Take": take, "SortOrder": sort_order}
         response = await self._client.get(f"{BILLS_API_BASE}/Bills", params=params)
@@ -34,7 +35,7 @@ class ParliamentClient:
     async def get_bill_stages(self, bill_id: int) -> list[dict]:
         response = await self._client.get(f"{BILLS_API_BASE}/Bills/{bill_id}/Stages")
         response.raise_for_status()
-        return response.json()
+        return response.json().get("items") or []
 
     async def get_rss_updated_bill_ids(self) -> list[int]:
         response = await self._client.get(f"{BILLS_API_BASE}/Rss/allbills.rss")
@@ -89,6 +90,23 @@ class ParliamentClient:
         response = await self._client.get(
             f"{LORDS_VOTES_BASE}/data/Divisions/search",
             params=params,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    async def get_statutory_instruments(self, skip: int = 0, take: int = 20) -> dict:
+        """List statutory instruments. No "updated since" or sort-by-recency filter
+        exists on this API, so cadence relies on a full paginated re-fetch."""
+        params = {"Skip": skip, "Take": take}
+        response = await self._client.get(
+            f"{STATUTORY_INSTRUMENTS_API_BASE}/StatutoryInstrument", params=params
+        )
+        response.raise_for_status()
+        return response.json()
+
+    async def get_statutory_instrument(self, instrument_id: str) -> dict:
+        response = await self._client.get(
+            f"{STATUTORY_INSTRUMENTS_API_BASE}/StatutoryInstrument/{instrument_id}"
         )
         response.raise_for_status()
         return response.json()
