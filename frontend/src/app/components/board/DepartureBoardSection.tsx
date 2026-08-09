@@ -89,28 +89,43 @@ const DEMO_VOTES: Record<number, BillVotes> = {
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-const STAGE_RANK: Record<string, number> = {
-  'first reading': 0,
-  'second reading': 1,
-  'committee stage': 2,
-  'report stage': 3,
-  'third reading': 4,
-  'consideration of amendments': 5,
-  'ping-pong': 6,
-  'royal assent': 7,
-  'defeated': 8,
-  'withdrawn': 9,
-};
+// Parliament's own stage text isn't a fixed vocabulary — the live API returns
+// "1st reading" for some bills and "First reading" for others, "Committee of
+// the whole House" alongside plain "Committee stage", inconsistent casing
+// throughout, and so on. Grouping used to key directly off that raw text,
+// which meant two bills conceptually at the same stage but worded slightly
+// differently produced two separate — sometimes non-adjacent, sometimes
+// duplicate-keyed — groups. Every bucket below is matched by any of several
+// aliases, but always labelled with one canonical string, so the group a
+// bill lands in and the heading it's shown under are never a function of
+// which exact phrasing Parliament happened to use for it.
+const STAGES: { rank: number; label: string; aliases: string[] }[] = [
+  { rank: 0, label: 'First Reading', aliases: ['first reading', '1st reading'] },
+  { rank: 1, label: 'Second Reading', aliases: ['second reading', '2nd reading'] },
+  { rank: 2, label: 'Committee Stage', aliases: ['committee stage', 'committee of the whole house', 'grand committee'] },
+  { rank: 3, label: 'Report Stage', aliases: ['report stage'] },
+  { rank: 4, label: 'Third Reading', aliases: ['third reading', '3rd reading'] },
+  { rank: 5, label: 'Consideration of Amendments', aliases: ['consideration of amendments', 'consideration of commons amendments', 'consideration of lords amendments'] },
+  { rank: 6, label: 'Ping-Pong', aliases: ['ping-pong', 'ping pong'] },
+  { rank: 7, label: 'Royal Assent', aliases: ['royal assent'] },
+  { rank: 8, label: 'Defeated', aliases: ['defeated'] },
+  { rank: 9, label: 'Withdrawn', aliases: ['withdrawn'] },
+];
+const FALLBACK_STAGE = STAGES[3]; // Report Stage — mid-passage catch-all for unrecognised text
+
+function stageInfo(bill: ParliamentBill): { rank: number; label: string } {
+  if (bill.is_act) return STAGES[7];
+  if (bill.is_defeated) return STAGES[8];
+  if (bill.bill_withdrawn) return STAGES[9];
+  const s = (bill.current_stage_name ?? '').toLowerCase();
+  for (const stage of STAGES) {
+    if (stage.aliases.some(alias => s.includes(alias))) return stage;
+  }
+  return FALLBACK_STAGE;
+}
 
 function stageRank(bill: ParliamentBill): number {
-  if (bill.is_act) return STAGE_RANK['royal assent'];
-  if (bill.is_defeated) return STAGE_RANK['defeated'];
-  if (bill.bill_withdrawn) return STAGE_RANK['withdrawn'];
-  const s = (bill.current_stage_name ?? '').toLowerCase();
-  for (const [k, v] of Object.entries(STAGE_RANK)) {
-    if (s.includes(k)) return v;
-  }
-  return 3;
+  return stageInfo(bill).rank;
 }
 
 /** What each stage actually is, in plain terms. Kept deliberately procedural —
@@ -142,11 +157,14 @@ export function stageLabel(bill: ParliamentBill): string {
 
 /** Board order: earliest stage first (First Reading at the top), defeated and
  *  withdrawn bills last, banded into one group per stage. `sort` is stable, so
- *  bills within a stage keep the order Parliament returned them in. */
+ *  bills within a stage keep the order Parliament returned them in. Grouped
+ *  and labelled by the canonical stage (see STAGES above), not the bill's own
+ *  raw stage text — that's what keeps group headings/keys unique regardless
+ *  of which exact wording Parliament used for any individual bill. */
 function groupByStage(bills: ParliamentBill[]): StageGroup[] {
   const groups: StageGroup[] = [];
   for (const bill of [...bills].sort((a, b) => stageRank(a) - stageRank(b))) {
-    const stage = stageLabel(bill);
+    const stage = stageInfo(bill).label;
     const last = groups[groups.length - 1];
     if (last && last.stage === stage) last.bills.push(bill);
     else groups.push({ stage, bills: [bill] });

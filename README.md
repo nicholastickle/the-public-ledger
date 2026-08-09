@@ -44,18 +44,37 @@ The original publication eventually folded in the late 20th century, unable to a
 
 ### Running locally
 
+Frontend and backend are separate servers — run each in its own terminal. You'll need `frontend/.env.local` and `backend/.env` set up first; see `frontend/.env.example` and `backend/.env.example` for what's required (both pull from the same Supabase project — `vercel env pull` at the repo root gets you the values).
+
+**Backend** (FastAPI, `localhost:8000`)
+
 ```bash
-# Frontend
-cd frontend && npm run dev
-
-# Backend
 cd backend
-python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# Migrations (requires SUPABASE_DB_URL — the direct/non-pooling connection string,
-# not the pooled one the frontend uses; see backend/migrate.py)
-cd backend && python -m migrate
+# First time only — create the virtualenv and install dependencies
+python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+
+# Every time — activate the venv, then start the server
+source .venv/bin/activate
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Frontend** (Next.js, `localhost:3000`)
+
+```bash
+cd frontend
+npm install   # first time only
+npm run dev
+```
+
+Visit `http://localhost:3000` — it talks to the backend automatically via `BACKEND_URL` (defaults to `http://localhost:8000`), which in turn reads from the live Supabase database.
+
+**Migrations** — only needed after adding/changing a file in `backend/migrations/`. Requires `SUPABASE_DB_URL`, the direct/non-pooling connection string (not the same one the frontend uses) — get it from `POSTGRES_URL_NON_POOLING` in `vercel env pull`'s output, exported as a real env var rather than kept in `backend/.env`:
+
+```bash
+cd backend
+export SUPABASE_DB_URL="<POSTGRES_URL_NON_POOLING value>"
+python -m migrate
 ```
 
 ## Contributing
