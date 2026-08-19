@@ -105,7 +105,7 @@ FastAPI + Python 3.12, async throughout. All business logic lives in `backend/se
 - **Pydantic models:** every request body and response shape gets a Pydantic model defined in the relevant `api/v1/` file.
 - **Dependency injection:** FastAPI `Depends()` for auth and rate-limiting; services are initialised once in `main.py` startup and stored on `app.state`.
 - **Non-blocking writes:** use `asyncio.create_task()` for fire-and-forget DB persistence in the hot path — do not `await` them.
-- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run as a dedicated step before the server starts — not in the lifespan handler — to avoid races when multiple instances restart simultaneously. On Fly.io, wire this up as a `release_command`. Next migration number: 005.
+- **Migrations:** numbered SQL files in `backend/migrations/` (e.g. `001_initial_schema.sql`). Migrations run as a dedicated step before the server starts — not in the lifespan handler — to avoid races when multiple instances restart simultaneously. On Fly.io, wire this up as a `release_command`. Next migration number: 006.
 - **Admin routes:** require `is_admin=True` on the user row — no middleware flag.
 - **Error handling:** `HTTPException` for client errors; `logger.exception()` for unexpected errors; Sentry for production tracking.
 - **New API endpoint checklist:** add router file in `api/v1/`, Pydantic models in the same file, register router in `main.py`, add service method in `services/`, add migration if schema changes.
