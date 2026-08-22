@@ -32,7 +32,7 @@ export interface AiModelOpinion {
 
 /** Bills key this by a numeric id, regulations by the Parliament API's
  *  alphanumeric string id — folds either into the same numeric seed space. */
-function hashSeed(seed: number | string): number {
+export function hashSeed(seed: number | string): number {
   if (typeof seed === 'number') return seed;
   let h = 0;
   for (let i = 0; i < seed.length; i++) {
@@ -42,7 +42,7 @@ function hashSeed(seed: number | string): number {
 }
 
 /** Small deterministic PRNG so the same id always yields the same mock content. */
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed;
   return function () {
     a |= 0;
@@ -119,17 +119,33 @@ export function aiAggregate(opinions: AiModelOpinion[]): { approve: number; reje
 
 /**
  * Where the government's own vote has got to.
- *  - `voted`   — the division has happened; a tally is available.
+ *  - `voted`   — a division has happened; a tally is available.
+ *  - `nod`     — the stage was agreed without a division ("on the nod") — used
+ *                only for bills, which have no scheduled division to wait on.
  *  - `pending` — Parliament has not voted yet. `scheduledDate` is when it is
- *                expected to (a bill's Second Reading date, or an instrument's
- *                parliamentary deadline), where that is known.
- *  - `none`    — there will be no parliamentary vote (e.g. withdrawn before one).
+ *                expected to (a regulation's parliamentary deadline) — bills no
+ *                longer use this status, since their vote is open for the whole
+ *                of their passage rather than closing at a scheduled division.
+ *  - `none`    — there will be no parliamentary vote (e.g. withdrawn before one,
+ *                or no stage has concluded yet).
  */
 export interface GovVote {
-  status: 'voted' | 'pending' | 'none';
+  status: 'voted' | 'nod' | 'pending' | 'none';
   scheduledDate?: string | null;
   for?: number;
   against?: number;
+}
+
+/** Deterministic mock "last division or nod" for a bill's most recently
+ *  concluded stage — roughly 40% of stage transitions in Parliament happen
+ *  without a recorded division at all. */
+export function mockLastDivision(seed: number | string): { status: 'voted' | 'nod'; for?: number; against?: number } {
+  const rand = mulberry32(hashSeed(seed) * 421 + 5);
+  if (rand() < 0.4) return { status: 'nod' };
+  const total = 630; // approx combined Commons + Lords voting membership, for flavour only
+  const margin = 0.04 + rand() * 0.4;
+  const forCount = Math.round(total * (0.5 + margin / 2));
+  return { status: 'voted', for: forCount, against: total - forCount };
 }
 
 /** Deterministic mock government (parliamentary) division tally, correlated with but distinct from the citizen tally. */

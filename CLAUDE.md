@@ -18,16 +18,6 @@ After completing any task, run the full test suite (`cd frontend && npm run test
 
 The Public Ledger — a civic shadow-voting platform for UK citizens. Built with Next.js 16 (App Router), TypeScript, and Tailwind CSS v4. Has both a marketing/product frontend and a backend (API routes + database — see Architecture and Backend sections).
 
-## Product principle: impartiality
-
-The Public Ledger is designed so that citizens form their own view of legislation free from partisan or institutional influence. This has two hard rules that must never be violated:
-
-1. **Do not reveal who sponsors or brings forward a bill.** Never display `originating_house`, sponsor names, party affiliation, or any other information that identifies the political or institutional source of a bill. This applies everywhere — bill detail pages, the Billboard, search results, emails, and any future surfaces.
-
-2. **Do not reveal how Parliament voted.** Parliamentary division data (`parliamentAyes`, `parliamentNoes`, individual MP votes) must never be shown to a citizen before or during the voting flow. It may only be surfaced after a citizen has already cast their shadow vote, and even then only in an aggregate, anonymised form that does not identify individual MPs or parties.
-
-When implementing any feature that touches bills, voting, or results, check both rules before shipping. If in doubt, withhold the information.
-
 ## Commands
 
 ### Frontend (Next.js)

@@ -243,13 +243,13 @@ export default function HowItWorksSection() {
               className="font-mono uppercase mb-xs"
               style={{ color: 'var(--color-forest-green)', fontSize: '10px', letterSpacing: '0.2em' }}
             >
-              A note on impartiality
+              A note on transparency
             </p>
             <p className="text-body-sm" style={{ color: '#4A3C2A', lineHeight: 1.7 }}>
-              The Public Ledger deliberately withholds the names of those who sponsor or
-              bring forward legislation, and does not reveal how Parliament divided on any
-              bill. Your shadow vote should reflect your view of the policy — not the party
-              behind it.
+              The Public Ledger shows a bill&rsquo;s full passage — which House it started in,
+              where it sits now, and how the public, the AI panel and Parliament itself have
+              judged it at every stage. Cast your own shadow vote at any point before it becomes
+              law, and it stands alongside theirs on the record.
             </p>
           </div>
         </div>

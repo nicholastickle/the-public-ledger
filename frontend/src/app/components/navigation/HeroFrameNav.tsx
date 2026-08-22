@@ -32,7 +32,7 @@ export default function HeroFrameNav() {
       </Link>
 
       {/* Desktop links */}
-      <nav className="hidden lg:flex items-center gap-xxs" aria-label="Primary">
+      <nav className="hidden lg:flex items-center gap-sm" aria-label="Primary">
         {NAV_LINKS.map((link) => (
           <SectionNavLink key={link.href} href={link.href} className="hero-nav-link">
             {link.label}
@@ -44,7 +44,7 @@ export default function HeroFrameNav() {
       </nav>
 
       {/* Desktop auth */}
-      <div className="hidden lg:flex items-center gap-xs">
+      <div className="hidden lg:flex items-center gap-sm">
         <Link href="/login" className="hero-nav-btn hero-nav-btn--ghost">Log In</Link>
         <Link href="/signup" className="hero-nav-btn hero-nav-btn--solid">Sign Up</Link>
       </div>

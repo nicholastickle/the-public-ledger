@@ -13,12 +13,16 @@ const originals = {
   pause: Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'pause'),
   paused: Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'paused'),
   currentTime: Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime'),
+  duration: Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'duration'),
 };
 
 let play: ReturnType<typeof vi.fn>;
 let pause: ReturnType<typeof vi.fn>;
 let isPlaying: boolean;
 let currentTime: number;
+// jsdom's own default is NaN (media playback is unimplemented); tests that
+// exercise the fireworks countdown set this to a real length.
+let duration: number;
 
 function stubMedia(playImpl?: () => Promise<void>) {
   play = vi.fn(playImpl ?? (() => { isPlaying = true; return Promise.resolve(); }));
@@ -30,6 +34,10 @@ function stubMedia(playImpl?: () => Promise<void>) {
     configurable: true,
     get: () => currentTime,
     set: (v: number) => { currentTime = v; },
+  });
+  Object.defineProperty(HTMLMediaElement.prototype, 'duration', {
+    configurable: true,
+    get: () => duration,
   });
 }
 
@@ -51,6 +59,7 @@ describe('SoundToggleButton', () => {
   beforeEach(() => {
     isPlaying = false;
     currentTime = 0;
+    duration = NaN;
     stubMedia();
   });
 
@@ -172,5 +181,58 @@ describe('SoundToggleButton', () => {
     renderToggle();
     // default render uses the base "sound-toggle" class
     expect(screen.getByRole('button', { name: /unmute rule britannia/i })).toHaveClass('sound-toggle');
+  });
+
+  it('shoots fireworks once the tune is within 3 seconds of its finish, while unmuted', () => {
+    const { container } = renderToggle();
+    const audio = getAudio(container);
+    duration = 100;
+
+    fireEvent.click(screen.getByRole('button', { name: /unmute rule britannia/i }));
+    currentTime = 97.5;
+    act(() => { fireEvent.timeUpdate(audio); });
+
+    const btn = screen.getByRole('button', { name: /mute rule britannia/i });
+    expect(btn).toHaveAttribute('data-fireworks', 'true');
+    expect(container.querySelector('.sound-toggle__fireworks')).toBeInTheDocument();
+  });
+
+  it('does not shoot fireworks in the final 3 seconds while muted', () => {
+    const { container } = renderToggle();
+    const audio = getAudio(container);
+    duration = 100;
+    currentTime = 97.5;
+
+    act(() => { fireEvent.timeUpdate(audio); });
+
+    expect(screen.getByRole('button', { name: /unmute rule britannia/i })).toHaveAttribute('data-fireworks', 'false');
+    expect(container.querySelector('.sound-toggle__fireworks')).not.toBeInTheDocument();
+  });
+
+  it('clears the fireworks a moment after they fire', () => {
+    vi.useFakeTimers();
+    const { container } = renderToggle();
+    const audio = getAudio(container);
+    duration = 100;
+
+    fireEvent.click(screen.getByRole('button', { name: /unmute rule britannia/i }));
+    currentTime = 98;
+    act(() => { fireEvent.timeUpdate(audio); });
+    expect(screen.getByRole('button', { name: /mute rule britannia/i })).toHaveAttribute('data-fireworks', 'true');
+
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(screen.getByRole('button', { name: /mute rule britannia/i })).toHaveAttribute('data-fireworks', 'false');
+  });
+
+  it('does not shoot fireworks while there is more than 3 seconds left', () => {
+    const { container } = renderToggle();
+    const audio = getAudio(container);
+    duration = 100;
+
+    fireEvent.click(screen.getByRole('button', { name: /unmute rule britannia/i }));
+    currentTime = 50;
+    act(() => { fireEvent.timeUpdate(audio); });
+
+    expect(screen.getByRole('button', { name: /mute rule britannia/i })).toHaveAttribute('data-fireworks', 'false');
   });
 });

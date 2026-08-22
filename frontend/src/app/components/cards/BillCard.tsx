@@ -2,6 +2,7 @@ import type { ParliamentBill } from '../../types/parliament';
 import { billHouse, billStatus, stageLabel, isVoteOpen, billGovVote, billAiTally, type BillVotes } from '../board/DepartureBoardSection';
 import VoteTallyTable from '../board/VoteTallyTable';
 import BookmarkButton from './BookmarkButton';
+import HouseBadge from '../ui/HouseBadge';
 import { StageIcon, NumberIcon, HouseIcon } from './CardMetaIcons';
 
 interface Props {
@@ -24,9 +25,12 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
 
   return (
     <article className="ledger-card" onClick={onSelect}>
-      <button type="button" className="ledger-table__title" onClick={onSelect}>
-        {title}
-      </button>
+      <div className="flex items-center gap-xs">
+        <HouseBadge house={bill.originating_house} size={22} />
+        <button type="button" className="ledger-table__title" onClick={onSelect}>
+          {title}
+        </button>
+      </div>
 
       <div className="ledger-card__vote">
         <VoteTallyTable
@@ -34,20 +38,21 @@ export default function BillCard({ bill, votes, myVote, onSelect, onVote }: Prop
           context="bill"
           forLabel="Aye"
           againstLabel="No"
+          forTallyLabel="Ayes"
+          againstTallyLabel="Noes"
           isOpen={vOpen}
           myVote={myVote ?? null}
           onVote={onVote}
           publicVote={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
           ai={billAiTally(bill)}
-          gov={billGovVote(bill, votes)}
+          gov={billGovVote(bill)}
+          forceRevealed
         />
       </div>
 
       <div className="ledger-card__footer">
         <div className="ledger-card__footer-items">
-          {/* The specific stage, not the coarser status bucket — the same word
-              the table's stage band groups this card under, so it still reads
-              correctly once scrolled away from that band. */}
+          {/* The bill's raw current stage, exactly as Parliament names it. */}
           <span className="ledger-card__footer-item" style={{ color: status.color }}>
             <StageIcon />
             {stageLabel(bill)}

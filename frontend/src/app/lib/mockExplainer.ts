@@ -7,9 +7,7 @@
  * distinct-feeling text across reloads.
  *
  * The copy is deliberately procedural: what the measure does, who it touches,
- * and what happens next. It never says who brought the measure forward, what
- * party or department stands behind it, or how Parliament has voted — the two
- * impartiality rules in CLAUDE.md apply to explainer text as much as to data.
+ * and what happens next.
  *
  * Real summaries (`ParliamentBillDetail.summary` plus the explanatory notes
  * Parliament publishes) replace this wholesale; the shape — an array of

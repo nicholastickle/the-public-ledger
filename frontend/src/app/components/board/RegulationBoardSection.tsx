@@ -10,6 +10,7 @@ import OwnVoteCell from './OwnVoteCell';
 import TableRowArrow from './TableRowArrow';
 import RegulationDetailModal from '../cards/RegulationDetailModal';
 import RegulationCard from '../cards/RegulationCard';
+import BoardMargin from './BoardMargin';
 
 interface Props {
   regulations: ParliamentRegulation[];
@@ -318,8 +319,10 @@ export default function RegulationBoardSection({ regulations }: Props) {
       id="regulations"
       className="board-surface"
       data-board-theme="bronze"
-      style={{ background: '#14100c', borderTop: '2px solid rgba(168,114,47,0.45)' }}
+      style={{ background: '#14100c', borderTop: '2px solid rgba(168,114,47,0.45)', position: 'relative' }}
     >
+      <BoardMargin side="left" />
+      <BoardMargin side="right" />
       <div className="max-w-[1400px] mx-auto px-md sm:px-xl lg:px-3xl pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl">
 
         {/* ── Section header ──────────────────────────────────────────── */}

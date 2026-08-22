@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import type { ParliamentBill } from '../../types/parliament';
 import { billStatus, isVoteOpen, billGovVote, billAiTally, billHouse, type BillVotes } from '../board/DepartureBoardSection';
 import { generateAiVerdicts } from '../../lib/mockVotes';
 import { generateExplainer } from '../../lib/mockExplainer';
 import { formatBillDate, billSourceUrl, billPublicationsUrl } from '../../lib/utils';
 import Modal from '../ui/Modal';
-import BoardStageTimeline, { type TimelineStep } from '../board/BoardStageTimeline';
 import VoteTallyTable from '../board/VoteTallyTable';
 import AIVotePanel from '../voting/AIVotePanel';
 import ReadMoreText from './ReadMoreText';
+import BillStagesTab from './BillStagesTab';
+import BillPassageDiagram from './BillPassageDiagram';
 import InfoTip from '../ui/InfoTip';
 
 interface Props {
@@ -18,75 +20,33 @@ interface Props {
   onClose: () => void;
 }
 
-const BILL_STAGE_ORDER = [
-  { key: 'first reading', label: 'First Reading' },
-  { key: 'second reading', label: 'Second Reading' },
-  { key: 'committee stage', label: 'Committee Stage' },
-  { key: 'report stage', label: 'Report Stage' },
-  { key: 'third reading', label: 'Third Reading' },
-  { key: 'consideration of amendments', label: 'Consideration of Amendments' },
-  { key: 'ping-pong', label: 'Ping-Pong' },
-  { key: 'royal assent', label: 'Royal Assent' },
+type TabKey = 'details' | 'stages' | 'publications';
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'details', label: 'Details' },
+  { key: 'stages', label: 'Stages' },
+  { key: 'publications', label: 'Publications' },
 ];
-
-function rawStageIndex(stageName: string | null): number {
-  const s = (stageName ?? '').toLowerCase();
-  const idx = BILL_STAGE_ORDER.findIndex(({ key }) => s.includes(key));
-  return idx === -1 ? 1 : idx;
-}
-
-/** The full run of stages, always — a bill that died at Second Reading stopped
- *  two stages into eight, and truncating the timeline there loses exactly that.
- *  The stage it died at is marked `stopped`; everything after it is `unreached`,
- *  drawn hollow behind a broken line. "Defeated" and "Withdrawn" are not stages
- *  and get no node of their own; `billOutcome` states them in words instead. */
-function buildBillTimeline(bill: ParliamentBill): TimelineStep[] {
-  if (bill.is_act) {
-    return BILL_STAGE_ORDER.map(s => ({ label: s.label, state: 'done' }));
-  }
-  const idx = rawStageIndex(bill.current_stage_name);
-  if (bill.is_defeated || bill.bill_withdrawn) {
-    return BILL_STAGE_ORDER.map((s, i) => ({
-      label: s.label,
-      state: i < idx ? 'done' : i === idx ? 'stopped' : 'unreached',
-    }));
-  }
-  return BILL_STAGE_ORDER.map((s, i) => ({
-    label: s.label,
-    state: i < idx ? 'done' : i === idx ? 'current' : 'upcoming',
-  }));
-}
-
-/** What ended the bill's passage and where, for the banner under the timeline.
- *  Null while the bill is still live or has passed. */
-function billOutcome(bill: ParliamentBill): string | null {
-  if (!bill.is_defeated && !bill.bill_withdrawn) return null;
-  const stage = BILL_STAGE_ORDER[rawStageIndex(bill.current_stage_name)].label;
-  return `${bill.is_defeated ? 'Defeated' : 'Withdrawn'} at ${stage}`;
-}
 
 function Divider() {
   return <div className="mt-lg pt-lg" style={{ borderTop: '1px solid rgba(184,150,12,0.15)' }} />;
 }
 
 export default function BillDetailModal({ bill, votes, voted, onVote, onClose }: Props) {
+  const [tab, setTab] = useState<TabKey>('details');
   const st = billStatus(bill);
   const vOpen = isVoteOpen(bill);
   const title = bill.short_title ?? bill.long_title ?? 'Untitled Bill';
   const shadowAyes = votes?.shadowAyes ?? 0;
   const shadowNoes = votes?.shadowNoes ?? 0;
-  const gov = billGovVote(bill, votes);
+  const gov = billGovVote(bill);
   const aiOpinions = generateAiVerdicts(title, bill.id);
   const explainer = generateExplainer(title, bill.id);
-  const outcome = billOutcome(bill);
-  const revealed = !vOpen || voted !== null;
 
   let closedNote: string | undefined;
   if (!vOpen) {
     if (bill.is_act) closedNote = 'This bill received Royal Assent — voting has closed.';
     else if (bill.is_defeated) closedNote = 'This bill was defeated — voting has closed.';
-    else if (bill.bill_withdrawn) closedNote = 'This bill was withdrawn before a public vote could be cast.';
-    else closedNote = 'The Second Reading voting window has closed for this bill.';
+    else closedNote = 'This bill was withdrawn before a public vote could be cast.';
   }
 
   return (
@@ -126,74 +86,126 @@ export default function BillDetailModal({ bill, votes, voted, onVote, onClose }:
         </a>
       </div>
 
-      {/* 5 — which House it sits in */}
+      {/* 5 — the divide line, then tabs for everything below it */}
       <Divider />
-      <div className="flex items-center gap-sm">
-        <span className="modal-meta__label inline-flex items-center">
-          House
-          <InfoTip
-            align="left"
-            label="House"
-            tip="The House the bill currently sits in — Commons or Lords, or Both once it is passing between them."
-          />
-        </span>
-        <span className="font-mono" style={{ color: '#FAF6ED', fontSize: '13px' }}>
-          {billHouse(bill)}
-        </span>
+
+      <div className="modal-tabs" role="tablist" aria-label="Bill sections">
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            id={`bill-tab-${t.key}`}
+            aria-selected={tab === t.key}
+            aria-controls={`bill-panel-${t.key}`}
+            className="modal-tab"
+            data-active={tab === t.key ? 'true' : undefined}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {/* 6 — where it has got to */}
-      <div className="mt-lg">
-        <span className="modal-section__heading">
-          Stage
-          <InfoTip
-            align="left"
-            label="Stage"
-            tip="Every stage a bill passes through, in order. A filled node is a stage already completed, the highlighted node is where the bill stands now, and hollow nodes are still ahead of it."
+      {/* Only the active panel is in the layout — the modal keeps a fixed
+          on-screen height across tabs via `.ledger-modal-panel`'s own
+          `height: 88vh`, not by forcing panels to a shared height, so a short
+          tab gets blank space below it instead of an empty scrollable area
+          the height of the Details tab. `inert` pulls inactive panels out of
+          focus, hit-testing and the a11y tree; CSS pairs it with
+          `display: none` so they don't affect layout either. */}
+      <div className="modal-tab-panels">
+        {/* ── Details ────────────────────────────────────────────────── */}
+        <div role="tabpanel" id="bill-panel-details" aria-labelledby="bill-tab-details" inert={tab !== 'details'} className="modal-tab-panel">
+          <div className="mt-lg flex flex-wrap items-center gap-x-xl gap-y-xs">
+            <span className="inline-flex items-center gap-sm">
+              <span className="modal-meta__label inline-flex items-center">
+                Currently in
+                <InfoTip
+                  align="left"
+                  label="Currently in"
+                  tip="The House the bill currently sits in — Commons or Lords, or Both once it is passing between them."
+                />
+              </span>
+              <span className="font-mono" style={{ color: '#FAF6ED', fontSize: '13px' }}>
+                {billHouse(bill)}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-sm">
+              <span className="modal-meta__label inline-flex items-center">
+                Introduced in
+                <InfoTip align="left" label="Introduced in" tip="The House the bill was first introduced in." />
+              </span>
+              <span className="font-mono" style={{ color: '#FAF6ED', fontSize: '13px' }}>
+                {bill.originating_house ?? '—'}
+              </span>
+            </span>
+          </div>
+
+          <Divider />
+          <div>
+            <span className="modal-section__heading">
+              Bill passage
+              <InfoTip
+                align="left"
+                label="Bill passage"
+                tip="Every reading and stage in both Houses. Complete stages are ticked, the current one is marked in progress, a skipped one reads not applicable, and anything ahead is still to come."
+              />
+            </span>
+            <BillPassageDiagram bill={bill} />
+          </div>
+
+          <Divider />
+          <VoteTallyTable
+            title={title}
+            context="bill"
+            forLabel="Aye"
+            againstLabel="No"
+            forTallyLabel="Ayes"
+            againstTallyLabel="Noes"
+            isOpen={vOpen}
+            myVote={voted}
+            onVote={onVote}
+            publicVote={{ for: shadowAyes, against: shadowNoes }}
+            ai={billAiTally(bill)}
+            gov={gov}
+            closedNote={closedNote}
+            forceRevealed
           />
-        </span>
-        <BoardStageTimeline steps={buildBillTimeline(bill)} />
-        {outcome && (
-          <p className="stage-outcome">
-            <span className="stage-outcome__dot" aria-hidden="true" />
-            {outcome}
+
+          <Divider />
+          <div>
+            <span className="modal-section__heading">
+              About this bill
+              <InfoTip
+                align="left"
+                label="About this bill"
+                tip="A plain-English summary of what the bill does, who it affects and when it takes effect. It describes the measure only. The published text linked above is what governs."
+              />
+            </span>
+            <ReadMoreText paragraphs={explainer} label={title} />
+          </div>
+
+          <Divider />
+          <AIVotePanel opinions={aiOpinions} revealed />
+        </div>
+
+        {/* ── Stages ─────────────────────────────────────────────────── */}
+        <div role="tabpanel" id="bill-panel-stages" aria-labelledby="bill-tab-stages" inert={tab !== 'stages'} className="modal-tab-panel mt-lg">
+          <BillStagesTab bill={bill} />
+        </div>
+
+        {/* ── Publications ───────────────────────────────────────────── */}
+        <div role="tabpanel" id="bill-panel-publications" aria-labelledby="bill-tab-publications" inert={tab !== 'publications'} className="modal-tab-panel mt-lg">
+          <p className="text-body-sm" style={{ color: 'rgba(250,246,237,0.72)' }}>
+            The bill&rsquo;s full text, explanatory notes and amendment papers as published are held on Parliament&rsquo;s own site — not restated here, so there is always one canonical copy.
           </p>
-        )}
+          <a className="ledger-btn mt-md" href={billPublicationsUrl(bill.id)} target="_blank" rel="noopener noreferrer">
+            Full text &amp; documents
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </div>
-
-      {/* 7 — the vote */}
-      <Divider />
-      <VoteTallyTable
-        title={title}
-        context="bill"
-        forLabel="Aye"
-        againstLabel="No"
-        isOpen={vOpen}
-        myVote={voted}
-        onVote={onVote}
-        publicVote={{ for: shadowAyes, against: shadowNoes }}
-        ai={billAiTally(bill)}
-        gov={gov}
-        closedNote={closedNote}
-      />
-
-      {/* 8 — what the bill actually does */}
-      <Divider />
-      <div>
-        <span className="modal-section__heading">
-          About this bill
-          <InfoTip
-            align="left"
-            label="About this bill"
-            tip="A plain-English summary of what the bill does, who it affects and when it takes effect. It describes the measure only — never who brought it forward. The published text linked above is what governs."
-          />
-        </span>
-        <ReadMoreText paragraphs={explainer} label={title} />
-      </div>
-
-      {/* 9 — the AI panel */}
-      <Divider />
-      <AIVotePanel opinions={aiOpinions} revealed={revealed} />
     </Modal>
   );
 }

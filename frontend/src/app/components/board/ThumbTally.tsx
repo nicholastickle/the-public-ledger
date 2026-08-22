@@ -9,8 +9,8 @@ export function ThumbIcon({ down }: { down?: boolean }) {
     <svg
       viewBox="0 0 24 24"
       fill="currentColor"
-      width="12"
-      height="12"
+      width="17"
+      height="17"
       aria-hidden="true"
       style={{ transform: down ? 'rotate(180deg)' : undefined, flexShrink: 0 }}
     >

@@ -41,6 +41,13 @@ export function GovTallyCell({ gov, revealed, forLabel, againstLabel }: CellProp
   if (gov.status === 'none') {
     return <span className="tally-cell__none" title="No parliamentary vote recorded">—</span>;
   }
+  if (gov.status === 'nod') {
+    return (
+      <span className="tally-cell__nod font-mono" title="Agreed without a division">
+        Nod
+      </span>
+    );
+  }
   if (gov.status === 'pending') {
     return (
       <span className="tally-cell__pending font-mono tabular-nums" suppressHydrationWarning>

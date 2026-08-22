@@ -27,13 +27,13 @@ describe('HowItWorksModal', () => {
     expect(screen.getByText('British Citizens Only')).toBeInTheDocument();
   });
 
-  it('shows impartiality note and login CTA on final slide', () => {
+  it('shows transparency note and login CTA on final slide', () => {
     render(<HowItWorksModal isOpen={true} onClose={vi.fn()} />);
     // Advance through all 4 steps
     for (let i = 0; i < 4; i++) {
       fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     }
-    expect(screen.getByText('A note on impartiality')).toBeInTheDocument();
+    expect(screen.getByText('A note on transparency')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Log in' })).toBeInTheDocument();
   });

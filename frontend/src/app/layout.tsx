@@ -33,7 +33,9 @@ export const metadata: Metadata = {
 // (rather than stopping short of them), which is what lets Safari's bottom
 // toolbar pick up the page's own dark colour instead of falling back to white.
 export const viewport: Viewport = {
-  themeColor: '#0C1610',
+  // Metadata, not CSS — can't reference the `--color-ledger-bg` custom property,
+  // so keep this literal in sync with it by hand (globals.css).
+  themeColor: '#122019',
   viewportFit: 'cover',
 };
 

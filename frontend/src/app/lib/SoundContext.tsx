@@ -29,6 +29,10 @@ const LOOP_GAP_MS = 2000;
  */
 const VOLUME = 0.7;
 
+/** How far from the tune's grand finish the sound toggle sets off its
+ *  fireworks — a countdown to the last chord, not the literal last frame. */
+const FIREWORKS_LEAD_S = 3;
+
 /**
  * jsdom (and any browser mid-teardown) can throw synchronously from play(),
  * and browsers reject the returned promise when autoplay is refused. Normalise
@@ -45,6 +49,13 @@ function safePlay(el: HTMLAudioElement): Promise<void> {
 interface SoundContextValue {
   muted: boolean;
   toggle: () => void;
+  /** Increments once each time the tune crosses into its final
+   *  `FIREWORKS_LEAD_S` seconds while unmuted — a tick counter rather than a
+   *  boolean so a consumer's `useEffect` can react to every repeat's finale,
+   *  not just the first. Starts at 0, which no real crossing ever produces,
+   *  so consumers can treat 0 as "hasn't happened yet" and skip firing
+   *  anything on mount. */
+  fireworksTick: number;
 }
 
 /** Muted, inert defaults so a mute button rendered without a provider (e.g. a
@@ -54,15 +65,21 @@ interface SoundContextValue {
 const DEFAULT_VALUE: SoundContextValue = {
   muted: true,
   toggle: () => {},
+  fireworksTick: 0,
 };
 
 const SoundContext = createContext<SoundContextValue>(DEFAULT_VALUE);
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [muted, setMuted] = useState(true);
+  const [fireworksTick, setFireworksTick] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const gapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inGapRef = useRef(false);
+  // Guards against firing again on every `timeupdate` tick while still inside
+  // the final FIREWORKS_LEAD_S window — set once on entry, cleared again the
+  // moment playback is back outside that window (a fresh repeat, a seek).
+  const nearEndFiredRef = useRef(false);
 
   // Start the tune on mount. Muted autoplay is permitted by every current
   // browser, so playback is already underway before anyone touches a toggle.
@@ -116,6 +133,23 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     }, LOOP_GAP_MS);
   }, []);
 
+  // Fires once per approach to the tune's grand finish — not once per tick
+  // while inside it — and only while the tune is actually audible; muted
+  // playback runs the same countdown underneath but nothing should shoot out
+  // of an icon that's currently showing 🔇.
+  const handleTimeUpdate = useCallback(() => {
+    const el = audioRef.current;
+    if (!el || el.muted || !Number.isFinite(el.duration)) return;
+    const remaining = el.duration - el.currentTime;
+    const inFinalStretch = remaining > 0 && remaining <= FIREWORKS_LEAD_S;
+    if (inFinalStretch && !nearEndFiredRef.current) {
+      nearEndFiredRef.current = true;
+      setFireworksTick(t => t + 1);
+    } else if (!inFinalStretch) {
+      nearEndFiredRef.current = false;
+    }
+  }, []);
+
   const toggle = useCallback(() => {
     const el = audioRef.current;
     if (!el) return;
@@ -132,7 +166,10 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ muted, toggle }), [muted, toggle]);
+  const value = useMemo(
+    () => ({ muted, toggle, fireworksTick }),
+    [muted, toggle, fireworksTick]
+  );
 
   return (
     <SoundContext.Provider value={value}>
@@ -140,6 +177,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
         ref={audioRef}
         src={AUDIO_SRC}
         onEnded={handleEnded}
+        onTimeUpdate={handleTimeUpdate}
         preload="auto"
         muted
         aria-hidden="true"

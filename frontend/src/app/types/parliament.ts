@@ -1,10 +1,9 @@
-// No `originating_house` field here, deliberately — it identifies the
-// political/institutional source of a bill and must never surface. The
-// backend API never returns it (see CLAUDE.md's impartiality principle).
 export interface ParliamentBill {
   id: number;
   short_title: string | null;
   long_title: string | null;
+  /** The house the bill was introduced in — Commons or Lords. */
+  originating_house: string | null;
   current_house: string | null;
   current_stage_name: string | null;
   is_act: boolean;
@@ -32,10 +31,8 @@ export interface ParliamentDivision {
   division_number: number | null;
 }
 
-// Deliberately no division/vote-count field here — this stage list is reachable
-// during the voting flow, and parliamentary results must never be shown before
-// or during a citizen's own vote. See ParliamentBillResult for the gated view,
-// only ever fetched after the citizen has cast their vote on this bill.
+/** A stage the bill has passed through (or is currently at). `divisions` is
+ *  empty when the stage was agreed without one — "on the nod". */
 export interface ParliamentBillStage {
   id: number;
   stage_name: string | null;
@@ -43,11 +40,6 @@ export interface ParliamentBillStage {
   sort_order: number | null;
   last_update: string | null;
   sittings: string[];
-}
-
-export interface ParliamentBillResult {
-  stage_id: number;
-  stage_name: string | null;
   divisions: ParliamentDivision[];
 }
 

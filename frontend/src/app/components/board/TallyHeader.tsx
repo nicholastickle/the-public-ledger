@@ -7,11 +7,10 @@ const ICONS: Record<TallyKind, React.ReactNode> = {
   public: (
     <path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.5.5a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5ZM9 12.75c-3 0-6 1.5-6 3.75V19h12v-2.5c0-2.25-3-3.75-6-3.75Zm7.5.75c-.62 0-1.2.06-1.73.17 1.02.87 1.73 2.02 1.73 3.33V19H21v-2.25c0-1.86-2.34-3.25-4.5-3.25Z" />
   ),
-  // A processor die — the AI panel. Pins on top and bottom only: side pins
-  // were dropped because at this icon's rendered size (15px) they blurred
-  // into what read as a stray vertical rule between the header columns.
+  // A four-point sparkle — the standard "AI" glyph (Gemini, Copilot, etc.),
+  // instantly legible at small sizes unlike the processor-die icon it replaced.
   ai: (
-    <path d="M9 2v2H7.5A2.5 2.5 0 0 0 5 6.5v11A2.5 2.5 0 0 0 7.5 20H9v2h2v-2h2v2h2v-2h1.5a2.5 2.5 0 0 0 2.5-2.5V6.5A2.5 2.5 0 0 0 16.5 4H15V2h-2v2h-2V2H9Zm0 7h6v6H9V9Z" />
+    <path d="M12 2 L14.2 9.8 L22 12 L14.2 14.2 L12 22 L9.8 14.2 L2 12 L9.8 9.8 Z" />
   ),
   // A crown — Parliament.
   government: (
@@ -37,11 +36,11 @@ export const TALLY_LABELS: Record<TallyKind, string> = {
 const TOOLTIPS: Record<'bill' | 'regulation', Record<TallyKind, string>> = {
   bill: {
     public:
-      'Shadow votes cast by verified members of the public. Voting opens when a bill reaches First Reading and closes at Second Reading, when Parliament divides on it. From Committee Stage onward the public vote is closed and the result stands.',
-    ai: 'Verdicts from the four-model AI panel, recorded at First Reading once the bill text is published, and fixed from then on.',
+      'Shadow votes cast by verified members of the public. Voting is open for the whole of a bill\'s passage — from First Reading through to Royal Assent, defeat or withdrawal.',
+    ai: 'Verdicts from the four-model AI panel, updated at every stage the bill reaches as it passes through Parliament.',
     government:
-      'How Parliament itself divided. The decisive division is at Second Reading, on the principle of the bill; Committee and Report Stage divide on individual amendments, and Third Reading on the final text. Until Second Reading, the expected sitting date is shown.',
-    own: "Your own shadow vote. Cast it here while the bill is at First or Second Reading and your choice is recorded. If you do not vote before the window closes, this reads 'Did not vote'.",
+      'The division — or the agreement without one, "on the nod" — that most recently progressed the bill to the stage it is at now. A bill still at First Reading has no prior stage to report.',
+    own: "Your own shadow vote. Cast it any time the bill remains before Parliament — from First Reading until Royal Assent, defeat or withdrawal. If you never vote, this reads 'Did not vote' once the bill is settled.",
   },
   regulation: {
     public:
@@ -80,7 +79,7 @@ export default function TallyHeader({ kind, context = 'bill', align, showLabel }
   return (
     <span className="tally-header">
       <span className="tally-header__icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="19" height="19" aria-hidden="true">
           {ICONS[kind]}
         </svg>
         {!showLabel && <span className="sr-only">{TALLY_LABELS[kind]}</span>}

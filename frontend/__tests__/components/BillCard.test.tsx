@@ -5,6 +5,7 @@ import type { ParliamentBill } from '@/app/types/parliament';
 
 const billAt = (overrides: Partial<ParliamentBill> & { id: number; short_title: string }): ParliamentBill => ({
   long_title: null,
+  originating_house: 'Lords',
   current_house: 'Commons',
   current_stage_name: 'Second Reading',
   is_act: false,
@@ -16,7 +17,7 @@ const billAt = (overrides: Partial<ParliamentBill> & { id: number; short_title: 
 });
 
 const OPEN_BILL = billAt({ id: 21, short_title: 'Card Test Bill', current_stage_name: 'Second Reading' });
-const CLOSED_BILL = billAt({ id: 22, short_title: 'Closed Card Bill', current_stage_name: 'Committee Stage' });
+const CLOSED_BILL = billAt({ id: 22, short_title: 'Closed Card Bill', current_stage_name: 'Royal Assent', is_act: true, current_house: null });
 
 const noop = () => {};
 
@@ -28,9 +29,9 @@ describe('BillCard', () => {
     expect(screen.getByRole('button', { name: 'Card Test Bill' })).toBeInTheDocument();
   });
 
-  it('never reveals the originating house, only the current one', () => {
+  it('shows both the originating House badge and the current House', () => {
     render(<BillCard bill={OPEN_BILL} onSelect={noop} onVote={noop} />);
-    expect(screen.queryByText('Lords')).not.toBeInTheDocument();
+    expect(screen.getByText('Lords', { selector: '.sr-only' })).toBeInTheDocument();
     expect(screen.getByText('Commons')).toBeInTheDocument();
   });
 
@@ -40,14 +41,16 @@ describe('BillCard', () => {
     expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']);
   });
 
-  it('hides the Public and AI tallies behind a lock while the vote is open and uncast', () => {
-    render(<BillCard bill={OPEN_BILL} onSelect={noop} onVote={noop} />);
-    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
+  it('shows the Public and AI tallies even while the vote is open and uncast', () => {
+    render(<BillCard bill={OPEN_BILL} votes={{ shadowAyes: 40, shadowNoes: 10 }} onSelect={noop} onVote={noop} />);
+    expect(screen.queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
+    expect(screen.getByText('40')).toBeInTheDocument();
   });
 
-  it('shows the expected sitting date before Parliament has voted', () => {
-    render(<BillCard bill={OPEN_BILL} votes={{ shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-12' }} onSelect={noop} onVote={noop} />);
-    expect(screen.getByText('12/08/2026')).toBeInTheDocument();
+  it('shows "—" for the Government column at First Reading, with no prior stage to report', () => {
+    const bill = billAt({ id: 25, short_title: 'First Reading Card Bill', current_stage_name: 'First Reading' });
+    render(<BillCard bill={bill} onSelect={noop} onVote={noop} />);
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 
   it('tells the reader which way each thumb votes, on hover', () => {

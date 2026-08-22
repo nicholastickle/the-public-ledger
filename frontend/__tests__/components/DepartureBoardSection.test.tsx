@@ -5,6 +5,7 @@ import type { ParliamentBill } from '@/app/types/parliament';
 
 const billAt = (overrides: Partial<ParliamentBill> & { id: number; short_title: string }): ParliamentBill => ({
   long_title: null,
+  originating_house: 'Lords',
   current_house: 'Commons',
   current_stage_name: 'Second Reading',
   is_act: false,
@@ -35,7 +36,7 @@ describe('DepartureBoardSection', () => {
 
   it('renders the shadow-vote subtitle', () => {
     render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getByText('Public shadow votes cast at the second reading')).toBeInTheDocument();
+    expect(screen.getByText('Public shadow votes — open from First Reading to Royal Assent')).toBeInTheDocument();
   });
 
   it('shows the DEMO badge when no live bills are provided', () => {
@@ -68,62 +69,29 @@ describe('DepartureBoardSection', () => {
     // The phone card below repeats the same vote-tally table (with the same
     // column headers) outside this desktop table, so headers are scoped to it.
     const board = within(document.querySelector('.ledger-table__wrap')!);
-    for (const name of ['No.', 'Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
+    for (const name of ['No.', 'Bill', 'Current House', 'Stage', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
       expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
-    // Every column but the bill number carries an explanatory InfoTip. The
-    // phone card repeats the same tally InfoTips outside the table, so this
-    // checks at least one copy exists rather than exactly one. InfoTip is a
-    // button whose accessible name comes from `aria-label`, not visible text.
-    for (const label of ['Bill', 'House', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
-      expect(screen.getAllByRole('button', { name: `About the ${label} column` }).length).toBeGreaterThan(0);
-    }
   });
 
-  it('bands the rows under a stage heading instead of a stage column', () => {
-    const first    = billAt({ id: 301, short_title: 'First Reading Bill', current_stage_name: 'First Reading' });
-    const alsoFirst = billAt({ id: 303, short_title: 'Another First Reading Bill', current_stage_name: 'First Reading' });
-    render(<DepartureBoardSection bills={[COMMITTEE_BILL, first, alsoFirst]} />);
-
-    expect(screen.queryByRole('columnheader', { name: 'Stage' })).not.toBeInTheDocument();
-
-    const bands = Array.from(document.querySelectorAll('.ledger-table__stage-head'));
-    expect(bands.map(b => b.querySelector('.ledger-table__stage-title')!.textContent))
-      .toEqual(['First Reading', 'Committee Stage']);
-    expect(bands[0].getAttribute('colspan')).toBe('8');
+  it('shows an originating-House badge as the row\'s first cell', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    const row = rows()[0];
+    expect(row.firstElementChild).toHaveClass('ledger-table__cell--origin');
+    expect(row.querySelector('.ledger-table__cell--origin .house-badge')).toHaveAttribute('title', 'Lords');
   });
 
-  it('explains each stage with an InfoTip on its band', () => {
-    const first = billAt({ id: 301, short_title: 'First Reading Bill', current_stage_name: 'First Reading' });
-    render(<DepartureBoardSection bills={[first, COMMITTEE_BILL]} />);
-
-    // The phone card repeats the same stage band outside the table, so this
-    // checks at least one copy exists rather than exactly one. InfoTip is a
-    // button whose accessible name comes from `aria-label`, not visible text.
-    expect(screen.getAllByRole('button', { name: 'About the First Reading stage' }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('button', { name: 'About the Committee Stage stage' }).length).toBeGreaterThan(0);
-
-    const band = document.querySelector('.ledger-table__stage-head .info-tip')!;
-    expect(band.getAttribute('data-tooltip')).toMatch(/formally introduced/);
+  it('shows the bill\'s raw current stage in its own column', () => {
+    render(<DepartureBoardSection bills={[COMMITTEE_BILL]} />);
+    expect(within(rows()[0] as HTMLElement).getByText('Committee Stage')).toBeInTheDocument();
   });
 
-  it('describes every stage the board can band by', () => {
-    // Any stage without its own description would silently fall back to the
-    // generic line, which reads as an omission rather than an explanation.
-    render(<DepartureBoardSection bills={[]} />);
-    for (const tip of document.querySelectorAll('.ledger-table__stage-head .info-tip')) {
-      expect(tip.getAttribute('data-tooltip')).not.toMatch(/making its way through Parliament/);
-    }
-  });
-
-  it('orders bands by stage — first reading at the top, defeated at the bottom', () => {
-    const first    = billAt({ id: 301, short_title: 'First Reading Bill', current_stage_name: 'First Reading' });
-    const defeated = billAt({ id: 302, short_title: 'Defeated Bill', is_defeated: true });
-    render(<DepartureBoardSection bills={[defeated, COMMITTEE_BILL, first]} />);
+  it('sorts rows by bill number, not by stage', () => {
+    const late  = billAt({ id: 305, short_title: 'Late Number Bill', current_stage_name: 'First Reading' });
+    const early = billAt({ id: 102, short_title: 'Early Number Bill', current_stage_name: 'Report Stage' });
+    render(<DepartureBoardSection bills={[late, COMMITTEE_BILL, early]} />);
     const order = rows().map(r => r.querySelector('.ledger-table__title')!.textContent);
-    expect(order).toEqual(['First Reading Bill', 'Committee Stage Bill', 'Defeated Bill']);
-    expect(Array.from(document.querySelectorAll('.ledger-table__stage-title')).map(t => t.textContent))
-      .toEqual(['First Reading', 'Committee Stage', 'Defeated']);
+    expect(order).toEqual(['Early Number Bill', 'Committee Stage Bill', 'Late Number Bill']);
   });
 
   it('shows the bill number in the row', () => {
@@ -131,12 +99,24 @@ describe('DepartureBoardSection', () => {
     expect(within(rows()[0] as HTMLElement).getByText('103')).toBeInTheDocument();
   });
 
-  it('reads the House as "Both" for a bill that has cleared both Houses', () => {
-    render(<DepartureBoardSection bills={[ASSENTED_BILL]} />);
+  it('reads the House as "Both" for a bill in ping-pong between the Houses', () => {
+    const pingPong = billAt({ id: 306, short_title: 'Ping-Pong House Bill', current_stage_name: 'Ping-Pong' });
+    render(<DepartureBoardSection bills={[pingPong]} />);
     expect(within(rows()[0] as HTMLElement).getByText('Both')).toBeInTheDocument();
   });
 
-  it('offers Aye/No vote buttons for bills at First or Second Reading', () => {
+  it('reads the House as neither once a bill has received Royal Assent', () => {
+    render(<DepartureBoardSection bills={[ASSENTED_BILL]} />);
+    expect(within(rows()[0] as HTMLElement).getByText('—')).toBeInTheDocument();
+  });
+
+  it('keeps the vote open for a bill at Committee Stage, not just First or Second Reading', () => {
+    render(<DepartureBoardSection bills={[COMMITTEE_BILL]} />);
+    const own = cell(rows()[0], 'own');
+    expect(within(own).getByRole('button', { name: 'Vote Aye on Committee Stage Bill' })).toBeInTheDocument();
+  });
+
+  it('offers Aye/No vote buttons for a bill at Second Reading', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
     const own = cell(rows()[0], 'own');
     expect(within(own).getByRole('button', { name: 'Vote Aye on Test Reform Bill' })).toBeInTheDocument();
@@ -144,56 +124,68 @@ describe('DepartureBoardSection', () => {
   });
 
   it('folds an open vote into the Bill cell for phone viewports', () => {
-    render(<DepartureBoardSection bills={[SECOND_READING_BILL, COMMITTEE_BILL]} />);
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL, ASSENTED_BILL]} />);
     const [open, closed] = rows();
 
     const fold = open.querySelector('.ledger-table__row-own')!;
     expect(within(fold as HTMLElement).getByRole('button', { name: 'Vote Aye on Test Reform Bill' })).toBeInTheDocument();
 
-    // Nothing to act on once the window has closed, so no vote control folds in.
+    // Nothing to act on once the bill has received Royal Assent, so no vote control folds in.
     expect(closed.querySelector('.ledger-table__row-own')).toBeNull();
   });
 
-  it('shows "Did not vote" once the window has closed with no vote cast', () => {
-    render(<DepartureBoardSection bills={[COMMITTEE_BILL]} />);
-    // The phone card renders the same "Did not vote" text alongside the row,
-    // so this is scoped to the table row it's actually testing.
+  it('shows "Did not vote" once a bill is settled with no vote cast', () => {
+    render(<DepartureBoardSection bills={[ASSENTED_BILL]} />);
     expect(within(rows()[0] as HTMLElement).getByText('Did not vote')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Vote Aye/ })).not.toBeInTheDocument();
   });
 
-  it('records the citizen’s vote from the row and reveals the tallies', () => {
+  it('records the citizen’s vote from the row', () => {
     render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    expect(rows()[0].textContent).toMatch(/Hidden until you vote/);
-
     fireEvent.click(within(cell(rows()[0], 'own')).getByRole('button', { name: 'Vote Aye on Test Reform Bill' }));
 
     const row = rows()[0];
     expect(row).toHaveAttribute('data-voted', 'true');
     expect(cell(row, 'own').querySelector('.own-vote--for')).toHaveTextContent('Aye');
-    expect(row.textContent).not.toMatch(/Hidden until you vote/);
   });
 
-  it('marks the side that carried each completed tally, and neither on a tie', () => {
+  it('counts the citizen\'s own vote into the Public tally the moment it is cast', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    fireEvent.click(within(cell(rows()[0], 'own')).getByRole('button', { name: 'Vote Aye on Test Reform Bill' }));
+
+    const publicCell = rows()[0].querySelectorAll('.ledger-table__cell--tally')[0];
+    expect(within(publicCell as HTMLElement).getByText('1')).toBeInTheDocument();
+  });
+
+  it('shows the Public, AI and Government tallies for a bill whose vote is still open and uncast', () => {
+    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
+    const row = rows()[0];
+    expect(within(row as HTMLElement).queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
+    expect(row.querySelectorAll('.thumb-tally').length).toBeGreaterThan(0);
+  });
+
+  it('marks the side that carried each completed public tally, and neither on a tie', () => {
     render(<DepartureBoardSection bills={[]} />);
-    // Demo bill 1 (Employment Rights) closed 18,400 Aye to 6,200 No.
+    // Demo bill 1 (Employment Rights) closed 18,400 Ayes to 6,200 Noes.
     const row = rows().find(r => r.textContent?.includes('Employment Rights Bill'))!;
     const [ayes, noes] = Array.from(row.querySelectorAll('.ledger-table__cell--tally .thumb-tally__side'));
     expect(ayes).toHaveAttribute('data-outcome', 'won');
     expect(noes).toHaveAttribute('data-outcome', 'lost');
-    expect(within(ayes as HTMLElement).getByText('Aye — carried')).toBeInTheDocument();
+    // Tallies read "Ayes"/"Noes" (plural) — Parliament's own convention when
+    // counting votes — distinct from the singular "Aye"/"No" vote buttons.
+    expect(within(ayes as HTMLElement).getByText('Ayes — carried')).toBeInTheDocument();
 
-    // Demo bill 24 was withdrawn with no votes either way — a tie carries neither.
+    // Demo bill 24 was withdrawn at First Reading with no votes either way — a tie carries neither.
     const tied = rows().find(r => r.textContent?.includes('Digital Markets'))!;
     const tiedSide = tied.querySelector('.ledger-table__cell--tally .thumb-tally__side')!;
     expect(tiedSide).not.toHaveAttribute('data-outcome');
   });
 
-  it('shows the expected government sitting date, or TBD when none is set', () => {
-    // Demo bill 2 has a Second Reading listed for 12 Aug 2026; bill 14 has none.
-    render(<DepartureBoardSection bills={[]} />);
-    expect(screen.getAllByText('12/08/2026').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('TBD').length).toBeGreaterThan(0);
+  it('shows "—" in the Government column for a bill still at First Reading', () => {
+    const first = billAt({ id: 301, short_title: 'First Reading Bill', current_stage_name: 'First Reading' });
+    render(<DepartureBoardSection bills={[first]} />);
+    const row = rows()[0];
+    expect(within(row as HTMLElement).getByText('—')).toBeInTheDocument();
   });
 
   it('shows "Royal Assent" status for enacted bills with no vote buttons', () => {
@@ -245,27 +237,5 @@ describe('DepartureBoardSection', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /close/i }));
 
     expect(rows()[0]).toHaveAttribute('data-voted', 'true');
-  });
-
-  it('never reveals the originating house of a bill', () => {
-    // ParliamentBill has no `originating_house` field at all (see types/parliament.ts)
-    // and the API never sends one — this only exercises that the row renders the
-    // current house it's given, since there's no longer a way to even construct
-    // a bill carrying an originating house to assert against.
-    const bill = billAt({ id: 104, short_title: 'Origin Test Bill', current_house: 'Commons' });
-    render(<DepartureBoardSection bills={[bill]} />);
-    expect(screen.getAllByText('Commons').length).toBeGreaterThan(0);
-  });
-
-  it('never reveals any tally on a row whose vote is still open and uncast', () => {
-    // A bill at Second Reading is still open to citizen votes, so neither the
-    // citizen nor the AI tally may show a result, and Parliament shows only the
-    // date it is expected to divide — never a division result.
-    render(<DepartureBoardSection bills={[SECOND_READING_BILL]} />);
-    const row = rows()[0];
-    expect(within(row as HTMLElement).getAllByText('Hidden until you vote')).toHaveLength(2);
-    expect(row.textContent).toMatch(/TBD/);
-    // No tally digits leak through.
-    expect(row.querySelectorAll('.thumb-tally')).toHaveLength(0);
   });
 });

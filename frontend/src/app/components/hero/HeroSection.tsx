@@ -121,7 +121,7 @@ export default function HeroSection() {
     // still drifts with the toolbar.
     <section
       className="overflow-hidden relative flex flex-col min-h-svh sm:block sm:min-h-0"
-      style={{ backgroundColor: '#0c1610', ...(lockedHeight ? { minHeight: `${lockedHeight}px` } : null) }}
+      style={{ backgroundColor: 'var(--color-ledger-bg)', ...(lockedHeight ? { minHeight: `${lockedHeight}px` } : null) }}
     >
       {/* Parliament / Big Ben timelapse — now fully visible behind the content */}
       <video
@@ -137,7 +137,7 @@ export default function HeroSection() {
       {/* Legibility scrim — darkest on the left where the copy sits */}
       <div className="absolute inset-0 pointer-events-none hero-video-scrim" aria-hidden="true" />
 
-      <div className="relative z-10 max-w-[1500px] mx-auto px-md sm:px-xl lg:px-3xl py-xl lg:py-3xl flex-1 flex flex-col sm:block w-full">
+      <div className="relative z-10 max-w-[1900px] mx-auto px-md sm:px-xl lg:px-2xl py-xl lg:py-3xl flex-1 flex flex-col sm:block w-full">
         <div className="ledger-frame relative flex-1 flex flex-col sm:block">
           {/* Filigree corners */}
           <div className="absolute top-0 left-0 -translate-x-[2px] -translate-y-[2px]"><FiligreeCorner /></div>

@@ -9,8 +9,15 @@ interface Props {
   title: string;
   /** Which board's timeline the column tooltips should describe. */
   context: 'bill' | 'regulation';
+  /** Singular — the citizen's own individual vote (buttons + recorded choice). */
   forLabel: string;
   againstLabel: string;
+  /** Plural, for the three tally columns — defaults to `forLabel`/`againstLabel`
+   *  when a board's wording doesn't distinguish (e.g. regulations' "Approve"/
+   *  "Annul"). Bills pass "Ayes"/"Noes" here, matching Parliament's own
+   *  convention when counting votes ("Ayes to the right, Noes to the left"). */
+  forTallyLabel?: string;
+  againstTallyLabel?: string;
   isOpen: boolean;
   myVote: 'for' | 'against' | null;
   onVote: (choice: 'for' | 'against') => void;
@@ -19,6 +26,9 @@ interface Props {
   gov: GovVote;
   /** Why the vote is shut, where it is. */
   closedNote?: string;
+  /** Bills show all three tallies at all times, regardless of whether the
+   *  citizen has voted — only regulations still anchor-guard behind a vote. */
+  forceRevealed?: boolean;
 }
 
 /** The same four columns as the board table — public, AI panel, Parliament, and
@@ -33,6 +43,8 @@ export default function VoteTallyTable({
   context,
   forLabel,
   againstLabel,
+  forTallyLabel,
+  againstTallyLabel,
   isOpen,
   myVote,
   onVote,
@@ -40,12 +52,16 @@ export default function VoteTallyTable({
   ai,
   gov,
   closedNote,
+  forceRevealed,
 }: Props) {
+  const forTally = forTallyLabel ?? forLabel;
+  const againstTally = againstTallyLabel ?? againstLabel;
   // While a vote is open and the citizen has not yet cast their own, no tally of
   // any kind is shown — seeing how others are voting first would anchor their
   // decision. Once they vote (or once the window has closed and the result is
-  // public record anyway), the tallies open up.
-  const revealed = !isOpen || myVote !== null;
+  // public record anyway), the tallies open up. `forceRevealed` skips this
+  // gate entirely, for boards where tallies are always shown.
+  const revealed = forceRevealed || !isOpen || myVote !== null;
 
   // The citizen's own vote is counted into the public tally the moment they cast
   // it, so the number they are shown includes them.
@@ -83,13 +99,13 @@ export default function VoteTallyTable({
           <tbody>
             <tr>
               <td className="ledger-table__cell ledger-table__cell--tally">
-                <TallyCell tally={publicDisplay} revealed={revealed} forLabel={forLabel} againstLabel={againstLabel} />
+                <TallyCell tally={publicDisplay} revealed={revealed} forLabel={forTally} againstLabel={againstTally} />
               </td>
               <td className="ledger-table__cell ledger-table__cell--tally">
-                <TallyCell tally={ai} revealed={revealed} forLabel={forLabel} againstLabel={againstLabel} />
+                <TallyCell tally={ai} revealed={revealed} forLabel={forTally} againstLabel={againstTally} />
               </td>
               <td className="ledger-table__cell ledger-table__cell--tally">
-                <GovTallyCell gov={gov} revealed={revealed} forLabel={forLabel} againstLabel={againstLabel} />
+                <GovTallyCell gov={gov} revealed={revealed} forLabel={forTally} againstLabel={againstTally} />
               </td>
               <td className="ledger-table__cell ledger-table__cell--own">
                 <OwnVoteCell
@@ -106,7 +122,7 @@ export default function VoteTallyTable({
         </table>
       </div>
 
-      {isOpen && !myVote && (
+      {isOpen && !myVote && !revealed && (
         <p className="vote-table__prompt font-mono">
           Cast your vote in the last column to unlock the three tallies.
         </p>

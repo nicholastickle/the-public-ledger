@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import type { ParliamentBill } from '../../types/parliament';
-import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../../lib/mockVotes';
+import { generateAiVerdicts, aiAggregate, mockLastDivision, type GovVote } from '../../lib/mockVotes';
 import TallyHeader from './TallyHeader';
 import InfoTip from '../ui/InfoTip';
+import HouseBadge from '../ui/HouseBadge';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
 import TableRowArrow from './TableRowArrow';
 import BillDetailModal from '../cards/BillDetailModal';
 import BillCard from '../cards/BillCard';
+import BoardMargin from './BoardMargin';
 
 interface Props {
   bills: ParliamentBill[];
@@ -18,55 +20,48 @@ interface Props {
 export interface BillVotes {
   shadowAyes: number;
   shadowNoes: number;
-  secondReadingDate?: string | null;
-}
-
-interface StageGroup {
-  stage: string;
-  bills: ParliamentBill[];
 }
 
 /* ── Demo data ─────────────────────────────────────────────────────────── */
 
 // Sized to match the ~19 government bills Parliament typically has in flight at once
-// (Parallel Parliament, government-bills tracker, 2026-27 session), spread so every
-// stage column has at least one bill.
+// (Parallel Parliament, government-bills tracker, 2026-27 session), spread across stages.
 const DEMO_BILLS: ParliamentBill[] = [
-  { id: 1,  short_title: 'Employment Rights Bill',                             long_title: null, current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-22T08:51:00Z' },
-  { id: 2,  short_title: 'Planning and Infrastructure Bill',                   long_title: null, current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-24T06:42:00Z' },
-  { id: 3,  short_title: 'Crime and Policing Bill',                            long_title: null, current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-25T09:14:00Z' },
-  { id: 4,  short_title: 'Data (Use and Access) Bill',                         long_title: null, current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-20T04:30:00Z' },
-  { id: 5,  short_title: "Renters' Rights Bill",                               long_title: null, current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-27T10:22:00Z' },
-  { id: 6,  short_title: 'Border Security, Asylum and Immigration Bill',       long_title: null, current_house: 'Lords',   current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-18T02:55:00Z' },
-  { id: 7,  short_title: "Children's Wellbeing and Schools Bill",              long_title: null, current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-23T07:48:00Z' },
-  { id: 8,  short_title: 'Great British Energy Bill',                          long_title: null, current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-10T11:00:00Z' },
-  { id: 9,  short_title: 'Football Governance Bill',                           long_title: null, current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-05T14:00:00Z' },
-  { id: 10, short_title: 'Terminal Illness (Relief of Pain) Bill',             long_title: null, current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-26T05:10:00Z' },
-  { id: 11, short_title: 'Armed Forces Commissioner Bill',                     long_title: null, current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-08T09:00:00Z' },
-  { id: 12, short_title: 'Passenger Railway Services (Public Ownership) Bill', long_title: null, current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-02T16:00:00Z' },
-  { id: 13, short_title: 'Tobacco and Vapes Bill',                             long_title: null, current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-21T22:05:00Z' },
-  { id: 14, short_title: 'Bank Resolution (Recapitalisation) Bill',            long_title: null, current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-19T16:20:00Z' },
-  { id: 15, short_title: 'High Speed Rail (Crewe – Manchester) Bill',          long_title: null, current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-29T10:00:00Z' },
-  { id: 16, short_title: 'Sentencing Bill',                                    long_title: null, current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-28T11:30:00Z' },
-  { id: 17, short_title: 'Mental Health Bill',                                 long_title: null, current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-24T13:15:00Z' },
-  { id: 18, short_title: 'Water (Special Measures) Bill',                      long_title: null, current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-17T09:40:00Z' },
-  { id: 19, short_title: 'Pension Schemes Bill',                               long_title: null, current_house: 'Lords',   current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-15T15:05:00Z' },
-  { id: 20, short_title: 'Non-Domestic Rating (Multipliers and Private Schools) Bill', long_title: null, current_house: 'Commons', current_stage_name: 'Report Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-16T12:20:00Z' },
-  { id: 21, short_title: 'Arbitration Bill',                                   long_title: null, current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-30T08:00:00Z' },
-  { id: 22, short_title: 'Holocaust Memorial Bill',                            long_title: null, current_house: 'Commons', current_stage_name: 'Ping-Pong',       is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-31T09:00:00Z' },
-  { id: 23, short_title: 'Local Government (Boundary Changes) Bill',           long_title: null, current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: true,  bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-14T17:45:00Z' },
-  { id: 24, short_title: 'Digital Markets (Amendment) Bill',                   long_title: null, current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: '2026-07-12', detail_url: null, parliament_last_update: '2026-07-12T10:30:00Z' },
+  { id: 1,  short_title: 'Employment Rights Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-22T08:51:00Z' },
+  { id: 2,  short_title: 'Planning and Infrastructure Bill',                   long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-24T06:42:00Z' },
+  { id: 3,  short_title: 'Crime and Policing Bill',                            long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-25T09:14:00Z' },
+  { id: 4,  short_title: 'Data (Use and Access) Bill',                         long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-20T04:30:00Z' },
+  { id: 5,  short_title: "Renters' Rights Bill",                               long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-27T10:22:00Z' },
+  { id: 6,  short_title: 'Border Security, Asylum and Immigration Bill',       long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-18T02:55:00Z' },
+  { id: 7,  short_title: "Children's Wellbeing and Schools Bill",              long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-23T07:48:00Z' },
+  { id: 8,  short_title: 'Great British Energy Bill',                          long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-10T11:00:00Z' },
+  { id: 9,  short_title: 'Football Governance Bill',                           long_title: null, originating_house: 'Lords',   current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-05T14:00:00Z' },
+  { id: 10, short_title: 'Terminal Illness (Relief of Pain) Bill',             long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-26T05:10:00Z' },
+  { id: 11, short_title: 'Armed Forces Commissioner Bill',                     long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-08T09:00:00Z' },
+  { id: 12, short_title: 'Passenger Railway Services (Public Ownership) Bill', long_title: null, originating_house: 'Commons', current_house: null,      current_stage_name: 'Royal Assent',    is_act: true,  is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-02T16:00:00Z' },
+  { id: 13, short_title: 'Tobacco and Vapes Bill',                             long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-21T22:05:00Z' },
+  { id: 14, short_title: 'Bank Resolution (Recapitalisation) Bill',            long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-19T16:20:00Z' },
+  { id: 15, short_title: 'High Speed Rail (Crewe – Manchester) Bill',          long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-29T10:00:00Z' },
+  { id: 16, short_title: 'Sentencing Bill',                                    long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-28T11:30:00Z' },
+  { id: 17, short_title: 'Mental Health Bill',                                 long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-24T13:15:00Z' },
+  { id: 18, short_title: 'Water (Special Measures) Bill',                      long_title: null, originating_house: 'Lords',   current_house: 'Lords',   current_stage_name: 'Committee Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-17T09:40:00Z' },
+  { id: 19, short_title: 'Pension Schemes Bill',                               long_title: null, originating_house: 'Commons', current_house: 'Lords',   current_stage_name: 'Report Stage',    is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-15T15:05:00Z' },
+  { id: 20, short_title: 'Non-Domestic Rating (Multipliers and Private Schools) Bill', long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Report Stage', is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-16T12:20:00Z' },
+  { id: 21, short_title: 'Arbitration Bill',                                   long_title: null, originating_house: 'Lords',   current_house: 'Lords',   current_stage_name: 'Third Reading',   is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-30T08:00:00Z' },
+  { id: 22, short_title: 'Holocaust Memorial Bill',                            long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Ping-Pong',       is_act: false, is_defeated: false, bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-31T09:00:00Z' },
+  { id: 23, short_title: 'Local Government (Boundary Changes) Bill',           long_title: null, originating_house: 'Commons', current_house: 'Commons', current_stage_name: 'Second Reading',  is_act: false, is_defeated: true,  bill_withdrawn: null, detail_url: null, parliament_last_update: '2026-07-14T17:45:00Z' },
+  { id: 24, short_title: 'Digital Markets (Amendment) Bill',                   long_title: null, originating_house: 'Lords',   current_house: 'Commons', current_stage_name: 'First Reading',   is_act: false, is_defeated: false, bill_withdrawn: '2026-07-12', detail_url: null, parliament_last_update: '2026-07-12T10:30:00Z' },
 ];
 
 const DEMO_VOTES: Record<number, BillVotes> = {
-  // Bills at First/Second Reading — vote open, second reading date known or TBD
-  2:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-12' },
-  6:  { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-04' },
-  10: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-03' },
-  14: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },
-  15: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: null },
-  16: { shadowAyes: 0, shadowNoes: 0, secondReadingDate: '2026-08-05' },
-  // Bills past Second Reading — shadow vote recorded
+  // Bills at First/Second Reading — vote open, shadow tally still accruing
+  2:  { shadowAyes: 6400, shadowNoes: 2100 },
+  6:  { shadowAyes: 3200, shadowNoes: 1800 },
+  10: { shadowAyes: 4100, shadowNoes:  900 },
+  14: { shadowAyes:  600, shadowNoes:  200 },
+  15: { shadowAyes:  300, shadowNoes:  150 },
+  16: { shadowAyes: 5200, shadowNoes: 2600 },
+  // Bills further through their passage — shadow vote has had longer to accrue
   1:  { shadowAyes: 18400, shadowNoes:  6200 },
   3:  { shadowAyes:  9100, shadowNoes: 12300 },
   4:  { shadowAyes: 14200, shadowNoes:  3800 },
@@ -84,69 +79,10 @@ const DEMO_VOTES: Record<number, BillVotes> = {
   21: { shadowAyes:  6200, shadowNoes:  1100 },
   22: { shadowAyes: 33200, shadowNoes:  2800 },
   23: { shadowAyes:  9800, shadowNoes:  8600 },
-  // 24 (Digital Markets (Amendment) Bill): withdrawn before Second Reading — no tally yet
+  // 24 (Digital Markets (Amendment) Bill): withdrawn at First Reading — no tally yet
 };
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
-
-// Parliament's own stage text isn't a fixed vocabulary — the live API returns
-// "1st reading" for some bills and "First reading" for others, "Committee of
-// the whole House" alongside plain "Committee stage", inconsistent casing
-// throughout, and so on. Grouping used to key directly off that raw text,
-// which meant two bills conceptually at the same stage but worded slightly
-// differently produced two separate — sometimes non-adjacent, sometimes
-// duplicate-keyed — groups. Every bucket below is matched by any of several
-// aliases, but always labelled with one canonical string, so the group a
-// bill lands in and the heading it's shown under are never a function of
-// which exact phrasing Parliament happened to use for it.
-const STAGES: { rank: number; label: string; aliases: string[] }[] = [
-  { rank: 0, label: 'First Reading', aliases: ['first reading', '1st reading'] },
-  { rank: 1, label: 'Second Reading', aliases: ['second reading', '2nd reading'] },
-  { rank: 2, label: 'Committee Stage', aliases: ['committee stage', 'committee of the whole house', 'grand committee'] },
-  { rank: 3, label: 'Report Stage', aliases: ['report stage'] },
-  { rank: 4, label: 'Third Reading', aliases: ['third reading', '3rd reading'] },
-  { rank: 5, label: 'Consideration of Amendments', aliases: ['consideration of amendments', 'consideration of commons amendments', 'consideration of lords amendments'] },
-  { rank: 6, label: 'Ping-Pong', aliases: ['ping-pong', 'ping pong'] },
-  { rank: 7, label: 'Royal Assent', aliases: ['royal assent'] },
-  { rank: 8, label: 'Defeated', aliases: ['defeated'] },
-  { rank: 9, label: 'Withdrawn', aliases: ['withdrawn'] },
-];
-const FALLBACK_STAGE = STAGES[3]; // Report Stage — mid-passage catch-all for unrecognised text
-
-function stageInfo(bill: ParliamentBill): { rank: number; label: string } {
-  if (bill.is_act) return STAGES[7];
-  if (bill.is_defeated) return STAGES[8];
-  if (bill.bill_withdrawn) return STAGES[9];
-  const s = (bill.current_stage_name ?? '').toLowerCase();
-  for (const stage of STAGES) {
-    if (stage.aliases.some(alias => s.includes(alias))) return stage;
-  }
-  return FALLBACK_STAGE;
-}
-
-function stageRank(bill: ParliamentBill): number {
-  return stageInfo(bill).rank;
-}
-
-/** What each stage actually is, in plain terms. Kept deliberately procedural —
- *  what happens and who votes — with no comment on any bill's merits or on who
- *  brought it forward. */
-const STAGE_DESCRIPTIONS: Record<string, string> = {
-  'first reading': 'The bill is formally introduced and its title read out. There is no debate and no vote; the full text is published shortly afterwards, and the public shadow vote opens.',
-  'second reading': 'The first debate on the principle of the bill, ending in the division that decides whether it proceeds. The public shadow vote closes here.',
-  'committee stage': 'The bill is examined line by line. Amendments are proposed and voted on, but the principle of the bill is already settled.',
-  'report stage': 'The whole House reviews the bill as amended in committee and can make further changes before it is finalised.',
-  'third reading': 'The final debate and vote on the bill as it now stands. No further amendments can be made in this House.',
-  'consideration of amendments': 'One House considers the changes the other made, accepting, rejecting or amending them in turn.',
-  'ping-pong': 'The bill passes back and forth between the Commons and the Lords until both Houses agree on identical text.',
-  'royal assent': 'The bill has passed both Houses and received the monarch’s assent. It is now an Act of Parliament and is law.',
-  defeated: 'The bill lost a decisive vote and can go no further in this session.',
-  withdrawn: 'The bill was withdrawn before completing its passage and will not proceed.',
-};
-
-function stageDescription(stage: string): string {
-  return STAGE_DESCRIPTIONS[stage.toLowerCase()] ?? 'This bill is making its way through Parliament.';
-}
 
 export function stageLabel(bill: ParliamentBill): string {
   if (bill.is_act) return 'Royal Assent';
@@ -155,29 +91,7 @@ export function stageLabel(bill: ParliamentBill): string {
   return bill.current_stage_name ?? 'Active';
 }
 
-/** Board order: earliest stage first (First Reading at the top), defeated and
- *  withdrawn bills last, banded into one group per stage. `sort` is stable, so
- *  bills within a stage keep the order Parliament returned them in. Grouped
- *  and labelled by the canonical stage (see STAGES above), not the bill's own
- *  raw stage text — that's what keeps group headings/keys unique regardless
- *  of which exact wording Parliament used for any individual bill. */
-function groupByStage(bills: ParliamentBill[]): StageGroup[] {
-  const groups: StageGroup[] = [];
-  for (const bill of [...bills].sort((a, b) => stageRank(a) - stageRank(b))) {
-    const stage = stageInfo(bill).label;
-    const last = groups[groups.length - 1];
-    if (last && last.stage === stage) last.bills.push(bill);
-    else groups.push({ stage, bills: [bill] });
-  }
-  return groups;
-}
-
-/** Which House the bill currently sits in. Deliberately derived from the
- *  *current* house only — `originating_house` identifies the political source
- *  of a bill and must never surface. A bill bouncing between the two Houses,
- *  or one that has cleared both, reads as "Both". */
 export function billHouse(bill: ParliamentBill): string {
-  if (bill.is_act) return 'Both';
   const s = (bill.current_stage_name ?? '').toLowerCase();
   if (s.includes('ping-pong') || s.includes('consideration of amendments')) return 'Both';
   return bill.current_house ?? '—';
@@ -190,20 +104,21 @@ export function billStatus(bill: ParliamentBill): { label: string; color: string
   return                          { label: 'Active',       color: '#D4AF37', glow: '#D4AF3766' };
 }
 
+/** Open for the whole of a bill's passage — from First Reading to Royal
+ *  Assent, defeat or withdrawal — rather than closing at any one stage. */
 export function isVoteOpen(bill: ParliamentBill): boolean {
-  if (bill.is_act || bill.is_defeated || bill.bill_withdrawn) return false;
-  const s = (bill.current_stage_name ?? '').toLowerCase();
-  return s === '' || s.includes('first reading') || s.includes('second reading');
+  return !bill.is_act && !bill.is_defeated && !bill.bill_withdrawn;
 }
 
-/** Parliament divides on a bill at Second Reading. So while the citizen window
- *  is still open (First/Second Reading) the government has not voted yet — the
- *  Second Reading date is when it is expected to. */
-export function billGovVote(bill: ParliamentBill, votes: BillVotes | undefined): GovVote {
+/** The division — or the agreement without one ("on the nod") — that most
+ *  recently progressed the bill to the stage it is at now. A bill still at
+ *  First Reading has no prior stage transition to report yet. */
+export function billGovVote(bill: ParliamentBill): GovVote {
   if (bill.bill_withdrawn) return { status: 'none' };
-  if (isVoteOpen(bill)) return { status: 'pending', scheduledDate: votes?.secondReadingDate ?? null };
-  const tally = mockGovTally(bill.id, votes?.shadowAyes ?? 0, votes?.shadowNoes ?? 0);
-  return { status: 'voted', for: tally.for, against: tally.against };
+  const s = (bill.current_stage_name ?? '').toLowerCase();
+  if (s === '' || s.includes('first reading')) return { status: 'none' };
+  const div = mockLastDivision(bill.id);
+  return div.status === 'nod' ? { status: 'nod' } : { status: 'voted', for: div.for, against: div.against };
 }
 
 /** The AI panel's verdicts collapsed into a for/against tally, so it can be
@@ -217,14 +132,20 @@ export function billAiTally(bill: ParliamentBill): { for: number; against: numbe
 
 function BillRow({ bill, votes, myVote, onSelect, onVote }: { bill: ParliamentBill; votes?: BillVotes; myVote?: 'for' | 'against'; onSelect: () => void; onVote: (choice: 'for' | 'against') => void }) {
   const vOpen = isVoteOpen(bill);
-  const revealed = !vOpen || myVote != null;
   const title = bill.short_title ?? bill.long_title ?? 'Untitled Bill';
+  // Public, AI and Government tallies are never gated behind the citizen's own
+  // vote for bills — only the vote buttons themselves are gated by vOpen.
+  const revealed = true;
 
   return (
     // Only the title and the trailing arrow open the bill — the row itself
     // carries no click handler, so a miss-click reaching for the vote
     // buttons doesn't accidentally pop the modal open.
     <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined}>
+      <td className="ledger-table__cell ledger-table__cell--origin">
+        <HouseBadge house={bill.originating_house} size={28} />
+      </td>
+
       <td className="ledger-table__cell ledger-table__cell--no font-mono tabular-nums">{bill.id}</td>
 
       <td className="ledger-table__cell ledger-table__cell--name">
@@ -243,21 +164,31 @@ function BillRow({ bill, votes, myVote, onSelect, onVote }: { bill: ParliamentBi
 
       <td className="ledger-table__cell ledger-table__cell--house font-mono">{billHouse(bill)}</td>
 
+      <td className="ledger-table__cell ledger-table__cell--stage font-mono">{stageLabel(bill)}</td>
+
+      {/* Tallies use the plural "Ayes"/"Noes" — Parliament's own convention when
+          counting votes ("Ayes to the right, Noes to the left"), distinct from
+          the singular "Aye"/"No" used for the citizen's own individual vote. */}
       <td className="ledger-table__cell ledger-table__cell--tally">
         <TallyCell
-          tally={{ for: votes?.shadowAyes ?? 0, against: votes?.shadowNoes ?? 0 }}
+          tally={{
+            // The citizen's own vote counts into the public tally the moment
+            // they cast it, same as the card and modal.
+            for: (votes?.shadowAyes ?? 0) + (myVote === 'for' ? 1 : 0),
+            against: (votes?.shadowNoes ?? 0) + (myVote === 'against' ? 1 : 0),
+          }}
           revealed={revealed}
-          forLabel="Aye"
-          againstLabel="No"
+          forLabel="Ayes"
+          againstLabel="Noes"
         />
       </td>
 
       <td className="ledger-table__cell ledger-table__cell--tally">
-        <TallyCell tally={billAiTally(bill)} revealed={revealed} forLabel="Aye" againstLabel="No" />
+        <TallyCell tally={billAiTally(bill)} revealed={revealed} forLabel="Ayes" againstLabel="Noes" />
       </td>
 
       <td className="ledger-table__cell ledger-table__cell--tally">
-        <GovTallyCell gov={billGovVote(bill, votes)} revealed={revealed} forLabel="Aye" againstLabel="No" />
+        <GovTallyCell gov={billGovVote(bill)} revealed={revealed} forLabel="Ayes" againstLabel="Noes" />
       </td>
 
       <td className="ledger-table__cell ledger-table__cell--own">
@@ -282,7 +213,7 @@ export default function DepartureBoardSection({ bills }: Props) {
   const isDemo  = bills.length === 0;
   const display = isDemo ? DEMO_BILLS : bills;
   const votes   = isDemo ? DEMO_VOTES : ({} as Record<number, BillVotes>);
-  const groups  = groupByStage(display);
+  const sorted  = [...display].sort((a, b) => a.id - b.id);
   const selectedBill = selectedId != null ? display.find(b => b.id === selectedId) : undefined;
 
   const castVote = (id: number, choice: 'for' | 'against') =>
@@ -302,7 +233,9 @@ export default function DepartureBoardSection({ bills }: Props) {
   return (
     // Flat forest green edge to edge — no gradient, so the board reads as one
     // continuous surface and the step to the Regulation Board is a clean cut.
-    <section id="bills" className="board-surface" style={{ background: '#0C1610' }}>
+    <section id="bills" className="board-surface" style={{ background: 'var(--color-ledger-bg)', position: 'relative' }}>
+      <BoardMargin side="left" />
+      <BoardMargin side="right" />
       {/* 1400px is the brand page width (DESIGN.md `--ds-page-width`); beyond it
           the table's slack all lands in the Bill column and pushes House and
           Stage far from the name they describe. */}
@@ -325,8 +258,8 @@ export default function DepartureBoardSection({ bills }: Props) {
             <h2 className="ledger-headline" style={{ color: '#FAF6ED', fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)', lineHeight: '1.08' }}>
               The Bill Board.
             </h2>
-            <p className="font-mono" style={{ color: '#B8960C', fontSize: '12px', opacity: 0.5, letterSpacing: '0.12em', marginTop: '8px' }}>
-              Public shadow votes cast at the second reading
+            <p className="font-mono" style={{ color: '#B8960C', fontSize: '12px', letterSpacing: '0.12em', marginTop: '8px' }}>
+              Public shadow votes — open from First Reading to Royal Assent
             </p>
           </div>
           <div className="hidden sm:flex flex-col items-end gap-xxs shrink-0">
@@ -343,10 +276,23 @@ export default function DepartureBoardSection({ bills }: Props) {
         <div className="ledger-table__wrap">
           <table className="ledger-table">
             <caption className="sr-only">
-              Bills before Parliament, ordered by stage — First Reading first, defeated and withdrawn last.
+              Bills before Parliament, ordered by bill number.
             </caption>
             <thead>
               <tr>
+                <th scope="col" className="ledger-table__cell--origin" aria-label="Originating House">
+                  <span className="tally-header">
+                    <span className="tally-header__icon">
+                      {/* A plain house — whichever House introduced the bill is read
+                          per-row from the coloured badge below. */}
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="19" height="19" aria-hidden="true">
+                        <path d="M12 3 L2 11 H5 V21 H19 V11 H22 Z" />
+                      </svg>
+                      <span className="sr-only">Originating House</span>
+                    </span>
+                    <InfoTip align="left" label="Originating House" tip="The House the bill was first introduced in — Commons or Lords." />
+                  </span>
+                </th>
                 <th scope="col" className="ledger-table__cell--no">No.</th>
                 {/* aria-label so the column's own name stays the plain label —
                     without it the InfoTip's text runs into it in the a11y tree. */}
@@ -356,9 +302,13 @@ export default function DepartureBoardSection({ bills }: Props) {
                       edge, so a centred tooltip would spill off it. */}
                   <InfoTip align="left" label="Bill" tip="The bill's short title as published by Parliament. Select any row to read the full detail and cast your vote." />
                 </th>
-                <th scope="col" className="ledger-table__cell--house" aria-label="House">
-                  House
-                  <InfoTip label="House" tip="The House the bill currently sits in — Commons or Lords, or Both once it is passing between them." />
+                <th scope="col" className="ledger-table__cell--house" aria-label="Current House">
+                  Current House
+                  <InfoTip label="Current House" tip="The House the bill currently sits in — Commons or Lords, or Both once it is passing between them, or neither once it has received Royal Assent." />
+                </th>
+                <th scope="col" className="ledger-table__cell--stage" aria-label="Stage">
+                  Stage
+                  <InfoTip label="Stage" tip="Where the bill stands right now, exactly as Parliament names it — not a simplified summary." />
                 </th>
                 <th scope="col" className="ledger-table__cell--tally" aria-label="Public vote tally"><TallyHeader kind="public" /></th>
                 <th scope="col" className="ledger-table__cell--tally" aria-label="AI vote tally"><TallyHeader kind="ai" /></th>
@@ -368,7 +318,7 @@ export default function DepartureBoardSection({ bills }: Props) {
                   <InfoTip
                     align="right"
                     label="Your vote"
-                    tip="Your own shadow vote. Cast it from this column or from the bill detail while the bill is at First or Second Reading, and your choice is shown here. If you do not vote before the window closes, this column reads 'Did not vote'."
+                    tip="Your own shadow vote. Cast it from this column or from the bill detail any time the bill remains before Parliament — from First Reading until Royal Assent, defeat or withdrawal. If you never vote, this column reads 'Did not vote' once the bill is settled."
                   />
                 </th>
                 <th scope="col" className="ledger-table__cell--arrow">
@@ -376,29 +326,18 @@ export default function DepartureBoardSection({ bills }: Props) {
                 </th>
               </tr>
             </thead>
-            {/* One banded section per stage rather than a Stage column — the
-                board is ordered by stage, so the heading carries it once for the
-                whole group instead of repeating on every row. */}
-            {groups.map(group => (
-              <tbody key={group.stage} className="ledger-table__group">
-                <tr className="ledger-table__stage-row">
-                  <th scope="colgroup" colSpan={8} className="ledger-table__stage-head" aria-label={group.stage}>
-                    <span className="ledger-table__stage-title">{group.stage}</span>
-                    <InfoTip align="left" scope="stage" label={group.stage} tip={stageDescription(group.stage)} />
-                  </th>
-                </tr>
-                {group.bills.map(bill => (
-                  <BillRow
-                    key={bill.id}
-                    bill={bill}
-                    votes={votes[bill.id]}
-                    myVote={votedMap[bill.id]}
-                    onSelect={() => setSelectedId(bill.id)}
-                    onVote={choice => castVote(bill.id, choice)}
-                  />
-                ))}
-              </tbody>
-            ))}
+            <tbody>
+              {sorted.map(bill => (
+                <BillRow
+                  key={bill.id}
+                  bill={bill}
+                  votes={votes[bill.id]}
+                  myVote={votedMap[bill.id]}
+                  onSelect={() => setSelectedId(bill.id)}
+                  onVote={choice => castVote(bill.id, choice)}
+                />
+              ))}
+            </tbody>
           </table>
         </div>
 
@@ -406,29 +345,21 @@ export default function DepartureBoardSection({ bills }: Props) {
             The table's own fold keeps its header within reach for the first
             couple of rows, but a board running to a few dozen items scrolls
             it away from everything after that. Below the phone breakpoint,
-            CSS swaps the table above for this card list — same groups, same
-            data, same modal on tap. */}
+            CSS swaps the table above for this card list — same data, same
+            order, same modal on tap. */}
         <div className="board-cards">
-          {groups.map(group => (
-            <div key={group.stage} className="board-cards__group">
-              <div className="board-cards__stage-head">
-                <span className="board-cards__stage-title">{group.stage}</span>
-                <InfoTip align="left" scope="stage" label={group.stage} tip={stageDescription(group.stage)} />
-              </div>
-              <div className="board-cards__stack">
-                {group.bills.map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    bill={bill}
-                    votes={votes[bill.id]}
-                    myVote={votedMap[bill.id]}
-                    onSelect={() => setSelectedId(bill.id)}
-                    onVote={choice => castVote(bill.id, choice)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="board-cards__stack">
+            {sorted.map(bill => (
+              <BillCard
+                key={bill.id}
+                bill={bill}
+                votes={votes[bill.id]}
+                myVote={votedMap[bill.id]}
+                onSelect={() => setSelectedId(bill.id)}
+                onVote={choice => castVote(bill.id, choice)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

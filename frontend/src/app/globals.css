@@ -71,6 +71,14 @@
   --color-aged-gold-light: #D4AF37;
   --color-seal-red: #8B1A1A;
 
+  /* The near-black background shared by the Bill Board, footer, hero and modal
+     chrome — the single place to adjust that shade. Every other reference to
+     it, in this file and in DepartureBoardSection/Footer/HeroSection's inline
+     styles, points here via var(--color-ledger-bg) rather than repeating the
+     hex. The one exception is layout.tsx's `themeColor` metadata, which can't
+     reference CSS custom properties — keep that literal in sync by hand. */
+  --color-ledger-bg: #122019;
+
   /* Typography ─────────────────────────────────────────────────────── */
   /* Each text-* utility sets font-size, line-height, and letter-spacing.
      Font weight is NOT included — apply font-semibold / font-medium /
@@ -158,15 +166,15 @@
    user pulls past the top or bottom of the page to reload. body's default
    was the neutral canvas-soft grey, which flashed against the brand's dark
    surfaces — html is set too as a fallback, since some browser versions
-   read it instead of (or in addition to) body's. #0C1610 is the same dark
-   green used for the Bill Board, Regulation Board chrome, and footer (see
-   DepartureBoardSection.tsx and the modal/footer chrome below). */
+   read it instead of (or in addition to) body's. --color-ledger-bg is the
+   same dark green used for the Bill Board, Regulation Board chrome, and
+   footer (see DepartureBoardSection.tsx and the modal/footer chrome below). */
 html {
-  background-color: #0C1610;
+  background-color: var(--color-ledger-bg);
 }
 
 body {
-  background-color: #0C1610;
+  background-color: var(--color-ledger-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
@@ -417,7 +425,7 @@ body {
     color: var(--color-forest-green);
   }
 
-  /* Chamber footer — dark #0C1610 surface shared with the Bill Board, so its
+  /* Chamber footer — dark --color-ledger-bg surface shared with the Bill Board, so its
      link colours are the gold/parchment pairing used there rather than the
      warm-brown pairing above (which only reads against light parchment). */
   .footer-link {
@@ -444,10 +452,13 @@ body {
   .footer-watermark {
     font-family: var(--font-display), Georgia, "Times New Roman", serif;
     font-weight: 700;
-    color: rgba(250, 246, 237, 0.05);
+    color: rgba(184, 150, 12, 0.22);
     letter-spacing: -0.02em;
-    line-height: 0.8;
-    white-space: nowrap;
+    line-height: 0.9;
+    /* Wraps rather than clips — on narrow viewports the clamp()'d size
+       still won't fit "Public Ledger" on one line, and a clipped word is
+       worse than a two-line wordmark. */
+    white-space: normal;
     user-select: none;
   }
 
@@ -672,8 +683,8 @@ body {
     font-family: var(--font-display), Georgia, serif;
     font-style: italic;
     font-weight: 600;
-    font-size: 17px;
-    letter-spacing: -0.015em;
+    font-size: 20px;
+    letter-spacing: -0.01em;
     color: #faf6ed;
     white-space: nowrap;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
@@ -681,13 +692,13 @@ body {
 
   .hero-nav-link {
     font-family: var(--font-mono), monospace;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #e8c840;
     text-decoration: none;
-    padding: 6px 10px;
+    padding: 8px 14px;
     border-radius: 2px;
     background: none;
     border: none;
@@ -708,11 +719,11 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
-    padding: 0 14px;
+    height: 36px;
+    padding: 0 18px;
     border-radius: 2px;
     font-family: var(--font-sans), system-ui, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.02em;
     text-decoration: none;
@@ -1209,11 +1220,75 @@ body {
   .board-surface {
     --board-head-bg: #12291d;
     --board-band-bg: rgba(27, 67, 50, 0.24);
+    --board-ornament: var(--color-aged-gold);
+    --board-bg: var(--color-ledger-bg);
   }
 
   [data-board-theme='bronze'] {
     --board-head-bg: #1c1712;
     --board-band-bg: rgba(90, 60, 30, 0.26);
+    --board-ornament: #c08a4a;
+    --board-bg: #14100c;
+  }
+
+  /* ── Margin ornament ──────────────────────────────────────────────── */
+  /* Fills the wide flanking gutters either side of the board on large
+     screens with a purely decorative gold (bronze, on the Regulation
+     Board) rule, diamond dividers, and a vertical spine label — pure
+     brand chrome, no data dependency. Hidden below ~1680px, where the
+     gutter isn't wide enough to hold it without crowding the table. */
+  .board-margin {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .board-margin--left { left: 24px; }
+  .board-margin--right { right: 24px; }
+
+  @media (min-width: 1680px) {
+    .board-margin { display: flex; }
+  }
+
+  .board-margin__rule {
+    position: relative;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+        transparent,
+        var(--board-ornament) 10%,
+        var(--board-ornament) 90%,
+        transparent);
+    opacity: 0.5;
+  }
+
+  .board-margin__ornaments {
+    position: absolute;
+    inset: 12% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .board-margin__roundel {
+    position: relative;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--board-ornament);
+    background: var(--board-bg);
+    color: var(--board-ornament);
+    opacity: 0.82;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* The regulation board's own chrome swaps gold for bronze/copper. Keyed on
@@ -1363,7 +1438,14 @@ body {
     border-radius: 4px;
     /* Matches the Bill Board section's own background so the table reads as
        part of the same surface rather than a panel floated above it. */
-    background: #0C1610;
+    background: var(--color-ledger-bg);
+    /* Stacked rather than one heavy blur, per the brand's elevation system —
+       scaled darker than the light-surface tokens since it needs to read
+       against the section's own near-black background, not parchment. */
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 8px 20px -4px rgba(0, 0, 0, 0.45),
+      0 24px 40px -12px rgba(0, 0, 0, 0.4);
   }
 
   /* The Regulation Board is a different shade of near-black — match that
@@ -1396,6 +1478,7 @@ body {
     text-transform: uppercase;
     color: #b8960c;
     text-align: left;
+    vertical-align: middle;
     padding: 11px 14px 12px;
     border-bottom: 1px solid rgba(184, 150, 12, 0.32);
     white-space: nowrap;
@@ -1457,6 +1540,15 @@ body {
     vertical-align: middle;
   }
 
+  /* The originating-House badge — a fixed-size circle, so the column is just
+     wide enough to hold it with a little breathing room either side. */
+  .ledger-table__cell--origin {
+    width: 48px;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 6px;
+  }
+
   .ledger-table__cell--no {
     width: 64px;
     color: rgba(184, 150, 12, 0.7);
@@ -1469,10 +1561,25 @@ body {
 
   /* Wide enough for the Regulation Board's "Affirmative"; the Bill Board's
      shorter House values sit comfortably inside it. */
-  .ledger-table__cell--house {
+  .ledger-table__cell--house,
+  .ledger-table thead th.ledger-table__cell--house {
     width: 112px;
+    font-size: 14px;
+    color: rgba(250, 246, 237, 0.9);
+    text-align: center;
+  }
+
+  /* Parliament's own stage names run long ("Consideration of Commons
+     amendments", "Committee of the whole House") and aren't a fixed
+     vocabulary, so this wraps rather than truncating. */
+  .ledger-table__cell--stage,
+  .ledger-table thead th.ledger-table__cell--stage {
+    width: 156px;
     font-size: 13px;
-    color: rgba(250, 246, 237, 0.72);
+    line-height: 1.35;
+    color: rgba(250, 246, 237, 0.9);
+    text-align: center;
+    white-space: normal;
   }
 
   .ledger-table__cell--tally,
@@ -1701,6 +1808,12 @@ body {
   .tally-header {
     display: inline-flex;
     align-items: center;
+    /* An inline-flex box has no text baseline of its own, so without this a
+       browser synthesizes one from its bottom edge — that reads as sitting
+       higher than the plain-text headers beside it, which centre on their
+       actual line box. Setting this here (not just `vertical-align: middle`
+       on the parent `<th>`) is what actually fixes it. */
+    vertical-align: middle;
   }
 
   .tally-header__icon {
@@ -1733,7 +1846,7 @@ body {
 
   .thumb-tally__count {
     font-family: var(--font-mono), monospace;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.01em;
   }
 
@@ -1763,13 +1876,22 @@ body {
     white-space: nowrap;
   }
 
+  .tally-cell__nod {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(250, 246, 237, 0.78);
+    white-space: nowrap;
+  }
+
   /* ── The citizen's own vote ──────────────────────────────────────── */
   .own-vote {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     font-family: var(--font-mono), monospace;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -1899,8 +2021,10 @@ body {
       min-width: 470px;
     }
 
+    .ledger-table__cell--origin,
     .ledger-table__cell--no,
-    .ledger-table__cell--house {
+    .ledger-table__cell--house,
+    .ledger-table__cell--stage {
       display: none;
     }
 
@@ -2185,17 +2309,23 @@ body {
   .ledger-modal-panel {
     /* Matches the Bill Board section background so the modal reads as the
        same surface, not a separate panel. */
-    --modal-bg: #0C1610;
+    --modal-bg: var(--color-ledger-bg);
     background: var(--modal-bg);
     border: 1px solid rgba(184, 150, 12, 0.4);
     border-radius: 8px;
     padding: 28px 34px 28px 28px;
     max-width: 860px;
-    max-height: 88vh;
-    /* `scroll`, not `auto`: the panel is always taller than the viewport in
-       practice, and a track that appears only once you start scrolling gives no
-       cue that there is more below the fold. */
-    overflow-y: scroll;
+    /* Fixed, not `max-height`: the box must stay the same size on every tab.
+       `max-height` would let it shrink to fit a short tab's content, which is
+       exactly the resize-on-click behaviour this is meant to avoid — see
+       `.modal-tab-panels` below. */
+    height: 88vh;
+    /* `auto`, not `scroll`: with the fixed height above, a short tab's content
+       genuinely fits with room to spare, and a scrollbar with nothing to
+       scroll reads as broken chrome. `scrollbar-gutter: stable` still reserves
+       the track's width on every tab, so nothing shifts when a taller tab
+       (Details, normally) does need to scroll. */
+    overflow-y: auto;
     scrollbar-gutter: stable;
     box-shadow:
       0 24px 64px rgba(0, 0, 0, 0.55),
@@ -2887,6 +3017,183 @@ body {
     margin-bottom: 12px;
   }
 
+  /* ── Bill detail modal tabs ──────────────────────────────────────── */
+  .modal-tabs {
+    display: flex;
+    margin-top: 18px;
+    border-bottom: 1px solid rgba(184, 150, 12, 0.15);
+  }
+
+  .modal-tab {
+    font-family: var(--font-mono), monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(250, 246, 237, 0.5);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 4px 10px;
+    margin-right: 22px;
+    cursor: pointer;
+    transition: color 0.12s ease, border-color 0.12s ease;
+  }
+
+  @media (hover: hover) {
+    .modal-tab:hover {
+      color: rgba(250, 246, 237, 0.8);
+    }
+  }
+
+  .modal-tab[data-active='true'] {
+    color: #d4af37;
+    border-bottom-color: #d4af37;
+  }
+
+  .modal-tab:focus-visible {
+    outline: 2px solid var(--color-aged-gold-light);
+    outline-offset: 2px;
+  }
+
+  /* Only the active panel occupies space — `.ledger-modal-panel`'s fixed
+     `height: 88vh` is what keeps the modal's on-screen size constant across
+     tabs, not this element. A shared grid cell sized to the tallest panel
+     was tried here before, but it means every tab's scrollable area is as
+     tall as Details even when that tab's own content is short — you scroll
+     through blank space to reach the bottom of a two-line tab. Sizing the
+     wrapper instead of the content, and letting each tab bring only its own
+     content, gives short tabs blank padding with no scroll and lets only a
+     tab whose content genuinely exceeds 88vh scroll on its own. Inactive
+     panels are `inert` and `display: none`d out of layout entirely. */
+  .modal-tab-panel[inert] {
+    display: none;
+  }
+
+  /* ── Bill passage diagram ────────────────────────────────────────── */
+  .bill-passage {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .bill-passage__panel {
+    border: 1px solid rgba(184, 150, 12, 0.18);
+    border-radius: 6px;
+    padding: 12px 14px;
+    min-width: 0;
+  }
+
+  .bill-passage__panel-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #faf6ed;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(184, 150, 12, 0.14);
+  }
+
+  .bill-passage__list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .bill-passage__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(250, 246, 237, 0.85);
+  }
+
+  .bill-passage__row[data-state='upcoming'],
+  .bill-passage__row[data-state='not-applicable'] {
+    color: rgba(250, 246, 237, 0.45);
+  }
+
+  .bill-passage__row[data-state='current'] {
+    color: #d4af37;
+    font-weight: 600;
+  }
+
+  @media (max-width: 639px) {
+    .bill-passage {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Stages tab ──────────────────────────────────────────────────── */
+  .stages-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .stages-tab__entry {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(184, 150, 12, 0.12);
+  }
+
+  .stages-tab__entry:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .stages-tab__badge {
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .stages-tab__body {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .stages-tab__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stages-tab__name {
+    color: #faf6ed;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .stages-tab__date {
+    color: rgba(184, 150, 12, 0.6);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .stages-tab__division {
+    margin-top: 4px;
+    font-size: 12px;
+    color: rgba(250, 246, 237, 0.62);
+  }
+
+  .stages-tab__ai {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(250, 246, 237, 0.55);
+  }
+
   /* ── Voting panel ─────────────────────────────────────────────────── */
   .voting-panel__btn {
     flex: 1;
@@ -2941,6 +3248,7 @@ body {
      control (hamburger, modal close) happened to live in the same corner;
      an inline one can't, because flex layout never overlaps siblings. */
   .sound-toggle {
+    position: relative;
     flex-shrink: 0;
     width: 36px;
     height: 36px;
@@ -2953,6 +3261,40 @@ body {
     color: #d4af37;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  /* ── Fireworks: the tune's grand finish, ~3s out ─────────────────── */
+  .sound-toggle__fireworks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .sound-toggle__spark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--spark-color, #d4af37);
+    box-shadow: 0 0 6px var(--spark-color, #d4af37);
+    opacity: 0;
+    animation: sound-firework 620ms ease-out forwards;
+  }
+
+  @keyframes sound-firework {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(0) scale(1);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(-38px) scale(0.3);
+    }
   }
 
   .sound-toggle:hover {
