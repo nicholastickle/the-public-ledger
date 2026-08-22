@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import type { ParliamentRegulation } from '../../types/parliament';
-import { generateAiVerdicts, aiAggregate, mockGovTally, type GovVote } from '../../lib/mockVotes';
+import { generateAiVerdicts, aiAggregate, mockRegulationDivision, mockPrayerTabled, type GovVote } from '../../lib/mockVotes';
 import TallyHeader from './TallyHeader';
 import InfoTip from '../ui/InfoTip';
+import HouseBadge from '../ui/HouseBadge';
 import { TallyCell, GovTallyCell } from './TallyCell';
 import OwnVoteCell from './OwnVoteCell';
 import TableRowArrow from './TableRowArrow';
@@ -19,7 +20,22 @@ interface Props {
 export interface RegulationVotes {
   shadowApprove: number;
   shadowAnnul: number;
-  deadline?: string | null;
+}
+
+/** Instruments are laid before whichever House(s) their enabling Act
+ *  requires — never "introduced" in one the way a bill is — so a row shows
+ *  one badge per House laid before rather than a single origin badge. */
+function RegulationHouseBadges({ house }: { house: ParliamentRegulation['house'] }) {
+  if (house === 'Both') {
+    return (
+      <span className="inline-flex items-center gap-xxs">
+        <HouseBadge house="Commons" size={22} />
+        <HouseBadge house="Lords" size={22} />
+      </span>
+    );
+  }
+  if (house === 'Commons' || house === 'Lords') return <HouseBadge house={house} size={22} />;
+  return null;
 }
 
 interface PhaseGroup {
@@ -34,7 +50,7 @@ interface PhaseGroup {
 // usually in flight — several dozen SIs are typically live at once. Scaled up accordingly,
 // while staying demo-sized.
 // Demo ids are string literals of small integers — never real SI paper ids,
-// but kept numeric-looking so mockGovTally/generateAiVerdicts/generateExplainer
+// but kept numeric-looking so mockRegulationDivision/generateAiVerdicts/generateExplainer
 // (which hash string seeds) and the legislation.gov.uk URL fallback in
 // RegulationDetailModal (which parses them back with Number()) keep working
 // exactly as before. `paper_number` is omitted throughout: demo data never had
@@ -89,27 +105,27 @@ const DEMO_REGULATIONS: ParliamentRegulation[] = [
 
 const DEMO_VOTES: Record<string, RegulationVotes> = {
   // Pending Approval
-  1: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-15' },
-  2: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-10' },
-  25: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-20' },
-  26: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-22' },
-  27: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-05' },
-  28: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-08-25' },
+  1: { shadowApprove: 0, shadowAnnul: 0 },
+  2: { shadowApprove: 0, shadowAnnul: 0 },
+  25: { shadowApprove: 0, shadowAnnul: 0 },
+  26: { shadowApprove: 0, shadowAnnul: 0 },
+  27: { shadowApprove: 0, shadowAnnul: 0 },
+  28: { shadowApprove: 0, shadowAnnul: 0 },
   // Annul Window Open
-  3: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-14' },
-  4: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-12' },
-  5: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-02' },
-  6: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-16' },
-  29: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-18' },
-  30: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-08' },
-  31: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-24' },
-  32: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-20' },
-  33: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-13' },
-  34: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-27' },
-  35: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-06' },
-  36: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-22' },
-  37: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-09' },
-  38: { shadowApprove: 0, shadowAnnul: 0, deadline: '2026-09-30' },
+  3: { shadowApprove: 0, shadowAnnul: 0 },
+  4: { shadowApprove: 0, shadowAnnul: 0 },
+  5: { shadowApprove: 0, shadowAnnul: 0 },
+  6: { shadowApprove: 0, shadowAnnul: 0 },
+  29: { shadowApprove: 0, shadowAnnul: 0 },
+  30: { shadowApprove: 0, shadowAnnul: 0 },
+  31: { shadowApprove: 0, shadowAnnul: 0 },
+  32: { shadowApprove: 0, shadowAnnul: 0 },
+  33: { shadowApprove: 0, shadowAnnul: 0 },
+  34: { shadowApprove: 0, shadowAnnul: 0 },
+  35: { shadowApprove: 0, shadowAnnul: 0 },
+  36: { shadowApprove: 0, shadowAnnul: 0 },
+  37: { shadowApprove: 0, shadowAnnul: 0 },
+  38: { shadowApprove: 0, shadowAnnul: 0 },
   // Approved
   7: { shadowApprove: 6100, shadowAnnul: 900 },
   39: { shadowApprove: 8200, shadowAnnul: 1400 },
@@ -196,13 +212,27 @@ export function isVoteOpen(reg: ParliamentRegulation): boolean {
   return reg.status === 'pending';
 }
 
-/** While an instrument is still pending, Parliament has not settled it — the
- *  parliamentary deadline is the date by which it must. */
-export function regulationGovVote(reg: ParliamentRegulation, votes: RegulationVotes | undefined): GovVote {
+/** Where Parliament's own handling of the instrument stands.
+ *  - Affirmative: needs an active approval motion in each House before it
+ *    can be made — always a motion, even if it's rarely divided.
+ *  - Negative: the default is Parliament's silence — it becomes law unless a
+ *    "prayer" against it is tabled and carried within the objection period.
+ *    Most draw no prayer at all, which is `silent`, not `pending`: no vote is
+ *    expected, let alone scheduled. */
+export function regulationGovVote(reg: ParliamentRegulation): GovVote {
   if (reg.status === 'withdrawn') return { status: 'none' };
-  if (isVoteOpen(reg)) return { status: 'pending', scheduledDate: votes?.deadline ?? reg.deadline ?? null };
-  const tally = mockGovTally(reg.id, votes?.shadowApprove ?? 0, votes?.shadowAnnul ?? 0);
-  return { status: 'voted', for: tally.for, against: tally.against };
+  const isAffirmative = reg.procedure === 'affirmative' || reg.procedure === 'super-affirmative';
+  const outcome: 'approved' | 'annulled' = reg.status === 'annulled' ? 'annulled' : 'approved';
+
+  if (!isAffirmative) {
+    const prayed = reg.status === 'annulled' || mockPrayerTabled(reg.id);
+    if (!prayed) return { status: 'silent', scheduledDate: reg.deadline };
+    if (isVoteOpen(reg)) return { status: 'pending', scheduledDate: reg.deadline };
+    return mockRegulationDivision(reg.id, outcome);
+  }
+
+  if (isVoteOpen(reg)) return { status: 'pending', scheduledDate: reg.deadline };
+  return mockRegulationDivision(reg.id, outcome);
 }
 
 /** The AI panel's verdicts collapsed into a for/against tally, so it can be
@@ -220,13 +250,21 @@ function procedureLabel(reg: ParliamentRegulation): string {
 
 function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: ParliamentRegulation; votes?: RegulationVotes; myVote?: 'for' | 'against'; onSelect: () => void; onVote: (choice: 'for' | 'against') => void }) {
   const vOpen = isVoteOpen(reg);
-  const revealed = !vOpen || myVote != null;
+  // Public, AI and Government tallies are never gated behind the citizen's
+  // own vote for regulations — only the vote buttons themselves are gated by
+  // vOpen. Matches the Bill Board: seeing how others voted doesn't anchor a
+  // decision that's already been made public record by the time it's shown.
+  const revealed = true;
 
   return (
     // Only the title and the trailing arrow open the instrument — the row
     // itself carries no click handler, so a miss-click reaching for the vote
     // buttons doesn't accidentally pop the modal open.
     <tr className="ledger-table__row" data-voted={myVote ? 'true' : undefined}>
+      <td className="ledger-table__cell ledger-table__cell--origin">
+        <RegulationHouseBadges house={reg.house} />
+      </td>
+
       <td className="ledger-table__cell ledger-table__cell--no font-mono tabular-nums">{reg.paper_number ?? reg.id}</td>
 
       <td className="ledger-table__cell ledger-table__cell--name">
@@ -267,7 +305,7 @@ function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: Parliame
       </td>
 
       <td className="ledger-table__cell ledger-table__cell--tally">
-        <GovTallyCell gov={regulationGovVote(reg, votes)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
+        <GovTallyCell gov={regulationGovVote(reg)} revealed={revealed} forLabel="Approve" againstLabel="Annul" />
       </td>
 
       <td className="ledger-table__cell ledger-table__cell--own">
@@ -364,6 +402,19 @@ export default function RegulationBoardSection({ regulations }: Props) {
             </caption>
             <thead>
               <tr>
+                <th scope="col" className="ledger-table__cell--origin" aria-label="House">
+                  <span className="tally-header">
+                    <span className="tally-header__icon">
+                      {/* A plain house — which House(s) the instrument is laid
+                          before is read per-row from the badge(s) below. */}
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="19" height="19" aria-hidden="true">
+                        <path d="M12 3 L2 11 H5 V21 H19 V11 H22 Z" />
+                      </svg>
+                      <span className="sr-only">House</span>
+                    </span>
+                    <InfoTip align="left" label="House" tip="Which House, or Houses, the instrument is laid before. Most instruments requiring a public vote are laid before both." />
+                  </span>
+                </th>
                 <th scope="col" className="ledger-table__cell--no">No.</th>
                 {/* Left-anchored: this column sits against the table's left
                     edge, so a centred tooltip would spill off it. */}
@@ -397,7 +448,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
             {groups.map(group => (
               <tbody key={group.phase} className="ledger-table__group">
                 <tr className="ledger-table__stage-row">
-                  <th scope="colgroup" colSpan={8} className="ledger-table__stage-head" aria-label={group.phase}>
+                  <th scope="colgroup" colSpan={9} className="ledger-table__stage-head" aria-label={group.phase}>
                     <span className="ledger-table__stage-title">{group.phase}</span>
                     <InfoTip align="left" scope="stage" label={group.phase} tip={phaseDescription(group.phase)} />
                   </th>

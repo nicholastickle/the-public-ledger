@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateAiVerdicts, aiAggregate, mockGovTally } from '@/app/lib/mockVotes';
+import { generateAiVerdicts, aiAggregate, mockRegulationDivision, mockPrayerTabled } from '@/app/lib/mockVotes';
 
 describe('generateAiVerdicts', () => {
   it('returns one opinion per AI model, including Claude, ChatGPT, Gemini, and Grok', () => {
@@ -38,17 +38,51 @@ describe('aiAggregate', () => {
   });
 });
 
-describe('mockGovTally', () => {
-  it('returns for/against counts that sum to the total membership', () => {
-    const tally = mockGovTally(1, 100, 50);
-    expect(tally.for + tally.against).toBe(630);
-    expect(tally.for).toBeGreaterThan(0);
-    expect(tally.against).toBeGreaterThan(0);
+describe('mockRegulationDivision', () => {
+  it('never returns "nod" for an annulled outcome — annulment requires a carried division', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      expect(mockRegulationDivision(seed, 'annulled').status).toBe('voted');
+    }
   });
 
-  it('is deterministic for the same seed and citizen counts', () => {
-    const a = mockGovTally(5, 200, 100);
-    const b = mockGovTally(5, 200, 100);
-    expect(a).toEqual(b);
+  it('an annulled division has more against than for', () => {
+    const div = mockRegulationDivision(3, 'annulled');
+    expect(div.against!).toBeGreaterThan(div.for!);
+  });
+
+  it('a voted approval has more for than against', () => {
+    // Seed chosen (by trial) to fall into the "voted" branch rather than "nod".
+    let seed = 0;
+    while (mockRegulationDivision(seed, 'approved').status !== 'voted') seed++;
+    const div = mockRegulationDivision(seed, 'approved');
+    expect(div.for!).toBeGreaterThan(div.against!);
+  });
+
+  it('is deterministic for the same seed and outcome', () => {
+    expect(mockRegulationDivision(5, 'approved')).toEqual(mockRegulationDivision(5, 'approved'));
+  });
+
+  it('a "voted" division sums to the total membership; "nod" carries no counts', () => {
+    for (let seed = 0; seed < 20; seed++) {
+      const div = mockRegulationDivision(seed, 'approved');
+      if (div.status === 'voted') {
+        expect(div.for! + div.against!).toBe(630);
+      } else {
+        expect(div.for).toBeUndefined();
+      }
+    }
+  });
+});
+
+describe('mockPrayerTabled', () => {
+  it('is deterministic for the same seed', () => {
+    expect(mockPrayerTabled(9)).toBe(mockPrayerTabled(9));
+  });
+
+  it('is true for only a minority of seeds — a prayer is the exception, not the rule', () => {
+    const seeds = Array.from({ length: 200 }, (_, i) => i);
+    const tabled = seeds.filter(mockPrayerTabled).length;
+    expect(tabled).toBeLessThan(seeds.length * 0.3);
+    expect(tabled).toBeGreaterThan(0);
   });
 });

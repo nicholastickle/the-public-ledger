@@ -48,6 +48,8 @@ const WITHDRAWN_AFFIRMATIVE_REG: ParliamentRegulation = {
   status: 'withdrawn',
 };
 
+const openStagesTab = () => fireEvent.click(screen.getByRole('tab', { name: 'Stages' }));
+
 describe('RegulationDetailModal', () => {
   it('renders the regulation title and enabling act', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
@@ -55,7 +57,7 @@ describe('RegulationDetailModal', () => {
     expect(screen.getByText(/Test Act 2026/)).toBeInTheDocument();
   });
 
-  it('leads with the SI number, then the title, date, source links, procedure and stage', () => {
+  it('leads with the SI number, then the title, date, source links and tabs', () => {
     const { container } = render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
     const all = Array.from(container.querySelectorAll('*'));
     const at = (el: Element | null) => {
@@ -68,9 +70,8 @@ describe('RegulationDetailModal', () => {
       at(screen.getByRole('heading', { name: 'The Test (Amendment) Regulations 2026' })),
       at(screen.getByText(/Last updated 1 Jul 2026/)),
       at(screen.getByRole('link', { name: /Instrument on legislation\.gov\.uk/i })),
+      at(screen.getByRole('tablist', { name: /Regulation sections/i })),
       at(container.querySelector('.modal-meta__label')),
-      at(container.querySelector('.modal-section__heading')),
-      at(screen.getByRole('list', { name: /legislative progress/i })),
     ];
 
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
@@ -84,19 +85,24 @@ describe('RegulationDetailModal', () => {
     expect(made).toHaveAttribute('rel', 'noopener noreferrer');
     expect(made).toHaveClass('ledger-btn');
 
-    const memo = screen.getByRole('link', { name: /Explanatory memorandum/i });
+    // The Publications tab repeats this same link further down, inert until
+    // selected — the first copy in document order is the one above the tabs.
+    const memo = screen.getAllByRole('link', { name: /Explanatory memorandum/i })[0];
     expect(memo).toHaveAttribute('href', 'https://www.legislation.gov.uk/uksi/2026/1/memorandum/contents');
     expect(memo).toHaveClass('ledger-btn');
   });
 
-  it('names the section "Stage" and renders the instrument\'s stages', () => {
+  it('offers Details, Stages and Publications tabs, defaulting to Details', () => {
+    render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs.map(t => t.textContent)).toEqual(['Details', 'Stages', 'Publications']);
+    expect(screen.getByRole('tab', { name: 'Details' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it("names the Details section 'Instrument passage' and renders it", () => {
     const { container } = render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
-    expect(container.querySelector('.modal-section__heading')?.textContent).toContain('Stage');
-    expect(screen.queryByText(/^Progress$/)).not.toBeInTheDocument();
-    const timeline = screen.getByRole('list', { name: /legislative progress/i });
-    expect(within(timeline).getByText('Laid')).toBeInTheDocument();
-    expect(within(timeline).getByText('Annul Window Open')).toBeInTheDocument();
-    expect(within(timeline).getByText('Made')).toBeInTheDocument();
+    expect(Array.from(container.querySelectorAll('.modal-section__heading')).map(h => h.textContent?.trim())).toContain('Instrument passage');
+    expect(container.querySelector('.passage-diagram')).toBeInTheDocument();
   });
 
   it('explains what the procedure means for how Parliament settles it', () => {
@@ -122,23 +128,18 @@ describe('RegulationDetailModal', () => {
     expect(tips.some(t => t?.includes('First Reading'))).toBe(false);
   });
 
-  it('offers Approve/Annul thumbs and hides all tallies before voting', () => {
+  it('offers Approve/Annul thumbs and shows the public and AI tallies even before voting', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} votes={{ shadowApprove: 50, shadowAnnul: 20 }} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByRole('button', { name: /Vote Approve on The Test \(Amendment\) Regulations 2026/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Vote Annul on The Test \(Amendment\) Regulations 2026/ })).toBeInTheDocument();
-    expect(screen.queryByText('50')).not.toBeInTheDocument();
-    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
+    expect(screen.getByText('50')).toBeInTheDocument();
+    expect(screen.queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
   });
 
   it('labels the vote thumbs with the instrument wording on hover', () => {
     render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByRole('button', { name: /Vote Approve on/ })).toHaveAttribute('data-tooltip', 'Vote Approve');
     expect(screen.getByRole('button', { name: /Vote Annul on/ })).toHaveAttribute('data-tooltip', 'Vote Annul');
-  });
-
-  it('shows the parliamentary deadline while Parliament has not settled it', () => {
-    render(<RegulationDetailModal regulation={PENDING_REG} votes={{ shadowApprove: 50, shadowAnnul: 20, deadline: '2026-09-01' }} voted="for" onVote={() => {}} onClose={() => {}} />);
-    expect(screen.getByText('01/09/2026')).toBeInTheDocument();
   });
 
   it('calls onVote with the chosen side', () => {
@@ -177,16 +178,7 @@ describe('RegulationDetailModal', () => {
     expect(screen.getAllByRole('button', { name: /Model response/i })).toHaveLength(4);
   });
 
-  it('keeps the whole stage run visible for an annulled instrument', () => {
-    render(<RegulationDetailModal regulation={ANNULLED_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
-    const timeline = screen.getByRole('list', { name: /legislative progress/i });
-    expect(within(timeline).getAllByRole('listitem')).toHaveLength(4);
-    // The stages it never reached stay on the timeline rather than being cut off.
-    expect(within(timeline).getByText('Made')).toBeInTheDocument();
-    expect(within(timeline).queryByText('Annulled')).not.toBeInTheDocument();
-  });
-
-  it('states the outcome under the timeline in the wording of its procedure', () => {
+  it('states the outcome under the passage diagram in the wording of its procedure', () => {
     render(<RegulationDetailModal regulation={ANNULLED_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(screen.getByText('Annulled during the objection period')).toBeInTheDocument();
   });
@@ -199,6 +191,20 @@ describe('RegulationDetailModal', () => {
   it('shows no outcome banner for an instrument still before Parliament', () => {
     const { container } = render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
     expect(container.querySelector('.stage-outcome')).not.toBeInTheDocument();
+  });
+
+  it('renders the step history on the Stages tab', () => {
+    render(<RegulationDetailModal regulation={MADE_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
+    openStagesTab();
+    const panel = screen.getByRole('tabpanel', { name: 'Stages' });
+    expect(within(panel).getAllByRole('listitem').length).toBeGreaterThan(0);
+  });
+
+  it('links to publications from the Publications tab', () => {
+    render(<RegulationDetailModal regulation={PENDING_REG} voted={null} onVote={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Publications' }));
+    const panel = screen.getByRole('tabpanel', { name: 'Publications' });
+    expect(within(panel).getByRole('link')).toHaveAttribute('href', expect.stringContaining('legislation.gov.uk'));
   });
 
   it('opens on the bronze panel it was launched from', () => {

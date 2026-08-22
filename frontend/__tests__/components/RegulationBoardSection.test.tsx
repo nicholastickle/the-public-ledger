@@ -17,17 +17,20 @@ const regAt = (overrides: Partial<ParliamentRegulation> & { id: string; title: s
   ...overrides,
 });
 
-const PENDING_NEG = regAt({ id: '1', title: 'The Test (Amendment) Regulations 2026', procedure: 'negative', status: 'pending' });
-const PENDING_AFF = regAt({ id: '2', title: 'The Affirmative Test Regulations 2026', procedure: 'affirmative', status: 'pending' });
-const MADE_REG = regAt({ id: '3', title: 'The Made Regulations 2026', status: 'made', made_date: '2026-05-01' });
-const ANNULLED = regAt({ id: '4', title: 'The Annulled Regulations 2026', status: 'annulled' });
+// Government-vote outcomes below are the deterministic mock results for
+// these exact ids/procedures/statuses (see mockRegulationDivision /
+// mockPrayerTabled in lib/mockVotes.ts) — not arbitrary fixture choices.
+const PENDING_NEG = regAt({ id: '1', title: 'The Test (Amendment) Regulations 2026', procedure: 'negative', status: 'pending' }); // never prayed against -> silent
+const PENDING_AFF = regAt({ id: '2', title: 'The Affirmative Test Regulations 2026', procedure: 'affirmative', status: 'pending' }); // -> pending
+const MADE_REG = regAt({ id: '3', title: 'The Made Regulations 2026', status: 'made', made_date: '2026-05-01' }); // never prayed against -> silent
+const ANNULLED = regAt({ id: '4', title: 'The Annulled Regulations 2026', status: 'annulled' }); // annulment is always a carried division -> voted
 
 const rows = () => Array.from(document.querySelectorAll('.ledger-table__row'));
 
 /** The Your-vote column is duplicated into the Regulation cell for phone
  *  viewports, where CSS shows one copy and hides the other. jsdom applies no
  *  CSS, so row queries are scoped to the canonical column cell. */
-const cell = (row: Element, name: 'house' | 'own') =>
+const cell = (row: Element, name: 'origin' | 'house' | 'own') =>
   row.querySelector(`.ledger-table__cell--${name}`) as HTMLElement;
 
 describe('RegulationBoardSection', () => {
@@ -66,16 +69,22 @@ describe('RegulationBoardSection', () => {
     // The phone card below repeats the same vote-tally table (with the same
     // column headers) outside this desktop table, so headers are scoped to it.
     const board = within(document.querySelector('.ledger-table__wrap')!);
-    for (const name of ['No.', 'Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
+    for (const name of ['House', 'No.', 'Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
       expect(board.getByRole('columnheader', { name })).toBeInTheDocument();
     }
     // Every column but the instrument number carries an explanatory InfoTip.
     // The phone card repeats the same tally InfoTips outside the table, so
     // this checks at least one copy exists rather than exactly one. InfoTip
     // is a button whose accessible name comes from `aria-label`, not visible text.
-    for (const label of ['Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
+    for (const label of ['House', 'Regulation', 'Procedure', 'Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']) {
       expect(screen.getAllByRole('button', { name: `About the ${label} column` }).length).toBeGreaterThan(0);
     }
+  });
+
+  it('shows a House badge per instrument — two for one laid before both Houses', () => {
+    const { container } = render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
+    expect(cell(rows()[0], 'origin').querySelectorAll('.house-badge')).toHaveLength(2);
+    expect(container).toBeTruthy();
   });
 
   it('bands the rows under a phase heading, ordered open-to-settled', () => {
@@ -84,7 +93,7 @@ describe('RegulationBoardSection', () => {
     expect(screen.queryByRole('columnheader', { name: 'Phase' })).not.toBeInTheDocument();
     expect(Array.from(document.querySelectorAll('.ledger-table__stage-title')).map(t => t.textContent))
       .toEqual(['Pending Approval', 'Annul Window Open', 'Made', 'Annulled']);
-    expect(document.querySelector('.ledger-table__stage-head')!.getAttribute('colspan')).toBe('8');
+    expect(document.querySelector('.ledger-table__stage-head')!.getAttribute('colspan')).toBe('9');
   });
 
   it('explains every phase the board can band by', () => {
@@ -131,16 +140,15 @@ describe('RegulationBoardSection', () => {
     expect(screen.queryByRole('button', { name: /^Vote Approve/ })).not.toBeInTheDocument();
   });
 
-  it('records the citizen’s vote from the row and reveals the tallies', () => {
+  it("records the citizen's vote from the row without changing what's already shown", () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
-    expect(rows()[0].textContent).toMatch(/Hidden until you vote/);
+    expect(screen.queryByText(/Hidden until you vote/i)).not.toBeInTheDocument();
 
     fireEvent.click(within(cell(rows()[0], 'own')).getByRole('button', { name: /^Vote Annul/ }));
 
     const row = rows()[0];
     expect(row).toHaveAttribute('data-voted', 'true');
     expect(cell(row, 'own').querySelector('.own-vote--against')).toHaveTextContent('Annul');
-    expect(row.textContent).not.toMatch(/Hidden until you vote/);
   });
 
   it('does not open the modal when clicking elsewhere in the row', () => {
@@ -185,14 +193,33 @@ describe('RegulationBoardSection', () => {
     expect(screen.getByText(/^\d{2}:\d{2}:\d{2}$/)).toBeInTheDocument();
   });
 
-  it('never reveals any tally on a row whose vote is still open and uncast', () => {
-    // A pending instrument is still open to public votes, so neither the public
-    // nor the AI tally may show a result, and Parliament shows only the deadline
-    // it must be settled by — never a division result.
+  it('always shows the public and AI tallies, whether or not the citizen has voted', () => {
+    // Matches the Bill Board: results are public record, so nothing is
+    // anchor-gated behind casting a vote first.
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     const row = rows()[0];
-    expect(within(row as HTMLElement).getAllByText('Hidden until you vote')).toHaveLength(2);
-    expect(row.textContent).toMatch(/10\/08\/2026/);
-    expect(row.querySelectorAll('.thumb-tally')).toHaveLength(0);
+    expect(within(row as HTMLElement).queryByText('Hidden until you vote')).not.toBeInTheDocument();
+    expect(row.querySelectorAll('.thumb-tally').length).toBeGreaterThan(0);
+  });
+
+  it("shows a negative instrument's government column as silent by default — no prayer means no vote", () => {
+    render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
+    const gov = rows()[0].querySelectorAll('.ledger-table__cell--tally')[2];
+    expect(gov.querySelector('.tally-cell__silent')).toBeInTheDocument();
+    expect(gov.textContent).toMatch(/10\/08\/2026/);
+  });
+
+  it("shows an affirmative instrument's government column as pending with the parliamentary deadline", () => {
+    render(<RegulationBoardSection regulations={[PENDING_AFF]} />);
+    const gov = rows()[0].querySelectorAll('.ledger-table__cell--tally')[2];
+    expect(gov.querySelector('.tally-cell__pending')).toBeInTheDocument();
+    expect(gov.textContent).toMatch(/10\/08\/2026/);
+  });
+
+  it('shows a division result for an annulled instrument — annulment always requires a carried vote', () => {
+    render(<RegulationBoardSection regulations={[ANNULLED]} />);
+    const gov = rows()[0].querySelectorAll('.ledger-table__cell--tally')[2];
+    expect(gov.querySelector('.thumb-tally')).toBeInTheDocument();
+    expect(gov.querySelector('.tally-cell__silent')).not.toBeInTheDocument();
   });
 });

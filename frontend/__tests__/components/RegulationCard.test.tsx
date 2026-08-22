@@ -19,6 +19,7 @@ const regAt = (overrides: Partial<ParliamentRegulation> & { id: string; title: s
 
 const OPEN_REG = regAt({ id: '31', title: 'The Card Test Regulations 2026', procedure: 'negative', status: 'pending' });
 const CLOSED_REG = regAt({ id: '32', title: 'The Closed Card Regulations 2026', status: 'made', made_date: '2026-05-01' });
+const COMMONS_ONLY_REG = regAt({ id: '33', title: 'The Commons-Only Card Regulations 2026', house: 'Commons' });
 
 const noop = () => {};
 
@@ -36,19 +37,31 @@ describe('RegulationCard', () => {
     expect(screen.getByText('Negative')).toBeInTheDocument();
   });
 
+  it('shows a House badge for each House laid before', () => {
+    const { container } = render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
+    expect(container.querySelectorAll('.house-badge')).toHaveLength(2);
+  });
+
+  it('shows a single House badge for an instrument laid before only one House', () => {
+    const { container } = render(<RegulationCard reg={COMMONS_ONLY_REG} onSelect={noop} onVote={noop} />);
+    expect(container.querySelectorAll('.house-badge')).toHaveLength(1);
+  });
+
   it('renders the same vote-tally table the detail modal uses', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
     const headers = screen.getAllByRole('columnheader').map(h => h.getAttribute('aria-label'));
     expect(headers).toEqual(['Public vote tally', 'AI vote tally', 'Government vote tally', 'Your vote']);
   });
 
-  it('hides the Public and AI tallies behind a lock while the vote is open and uncast', () => {
+  it('shows the Public and AI tallies even while the vote is open and uncast', () => {
     render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
-    expect(screen.getAllByText(/Hidden until you vote/i).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
+    expect(screen.getAllByText('0').length).toBeGreaterThan(0);
   });
 
-  it('shows the parliamentary deadline before Parliament has settled it', () => {
-    render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
+  it("shows the negative instrument's government column as silent — no prayer, no vote", () => {
+    const { container } = render(<RegulationCard reg={OPEN_REG} onSelect={noop} onVote={noop} />);
+    expect(container.querySelector('.tally-cell__silent')).toBeInTheDocument();
     expect(screen.getByText('10/08/2026')).toBeInTheDocument();
   });
 
@@ -67,9 +80,8 @@ describe('RegulationCard', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('reveals the tallies once a vote has been recorded, and shows the recorded choice', () => {
+  it('shows the recorded choice once a vote has been cast', () => {
     const { container } = render(<RegulationCard reg={OPEN_REG} myVote="against" onSelect={noop} onVote={noop} />);
-    expect(screen.queryAllByText(/Hidden until you vote/i)).toHaveLength(0);
     expect(screen.queryByRole('button', { name: /^Vote Approve/ })).not.toBeInTheDocument();
     expect(container.querySelector('.own-vote--against')).toHaveTextContent('Annul');
   });

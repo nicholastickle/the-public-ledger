@@ -45,9 +45,9 @@ const TOOLTIPS: Record<'bill' | 'regulation', Record<TallyKind, string>> = {
   regulation: {
     public:
       'Shadow votes cast by verified members of the public. Voting opens when the instrument is laid before Parliament and closes at the parliamentary deadline — the approval vote for an affirmative instrument, or the end of the objection period for a negative one.',
-    ai: 'Verdicts from the four-model AI panel, recorded when the instrument is laid and its text published, and fixed from then on.',
+    ai: 'Verdicts from the four-model AI panel, updated at every step the instrument reaches as it passes through Parliament.',
     government:
-      'How Parliament settled the instrument. An affirmative instrument needs an approving vote in both Houses before it can be made; a negative one becomes law automatically unless either House votes to annul it within the objection period. Until then, the parliamentary deadline is shown.',
+      'How Parliament is handling the instrument. An affirmative instrument needs an approving motion in each House before it can be made — usually agreed without a division. A negative instrument becomes law through Parliament\'s silence unless a "prayer" against it is tabled and carried within the objection period; most draw no prayer, and no vote, at all.',
     own: "Your own shadow vote. Cast it here while the instrument is before Parliament and your choice is recorded. If you do not vote before the deadline, this reads 'Did not vote'.",
   },
 };

@@ -48,6 +48,17 @@ export function GovTallyCell({ gov, revealed, forLabel, againstLabel }: CellProp
       </span>
     );
   }
+  if (gov.status === 'silent') {
+    return (
+      <span
+        className="tally-cell__silent font-mono tabular-nums"
+        title={gov.scheduledDate ? 'No prayer tabled — becomes law automatically unless one is, before the objection period ends' : 'Objection period lapsed without a vote — became law by default'}
+        suppressHydrationWarning
+      >
+        {gov.scheduledDate ? formatDateNumeric(gov.scheduledDate) : 'No vote'}
+      </span>
+    );
+  }
   if (gov.status === 'pending') {
     return (
       <span className="tally-cell__pending font-mono tabular-nums" suppressHydrationWarning>

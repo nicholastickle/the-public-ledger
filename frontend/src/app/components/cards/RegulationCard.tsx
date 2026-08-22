@@ -2,6 +2,7 @@ import type { ParliamentRegulation } from '../../types/parliament';
 import { regulationStatus, regulationPhase, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from '../board/RegulationBoardSection';
 import VoteTallyTable from '../board/VoteTallyTable';
 import BookmarkButton from './BookmarkButton';
+import HouseBadge from '../ui/HouseBadge';
 import { StageIcon, ProcedureIcon, NumberIcon } from './CardMetaIcons';
 
 interface Props {
@@ -24,9 +25,19 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
 
   return (
     <article className="ledger-card" onClick={onSelect}>
-      <button type="button" className="ledger-table__title" onClick={onSelect}>
-        {reg.title}
-      </button>
+      <div className="flex items-center gap-xs">
+        {reg.house === 'Both' ? (
+          <span className="inline-flex items-center gap-xxs">
+            <HouseBadge house="Commons" size={20} />
+            <HouseBadge house="Lords" size={20} />
+          </span>
+        ) : (
+          <HouseBadge house={reg.house} size={20} />
+        )}
+        <button type="button" className="ledger-table__title" onClick={onSelect}>
+          {reg.title}
+        </button>
+      </div>
       {/* The parent Act is what makes an otherwise opaque SI title legible. */}
       <span className="ledger-table__subtitle font-mono">{reg.enabling_act}</span>
 
@@ -41,7 +52,8 @@ export default function RegulationCard({ reg, votes, myVote, onSelect, onVote }:
           onVote={onVote}
           publicVote={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
           ai={regulationAiTally(reg)}
-          gov={regulationGovVote(reg, votes)}
+          gov={regulationGovVote(reg)}
+          forceRevealed
         />
       </div>
 

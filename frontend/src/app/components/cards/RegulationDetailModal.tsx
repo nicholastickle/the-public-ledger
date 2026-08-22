@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import type { ParliamentRegulation } from '../../types/parliament';
 import { regulationStatus, isVoteOpen, regulationGovVote, regulationAiTally, type RegulationVotes } from '../board/RegulationBoardSection';
 import { generateAiVerdicts } from '../../lib/mockVotes';
 import { generateExplainer } from '../../lib/mockExplainer';
 import { formatBillDate, regulationYear, regulationSourceUrl, regulationMemorandumUrl } from '../../lib/utils';
 import Modal from '../ui/Modal';
-import BoardStageTimeline, { type TimelineStep } from '../board/BoardStageTimeline';
 import VoteTallyTable from '../board/VoteTallyTable';
 import AIVotePanel from '../voting/AIVotePanel';
 import ReadMoreText from './ReadMoreText';
+import RegulationPassageDiagram from './RegulationPassageDiagram';
+import RegulationStagesTab from './RegulationStagesTab';
 import InfoTip from '../ui/InfoTip';
 
 interface Props {
@@ -18,46 +20,15 @@ interface Props {
   onClose: () => void;
 }
 
-/** The four stages every instrument passes through, worded for its procedure.
- *  An affirmative instrument must be approved before it can be made; a negative
- *  one survives an objection period instead. */
-function regulationStages(reg: ParliamentRegulation): string[] {
-  const isAffirmative = reg.procedure === 'affirmative';
-  return [
-    'Laid',
-    isAffirmative ? 'Pending Approval' : 'Annul Window Open',
-    isAffirmative ? 'Approved' : 'Objection Window Closed',
-    'Made',
-  ];
-}
-
-/** The stage at which an instrument that did not survive stopped. Both annulment
- *  and withdrawal happen while it is before Parliament — the second stage. */
-const STOPPED_AT = 1;
-
-/** The full run of stages, always. An annulled instrument stopped one stage into
- *  four, and truncating the timeline there loses exactly that. "Annulled" and
- *  "Withdrawn" are not stages and get no node of their own; `regulationOutcome`
- *  states them in words under the timeline instead. */
-function buildRegulationTimeline(reg: ParliamentRegulation): TimelineStep[] {
-  const labels = regulationStages(reg);
-
-  if (reg.status === 'annulled' || reg.status === 'withdrawn') {
-    return labels.map((label, i) => ({
-      label,
-      state: i < STOPPED_AT ? 'done' : i === STOPPED_AT ? 'stopped' : 'unreached',
-    }));
-  }
-
-  const currentIdx = { pending: 1, approved: 2, made: 3 }[reg.status];
-  return labels.map((label, i) => ({
-    label,
-    state: i < currentIdx ? 'done' : i === currentIdx ? 'current' : 'upcoming',
-  }));
-}
+type TabKey = 'details' | 'stages' | 'publications';
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'details', label: 'Details' },
+  { key: 'stages', label: 'Stages' },
+  { key: 'publications', label: 'Publications' },
+];
 
 /** What ended the instrument's passage and where, for the banner under the
- *  timeline. Null while it is still live or has been made. */
+ *  passage diagram. Null while it is still live or has been made. */
 function regulationOutcome(reg: ParliamentRegulation): string | null {
   if (reg.status !== 'annulled' && reg.status !== 'withdrawn') return null;
   const phase = reg.procedure === 'affirmative' ? 'at the approval stage' : 'during the objection period';
@@ -79,15 +50,15 @@ function Divider() {
 }
 
 export default function RegulationDetailModal({ regulation, votes, voted, onVote, onClose }: Props) {
+  const [tab, setTab] = useState<TabKey>('details');
   const st = regulationStatus(regulation);
   const vOpen = isVoteOpen(regulation);
   const shadowApprove = votes?.shadowApprove ?? 0;
   const shadowAnnul = votes?.shadowAnnul ?? 0;
-  const gov = regulationGovVote(regulation, votes);
+  const gov = regulationGovVote(regulation);
   const aiOpinions = generateAiVerdicts(regulation.title, regulation.id);
   const explainer = generateExplainer(regulation.title, regulation.id);
   const outcome = regulationOutcome(regulation);
-  const revealed = !vOpen || voted !== null;
 
   const isAffirmative = regulation.procedure === 'affirmative';
   const procedureLabel = isAffirmative ? 'Affirmative' : 'Negative';
@@ -149,99 +120,142 @@ export default function RegulationDetailModal({ regulation, votes, voted, onVote
         )}
       </div>
 
-      {/* 5 — the procedure, which House it sits before, and the enabling Act.
-          Stacked rather than laid out inline so the three read as one list of
-          facts about the instrument, in descending order of how much they
-          change a citizen's reading of it. */}
+      {/* 5 — the divide line, then tabs for everything below it */}
       <Divider />
-      <dl className="modal-meta">
-        <div className="modal-meta__row">
-          <dt className="modal-meta__label inline-flex items-center">
-            Procedure
-            <InfoTip align="left" label="Procedure" tip={PROCEDURE_TIP[isAffirmative ? 'affirmative' : 'negative']} />
-          </dt>
-          <dd className="modal-meta__value font-mono">{procedureLabel}</dd>
-        </div>
 
-        <div className="modal-meta__row">
-          <dt className="modal-meta__label inline-flex items-center">
-            House
-            <InfoTip
-              align="left"
-              label="House"
-              tip="Which House the instrument is before. Most are laid before both, and both must be satisfied before it can be made or after it has been."
-            />
-          </dt>
-          <dd className="modal-meta__value font-mono">{regulation.house ?? '—'}</dd>
-        </div>
+      <div className="modal-tabs" role="tablist" aria-label="Regulation sections">
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            id={`regulation-tab-${t.key}`}
+            aria-selected={tab === t.key}
+            aria-controls={`regulation-panel-${t.key}`}
+            className="modal-tab"
+            data-active={tab === t.key ? 'true' : undefined}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-        {/* The parent Act is what makes an otherwise opaque SI title legible —
-            an instrument can only do what the Act it is made under allows. */}
-        <div className="modal-meta__row">
-          <dt className="modal-meta__label inline-flex items-center">
-            Made under
-            <InfoTip
-              align="left"
-              label="Made under"
-              tip="The Act of Parliament that granted the power this instrument is made with. An instrument cannot go beyond what its enabling Act permits, so the Act sets the limits of what it can do."
-            />
-          </dt>
-          <dd className="modal-meta__value font-mono">{regulation.enabling_act ?? 'Not recorded'}</dd>
-        </div>
-      </dl>
+      {/* See BillDetailModal for why only the active panel is in the layout. */}
+      <div className="modal-tab-panels">
+        {/* ── Details ────────────────────────────────────────────────── */}
+        <div role="tabpanel" id="regulation-panel-details" aria-labelledby="regulation-tab-details" inert={tab !== 'details'} className="modal-tab-panel">
+          <dl className="modal-meta mt-lg">
+            <div className="modal-meta__row">
+              <dt className="modal-meta__label inline-flex items-center">
+                Procedure
+                <InfoTip align="left" label="Procedure" tip={PROCEDURE_TIP[isAffirmative ? 'affirmative' : 'negative']} />
+              </dt>
+              <dd className="modal-meta__value font-mono">{procedureLabel}</dd>
+            </div>
 
-      {/* 6 — where it has got to */}
-      <div className="mt-lg">
-        <span className="modal-section__heading">
-          Stage
-          <InfoTip
-            align="left"
-            label="Stage"
-            tip="Every stage the instrument passes through, in order. A filled node is a stage already completed, the highlighted node is where it stands now, and hollow nodes are still ahead of it."
+            <div className="modal-meta__row">
+              <dt className="modal-meta__label inline-flex items-center">
+                House
+                <InfoTip
+                  align="left"
+                  label="House"
+                  tip="Which House the instrument is before. Most are laid before both, and both must be satisfied before it can be made or after it has been."
+                />
+              </dt>
+              <dd className="modal-meta__value font-mono">{regulation.house ?? '—'}</dd>
+            </div>
+
+            {/* The parent Act is what makes an otherwise opaque SI title legible —
+                an instrument can only do what the Act it is made under allows. */}
+            <div className="modal-meta__row">
+              <dt className="modal-meta__label inline-flex items-center">
+                Made under
+                <InfoTip
+                  align="left"
+                  label="Made under"
+                  tip="The Act of Parliament that granted the power this instrument is made with. An instrument cannot go beyond what its enabling Act permits, so the Act sets the limits of what it can do."
+                />
+              </dt>
+              <dd className="modal-meta__value font-mono">{regulation.enabling_act ?? 'Not recorded'}</dd>
+            </div>
+          </dl>
+
+          <Divider />
+          <div>
+            <span className="modal-section__heading">
+              Instrument passage
+              <InfoTip
+                align="left"
+                label="Instrument passage"
+                tip="Every step the instrument has reached in each House it's laid before. Complete steps are ticked, the current one is marked in progress, and — for a negative instrument, most of the time — the prayer step reads not applicable, because nobody tabled one."
+              />
+            </span>
+            <RegulationPassageDiagram regulation={regulation} />
+            {outcome && (
+              <p className="stage-outcome">
+                <span className="stage-outcome__dot" aria-hidden="true" />
+                {outcome}
+              </p>
+            )}
+          </div>
+
+          <Divider />
+          <VoteTallyTable
+            title={regulation.title}
+            context="regulation"
+            forLabel="Approve"
+            againstLabel="Annul"
+            isOpen={vOpen}
+            myVote={voted}
+            onVote={onVote}
+            publicVote={{ for: shadowApprove, against: shadowAnnul }}
+            ai={regulationAiTally(regulation)}
+            gov={gov}
+            closedNote={closedNote}
+            forceRevealed
           />
-        </span>
-        <BoardStageTimeline steps={buildRegulationTimeline(regulation)} />
-        {outcome && (
-          <p className="stage-outcome">
-            <span className="stage-outcome__dot" aria-hidden="true" />
-            {outcome}
+
+          <Divider />
+          <div>
+            <span className="modal-section__heading">
+              About this instrument
+              <InfoTip
+                align="left"
+                label="About this instrument"
+                tip="A plain-English summary of what the instrument does, who it affects and when it takes effect. It describes the measure only — never who brought it forward. The text published on legislation.gov.uk is what governs."
+              />
+            </span>
+            <ReadMoreText paragraphs={explainer} label={regulation.title} />
+          </div>
+
+          <Divider />
+          <AIVotePanel opinions={aiOpinions} revealed />
+        </div>
+
+        {/* ── Stages ─────────────────────────────────────────────────── */}
+        <div role="tabpanel" id="regulation-panel-stages" aria-labelledby="regulation-tab-stages" inert={tab !== 'stages'} className="modal-tab-panel mt-lg">
+          <RegulationStagesTab regulation={regulation} />
+        </div>
+
+        {/* ── Publications ───────────────────────────────────────────── */}
+        <div role="tabpanel" id="regulation-panel-publications" aria-labelledby="regulation-tab-publications" inert={tab !== 'publications'} className="modal-tab-panel mt-lg">
+          <p className="text-body-sm" style={{ color: 'rgba(250,246,237,0.72)' }}>
+            The instrument&rsquo;s full text and explanatory memorandum as published are held on legislation.gov.uk — not restated here, so there is always one canonical copy.
           </p>
-        )}
+          {regulation.detail_url ? (
+            <a className="ledger-btn mt-md" href={regulation.detail_url} target="_blank" rel="noopener noreferrer">
+              Instrument on legislation.gov.uk
+              <span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            <a className="ledger-btn mt-md" href={regulationMemorandumUrl(year, Number(regulation.id) || 0)} target="_blank" rel="noopener noreferrer">
+              Explanatory memorandum
+              <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </div>
       </div>
-
-      {/* 7 — the vote */}
-      <Divider />
-      <VoteTallyTable
-        title={regulation.title}
-        context="regulation"
-        forLabel="Approve"
-        againstLabel="Annul"
-        isOpen={vOpen}
-        myVote={voted}
-        onVote={onVote}
-        publicVote={{ for: shadowApprove, against: shadowAnnul }}
-        ai={regulationAiTally(regulation)}
-        gov={gov}
-        closedNote={closedNote}
-      />
-
-      {/* 8 — what the instrument actually does */}
-      <Divider />
-      <div>
-        <span className="modal-section__heading">
-          About this instrument
-          <InfoTip
-            align="left"
-            label="About this instrument"
-            tip="A plain-English summary of what the instrument does, who it affects and when it takes effect. It describes the measure only — never who brought it forward. The text published on legislation.gov.uk is what governs."
-          />
-        </span>
-        <ReadMoreText paragraphs={explainer} label={regulation.title} />
-      </div>
-
-      {/* 9 — the AI panel */}
-      <Divider />
-      <AIVotePanel opinions={aiOpinions} revealed={revealed} />
     </Modal>
   );
 }

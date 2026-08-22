@@ -120,17 +120,26 @@ export function aiAggregate(opinions: AiModelOpinion[]): { approve: number; reje
 /**
  * Where the government's own vote has got to.
  *  - `voted`   — a division has happened; a tally is available.
- *  - `nod`     — the stage was agreed without a division ("on the nod") — used
- *                only for bills, which have no scheduled division to wait on.
- *  - `pending` — Parliament has not voted yet. `scheduledDate` is when it is
- *                expected to (a regulation's parliamentary deadline) — bills no
- *                longer use this status, since their vote is open for the whole
- *                of their passage rather than closing at a scheduled division.
+ *  - `nod`     — the stage was agreed without a division ("on the nod") — a
+ *                bill stage, or a statutory instrument's approval motion,
+ *                that Parliament agreed to without dividing on it.
+ *  - `silent`  — a negative instrument's default outcome: nobody tabled a
+ *                "prayer" against it, so it became (or will become) law
+ *                purely through Parliament's inaction. Distinct from `nod`,
+ *                which implies active — if undivided — agreement; here
+ *                nothing happened at all. `scheduledDate`, when present, is
+ *                the objection deadline still running; when absent, the
+ *                window has already lapsed.
+ *  - `pending` — a vote is expected but has not happened yet. `scheduledDate`
+ *                is when (a regulation's parliamentary deadline) — bills no
+ *                longer use this status, since their vote is open for the
+ *                whole of their passage rather than closing at a scheduled
+ *                division.
  *  - `none`    — there will be no parliamentary vote (e.g. withdrawn before one,
  *                or no stage has concluded yet).
  */
 export interface GovVote {
-  status: 'voted' | 'nod' | 'pending' | 'none';
+  status: 'voted' | 'nod' | 'silent' | 'pending' | 'none';
   scheduledDate?: string | null;
   for?: number;
   against?: number;
@@ -148,16 +157,27 @@ export function mockLastDivision(seed: number | string): { status: 'voted' | 'no
   return { status: 'voted', for: forCount, against: total - forCount };
 }
 
-/** Deterministic mock government (parliamentary) division tally, correlated with but distinct from the citizen tally. */
-export function mockGovTally(seed: number | string, citizenFor: number, citizenAgainst: number): { for: number; against: number } {
-  const rand = mulberry32(hashSeed(seed) * 733 + 17);
-  const citizenLeansFor = citizenFor >= citizenAgainst;
-  // ~70% of the time Parliament's result agrees in direction with the citizen result; otherwise it diverges.
-  const govLeansFor = rand() < 0.7 ? citizenLeansFor : !citizenLeansFor;
+/** Deterministic mock division for a statutory instrument's one decisive
+ *  motion — an affirmative instrument's approval, or a negative instrument's
+ *  annulment prayer once one has actually been tabled. Most affirmative
+ *  approvals go through a Delegated Legislation Committee, which has no vote
+ *  of its own, and the floor motion that follows is usually agreed without
+ *  one — so `approved` outcomes lean heavily toward `nod`. An `annulled`
+ *  outcome is definitionally a carried division: silence never annuls
+ *  anything, so this branch never returns `nod`. */
+export function mockRegulationDivision(seed: number | string, outcome: 'approved' | 'annulled'): { status: 'voted' | 'nod'; for?: number; against?: number } {
+  const rand = mulberry32(hashSeed(seed) * 613 + 29);
+  if (outcome === 'approved' && rand() < 0.75) return { status: 'nod' };
   const total = 630; // approx combined Commons + Lords voting membership, for flavour only
   const margin = 0.04 + rand() * 0.4;
-  const forCount = govLeansFor
-    ? Math.round(total * (0.5 + margin / 2))
-    : Math.round(total * (0.5 - margin / 2));
-  return { for: forCount, against: total - forCount };
+  const forCount = Math.round(total * (outcome === 'approved' ? 0.5 + margin / 2 : 0.5 - margin / 2));
+  return { status: 'voted', for: forCount, against: total - forCount };
+}
+
+/** Whether a negative instrument has (or had) a live "prayer" — a motion to
+ *  annul it — tabled against it. The exception, not the rule: the large
+ *  majority of negative instruments draw no prayer at all and lapse into law
+ *  through Parliament's silence alone. */
+export function mockPrayerTabled(seed: number | string): boolean {
+  return mulberry32(hashSeed(seed) * 269 + 41)() < 0.15;
 }

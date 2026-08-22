@@ -1358,6 +1358,17 @@ body {
     color: #ddaa6a;
   }
 
+  [data-board-theme='bronze'] .tally-cell__silent {
+    color: rgba(192, 138, 74, 0.55);
+  }
+
+  /* The Regulation Board's House-badge column can hold two crests side by
+     side (an instrument laid before both Houses) where the Bill Board's
+     always holds one — a little wider so neither badge feels cramped. */
+  [data-board-theme='bronze'] .ledger-table__cell--origin {
+    width: 78px;
+  }
+
   [data-board-theme='bronze'] .board-view-all {
     color: #c08a4a;
     border-color: rgba(192, 138, 74, 0.45);
@@ -1884,6 +1895,16 @@ body {
     white-space: nowrap;
   }
 
+  /* A negative instrument's default outcome — nobody tabled a prayer against
+     it, so nothing ever gets voted on. Styled like `.tally-cell__pending`
+     (it's also just a date, or its absence) but muted rather than bright
+     gold, since — unlike `pending` — no vote is actually expected. */
+  .tally-cell__silent {
+    font-size: 11px;
+    color: rgba(184, 150, 12, 0.55);
+    white-space: nowrap;
+  }
+
   /* ── The citizen's own vote ──────────────────────────────────────── */
   .own-vote {
     display: inline-flex;
@@ -2243,7 +2264,8 @@ body {
      chip chrome needed once the table around it already reads as the card.
      Three classes deep so it still wins over the narrow-width ".vote-table
      .tally-cell__pending" padding override declared later in the file. */
-  .board-cards .ledger-card__vote .tally-cell__pending {
+  .board-cards .ledger-card__vote .tally-cell__pending,
+  .board-cards .ledger-card__vote .tally-cell__silent {
     background: none;
     border: none;
     padding: 0;
@@ -2783,7 +2805,8 @@ body {
     /* The pending date is the widest thing that can land in a tally cell, and
        the columns are fixed at a quarter each — so it shrinks to fit rather
        than spilling into the Your-vote column beside it. */
-    .vote-table .tally-cell__pending {
+    .vote-table .tally-cell__pending,
+    .vote-table .tally-cell__silent {
       font-size: 9px;
       padding: 2px 4px;
       letter-spacing: 0;
@@ -3069,21 +3092,23 @@ body {
     display: none;
   }
 
-  /* ── Bill passage diagram ────────────────────────────────────────── */
-  .bill-passage {
+  /* ── Passage diagram ──────────────────────────────────────────────── */
+  /* Shared by the Bill Board's "Bill passage" and the Regulation Board's
+     "Instrument passage" — same visual language (done/current/upcoming/
+     not-applicable), different step vocabulary underneath. */
+  .passage-diagram {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .bill-passage__panel {
+  .passage-diagram__panel {
     border: 1px solid rgba(184, 150, 12, 0.18);
     border-radius: 6px;
     padding: 12px 14px;
     min-width: 0;
   }
 
-  .bill-passage__panel-head {
+  .passage-diagram__panel-head {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3096,7 +3121,7 @@ body {
     border-bottom: 1px solid rgba(184, 150, 12, 0.14);
   }
 
-  .bill-passage__list {
+  .passage-diagram__list {
     display: flex;
     flex-direction: column;
     gap: 9px;
@@ -3105,7 +3130,7 @@ body {
     margin: 0;
   }
 
-  .bill-passage__row {
+  .passage-diagram__row {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3113,20 +3138,32 @@ body {
     color: rgba(250, 246, 237, 0.85);
   }
 
-  .bill-passage__row[data-state='upcoming'],
-  .bill-passage__row[data-state='not-applicable'] {
+  .passage-diagram__row[data-state='upcoming'],
+  .passage-diagram__row[data-state='not-applicable'] {
     color: rgba(250, 246, 237, 0.45);
   }
 
-  .bill-passage__row[data-state='current'] {
+  .passage-diagram__row[data-state='current'] {
     color: #d4af37;
     font-weight: 600;
   }
 
   @media (max-width: 639px) {
-    .bill-passage {
-      grid-template-columns: 1fr;
+    .passage-diagram {
+      grid-template-columns: 1fr !important;
     }
+  }
+
+  [data-board-theme='bronze'] .passage-diagram__panel {
+    border-color: rgba(192, 138, 74, 0.22);
+  }
+
+  [data-board-theme='bronze'] .passage-diagram__panel-head {
+    border-bottom-color: rgba(192, 138, 74, 0.18);
+  }
+
+  [data-board-theme='bronze'] .passage-diagram__row[data-state='current'] {
+    color: #ddaa6a;
   }
 
   /* ── Stages tab ──────────────────────────────────────────────────── */
