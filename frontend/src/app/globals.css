@@ -1228,7 +1228,7 @@ body {
     --board-head-bg: #1c1712;
     --board-band-bg: rgba(90, 60, 30, 0.26);
     --board-ornament: #c08a4a;
-    --board-bg: #14100c;
+    --board-bg: #1a1612;
   }
 
   /* ── Margin ornament ──────────────────────────────────────────────── */
@@ -1462,7 +1462,7 @@ body {
   /* The Regulation Board is a different shade of near-black — match that
      instead so its table blends the same way. */
   [data-board-theme='bronze'] .ledger-table__wrap {
-    background: #14100c;
+    background: #1a1612;
   }
 
   .ledger-table {
@@ -2392,7 +2392,7 @@ body {
   /* Regulation detail opens from the bronze-on-black board, so its panel
      matches the Regulation Board section background exactly. */
   .ledger-modal-panel[data-board-theme='bronze'] {
-    --modal-bg: #14100c;
+    --modal-bg: #1a1612;
   }
 
   /* Groups the close button with the sound toggle so the two sit side by

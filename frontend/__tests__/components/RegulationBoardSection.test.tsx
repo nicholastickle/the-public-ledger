@@ -151,6 +151,14 @@ describe('RegulationBoardSection', () => {
     expect(cell(row, 'own').querySelector('.own-vote--against')).toHaveTextContent('Annul');
   });
 
+  it("counts the citizen's own vote into the Public tally the moment it is cast", () => {
+    render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
+    fireEvent.click(within(cell(rows()[0], 'own')).getByRole('button', { name: 'Vote Approve on The Test (Amendment) Regulations 2026' }));
+
+    const publicCell = rows()[0].querySelectorAll('.ledger-table__cell--tally')[0];
+    expect(within(publicCell as HTMLElement).getByText('1')).toBeInTheDocument();
+  });
+
   it('does not open the modal when clicking elsewhere in the row', () => {
     render(<RegulationBoardSection regulations={[PENDING_NEG]} />);
     fireEvent.click(cell(rows()[0], 'house'));

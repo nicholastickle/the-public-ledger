@@ -293,7 +293,12 @@ function RegulationRow({ reg, votes, myVote, onSelect, onVote }: { reg: Parliame
 
       <td className="ledger-table__cell ledger-table__cell--tally">
         <TallyCell
-          tally={{ for: votes?.shadowApprove ?? 0, against: votes?.shadowAnnul ?? 0 }}
+          tally={{
+            // The citizen's own vote counts into the public tally the moment
+            // they cast it, same as the card and modal.
+            for: (votes?.shadowApprove ?? 0) + (myVote === 'for' ? 1 : 0),
+            against: (votes?.shadowAnnul ?? 0) + (myVote === 'against' ? 1 : 0),
+          }}
           revealed={revealed}
           forLabel="Approve"
           againstLabel="Annul"
@@ -357,7 +362,7 @@ export default function RegulationBoardSection({ regulations }: Props) {
       id="regulations"
       className="board-surface"
       data-board-theme="bronze"
-      style={{ background: '#14100c', borderTop: '2px solid rgba(168,114,47,0.45)', position: 'relative' }}
+      style={{ background: '#1a1612', borderTop: '2px solid rgba(168,114,47,0.45)', position: 'relative' }}
     >
       <BoardMargin side="left" />
       <BoardMargin side="right" />
