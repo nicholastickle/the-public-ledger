@@ -1,733 +1,252 @@
 ---
-version: alpha
+version: 2.0
 name: The-Public-Ledger-design-system
-description: A Victorian parliamentary ledger aesthetic — parchment paper backgrounds ruled with aged-gold lines, forest-green ink for headings and primary actions, and a Playfair Display serif display face paired with a geometric sans for body and a monospaced face for technical eyebrows. The decoration system is ornamental: gold filigree corners, wax-seal crest, ruled dividers with diamond ornaments. No mesh gradients, no flat black. The ledger is the brand.
-
-colors:
-  # ── Victorian ledger palette (primary brand surface) ──────────────
-  parchment: "#FAF6ED"
-  parchment-dark: "#EDE3C8"
-  forest-green: "#1B4332"
-  forest-green-2: "#2D6A4F"
-  aged-gold: "#B8960C"
-  aged-gold-light: "#D4AF37"
-  seal-red: "#8B1A1A"
-  # ── Neutral utility palette (body text, cards, semantic states) ───
-  primary: "#171717"
-  on-primary: "#ffffff"
-  ink: "#171717"
-  body: "#4d4d4d"
-  mute: "#888888"
-  hairline: "#ebebeb"
-  hairline-strong: "#a1a1a1"
-  canvas: "#ffffff"
-  canvas-soft: "#fafafa"
-  canvas-soft-2: "#f5f5f5"
-  link: "#0070f3"
-  link-deep: "#0761d1"
-  link-bg-soft: "#d3e5ff"
-  success: "#0070f3"
-  error: "#ee0000"
-  error-soft: "#f7d4d6"
-  error-deep: "#c50000"
-  warning: "#f5a623"
-  warning-soft: "#ffefcf"
-  warning-deep: "#ab570a"
-  violet: "#7928ca"
-  violet-soft: "#d8ccf1"
-  violet-deep: "#4c2889"
-  cyan: "#50e3c2"
-  cyan-soft: "#aaffec"
-  cyan-deep: "#29bc9b"
-  highlight-pink: "#ff0080"
-  highlight-magenta: "#eb367f"
-  selection-bg: "#171717"
-  selection-fg: "#f2f2f2"
-
-typography:
-  display-xl:
-    fontFamily: "Playfair Display, Georgia, Times New Roman, serif"
-    fontSize: 48px
-    fontWeight: 700
-    lineHeight: 52px
-    letterSpacing: -1.5px
-  display-lg:
-    fontFamily: "Playfair Display, Georgia, Times New Roman, serif"
-    fontSize: 32px
-    fontWeight: 700
-    lineHeight: 38px
-    letterSpacing: -0.8px
-  display-md:
-    fontFamily: "Playfair Display, Georgia, Times New Roman, serif"
-    fontSize: 24px
-    fontWeight: 700
-    lineHeight: 30px
-    letterSpacing: -0.5px
-  display-sm:
-    fontFamily: "Playfair Display, Georgia, Times New Roman, serif"
-    fontSize: 20px
-    fontWeight: 700
-    lineHeight: 26px
-    letterSpacing: -0.3px
-  body-lg:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 18px
-    fontWeight: 400
-    lineHeight: 28px
-    letterSpacing: 0px
-  body-md:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 16px
-    fontWeight: 400
-    lineHeight: 24px
-  body-md-strong:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 16px
-    fontWeight: 500
-    lineHeight: 24px
-  body-sm:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 20px
-    letterSpacing: -0.28px
-  body-sm-strong:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 20px
-    letterSpacing: -0.28px
-  caption:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 12px
-    fontWeight: 400
-    lineHeight: 16px
-  caption-mono:
-    fontFamily: Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace
-    fontSize: 12px
-    fontWeight: 400
-    lineHeight: 16px
-  code:
-    fontFamily: Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace
-    fontSize: 13px
-    fontWeight: 400
-    lineHeight: 20px
-  button-md:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 20px
-  button-lg:
-    fontFamily: Geist, Inter, system-ui, -apple-system, sans-serif
-    fontSize: 16px
-    fontWeight: 500
-    lineHeight: 24px
-
-rounded:
-  none: 0px
-  xs: 4px
-  sm: 6px
-  md: 8px
-  lg: 12px
-  xl: 16px
-  pill-sm: 64px
-  pill: 100px
-  full: 9999px
-
-spacing:
-  xxs: 4px
-  xs: 8px
-  sm: 12px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  2xl: 40px
-  3xl: 48px
-  4xl: 64px
-  5xl: 96px
-  6xl: 128px
-  section: 192px
-
-components:
-  nav-bar:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    height: 64px
-    padding: "{spacing.sm} {spacing.lg}"
-  nav-link:
-    textColor: "{colors.body}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.full}"
-    padding: "{spacing.xs} {spacing.sm}"
-  nav-cta-signup:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-sm-strong}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.xs}"
-    height: 28px
-  nav-cta-login:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm-strong}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.xs}"
-    height: 28px
-  nav-cta-ask-ai:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    typography: "{typography.body-sm-strong}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.xs}"
-    height: 28px
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-lg}"
-    rounded: "{rounded.pill}"
-    padding: "0px {spacing.sm}"
-  button-secondary:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button-lg}"
-    rounded: "{rounded.pill}"
-    padding: "0px {spacing.sm}"
-  button-primary-sm:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.pill}"
-    padding: "0px {spacing.xs}"
-  button-secondary-sm:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.pill}"
-    padding: "0px {spacing.xs}"
-  tab-ghost:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.pill-sm}"
-    padding: "0px {spacing.md}"
-  icon-button-circular:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    rounded: "{rounded.full}"
-  card-marketing:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.lg}"
-  card-marketing-large:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  card-soft:
-    backgroundColor: "{colors.canvas-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.lg}"
-  template-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.md}"
-  code-editor-mockup:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.code}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.lg}"
-  form-input:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.sm}"
-    height: 40px
-  form-input-sm:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.sm}"
-    height: 32px
-  form-input-lg:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
-    padding: "0px {spacing.sm}"
-    height: 48px
-  badge-secondary:
-    backgroundColor: "{colors.canvas-soft}"
-    textColor: "{colors.body}"
-    typography: "{typography.caption}"
-    rounded: "{rounded.full}"
-    padding: "0px {spacing.xs}"
-  pricing-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  pricing-card-featured:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  logo-strip:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-sm}"
-    padding: "{spacing.lg} {spacing.xl}"
-  hero-band:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.display-xl}"
-    padding: "{spacing.4xl} {spacing.lg}"
-  feature-mesh-band:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.display-lg}"
-    padding: "{spacing.5xl} {spacing.lg}"
-  showcase-band-light:
-    backgroundColor: "{colors.canvas-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.display-lg}"
-    padding: "{spacing.5xl} {spacing.lg}"
-  showcase-band-dark:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.display-lg}"
-    padding: "{spacing.5xl} {spacing.lg}"
-  footer:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-sm}"
-    padding: "{spacing.4xl} {spacing.lg}"
-  link-inline:
-    textColor: "{colors.link}"
-    typography: "{typography.body-md}"
-  banner-marketing:
-    backgroundColor: "{colors.canvas-soft}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.full}"
-    padding: "{spacing.xs} {spacing.sm}"
-
-  # ─── Examples (illustrative) — auto-derived; resolve any TO_FILL markers below ───
-  ex-pricing-tier:
-    description: "Default tier card. Mirrors pricing-card chrome on canvas-soft surface with a hairline border."
-    backgroundColor: "{colors.canvas-soft}"
-    textColor: "{colors.ink}"
-    borderColor: "{colors.hairline}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  ex-pricing-tier-featured:
-    description: "Featured tier — polarity-flipped to ink primary with white text and white CTA."
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  ex-product-selector:
-    description: "What's Included summary card — repurposed for the brand's GPU / inference / Pro feature tiers."
-    backgroundColor: "{colors.canvas-soft}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.lg}"
-  ex-cart-drawer:
-    description: "Subscription summary — line items per add-on (NOT a literal e-commerce cart)."
-    backgroundColor: "{colors.canvas}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.lg}"
-    item-divider: "{colors.hairline}"
-  ex-app-shell-row:
-    description: "Sidebar nav row. Active state uses brand primary as a left-edge indicator bar."
-    backgroundColor: "{colors.canvas}"
-    activeIndicator: "{colors.primary}"
-    rounded: "{rounded.sm}"
-    padding: "{spacing.xs} {spacing.sm}"
-  ex-data-table-cell:
-    description: "Mirrors the brand's table chrome. Header uses caption-mono uppercase mono; body uses body-sm."
-    headerBackground: "{colors.canvas-soft}"
-    headerTypography: "{typography.caption-mono}"
-    bodyTypography: "{typography.body-sm}"
-    cellPadding: "{spacing.xs} {spacing.sm}"
-    rowBorder: "{colors.hairline}"
-  ex-auth-form-card:
-    description: "Sign-in / sign-up card. Mirrors card-marketing-large chrome with form-input primitives inside."
-    backgroundColor: "{colors.canvas-soft}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  ex-modal-card:
-    description: "Modal dialog surface — same chrome as card-marketing-large with Level 5 modal shadow."
-    backgroundColor: "{colors.canvas}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.xl}"
-  ex-empty-state-card:
-    description: "Empty-state illustration frame. Generous padding on canvas-soft."
-    backgroundColor: "{colors.canvas-soft}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.3xl}"
-    captionTypography: "{typography.body-md}"
-  ex-toast:
-    description: "Toast notification surface — flat-cornered card-marketing chrome with Level 4 shadow."
-    backgroundColor: "{colors.canvas}"
-    rounded: "{rounded.md}"
-    padding: "{spacing.sm} {spacing.md}"
-    typography: "{typography.body-sm}"
-
+description: A Victorian parliamentary ledger rendered as a near-black chamber — deep forest-green-black surfaces (`#122019`), gold ruled lines and filigree, and parchment-toned ink for headlines and body copy. Playfair Display carries every headline; Geist Mono carries almost every label, timestamp, and status badge — it is the dominant "voice" of the UI, not a rare accent; Geist carries running prose. Two accent metals exist: gold (`aged-gold`) for the Bill Board and site chrome, bronze/copper for the Regulation Board, switched with `data-board-theme="bronze"`. Warm parchment survives as a light surface in exactly one place — the How It Works modal — everywhere else it is ink, not paper.
 ---
 
+## Source of truth
+
+This file is the single source of truth for all visual decisions in `frontend/`. Tokens below are registered in `frontend/src/app/globals.css` under `@theme` (colors, spacing, radius, type scale) and in `@layer components`/`@layer utilities` (custom classes, elevation, ornaments). `CLAUDE.md` links here rather than duplicating any of it — if you change a token or a component class, update this file in the same commit.
 
 ## Overview
 
-The Public Ledger is a civic-data platform for UK parliamentary voting. The visual identity evokes a Victorian parliamentary record — parchment paper, forest-green ink, aged-gold ruled lines, and ornate wax seals. This is not a tech-startup aesthetic; it is a deliberate archival register that signals authority, permanence, and civic seriousness.
+The Public Ledger reads as a parliamentary ledger book at night — a chamber, not a page of paper. The dominant surface across the hero, both vote boards, and the footer is `--color-ledger-bg` (`#122019`), a near-black forest green. Parchment (`#FAF6ED`) is not a background on these surfaces; it's the *ink* — headline and body text rendered in parchment-white and gold over the dark ground. The one exception is the **How It Works modal**, which is a genuinely light, parchment-surfaced panel with ruled gold lines and a forest-green top border — the sole place the "paper ledger" reading is literal rather than atmospheric.
 
-The surface is warm `{colors.parchment}` (`#FAF6ED`) ruled with faint gold horizontal ledger lines. Forest green (`{colors.forest-green}`) carries every heading, primary CTA, and structural border; aged gold (`{colors.aged-gold}`) carries every decorative element — dividers, filigree corners, eyebrow caps, bill ledger row borders. Sections darken to `{colors.parchment-dark}` for depth.
+Two accent metals carry the ornamental system: **gold** (`aged-gold` / `aged-gold-light`) is the site's default metal — hero frame, filigree corners, the Bill Board, nav, and footer. **Bronze/copper** (`#c08a4a` family) is a second, narrower palette used only to retheme the Regulation Board, switched via a `data-board-theme="bronze"` attribute that overrides a set of CSS custom properties (`--board-head-bg`, `--board-band-bg`, `--board-ornament`, `--board-bg`). Nothing else in the product uses bronze — it exists specifically to give the two boards a distinguishable identity while keeping the same chrome.
 
-Type has two voices. **Playfair Display** (serif, weight 700) carries every display headline — the face's ink-trap calligraphy and high contrast evoke historical gazette type. **Geist** (geometric sans) carries body copy, buttons, and all narrative prose. **Geist Mono** handles all technical eyebrows, status badges, mono captions, and the ledger-entry micro-labels — anything that needs to read as a ledger clerk's hand.
+Type has three voices, and their proportions matter: **Playfair Display** (serif, weight 700) is reserved for headline text only — the hero H1 and both board section H2s. **Geist Mono** is not a rare "eyebrow" accent here — it is the dominant voice of the working UI: table headers, stage bands, tally counts, timestamps, nav links, footer headings, and status badges are almost all mono, uppercase, tracked. **Geist** sans carries running prose (footer tagline, modal body copy) and is comparatively rare on the boards.
 
-Decoration is restrained and purposeful: filigree L-bracket corners, a Union Jack wax seal, gold ornamental diamond dividers, and a crown motif. No mesh gradients. No abstract illustration. The decoration IS the archive.
+Decoration is real but narrower in scope than it may first appear: filigree corners and the Union Jack wax seal both belong to the hero only, not to every landmark surface. The boards' ornament is a gold/bronze hairline rule plus a vertical margin ornament (rule, diamond dividers, spine label) that only appears at very wide viewports (≥1680px). The crown mark is the one motif reused across hero nav and footer.
 
-**Key Characteristics:**
-- `{colors.parchment}` (#FAF6ED) is the primary surface — warm, cream, never stark white. `{colors.parchment-dark}` (#EDE3C8) is used for footer and secondary section backgrounds.
-- `{colors.forest-green}` (#1B4332) is the primary ink colour for all headings, and the background for `btn-ledger-primary`.
-- `{colors.aged-gold}` (#B8960C) is used ONLY for decoration — borders, dividers, eyebrow text, filigree. Never for headings or body copy.
-- **Playfair Display** is the display face. Every `h1`–`h3` that surfaces a section headline uses `font-display` (Playfair Display, weight 700). Geist sans never renders at display scale on the marketing surface.
-- **Geist Mono** handles every eyebrow, badge, status label, bill entry row, and footer column heading. Mono signals the ledger-clerk, not the code terminal.
-- CTA shapes use a shallow `border-radius: 2px` — the sharp-cornered ledger aesthetic, never pill shapes.
-- Elevation is expressed through the `ledger-frame` ornate gold border (not drop-shadows). Cards use a semi-transparent white fill over parchment to lift slightly from the background.
-- The brand decoration system: filigree corners + wax seal + ruled gold lines + diamond dividers. Treat these as a unified ornamental family — do not mix with modern drop-shadows or gradients.
+**Key characteristics:**
+- `--color-ledger-bg` (`#122019`) is the primary surface for hero, Bill Board, footer. The Regulation Board uses its own near-black, `#1a1612` (bronze theme).
+- Parchment (`#FAF6ED`) and aged gold carry headline/body **text** on those dark surfaces — not backgrounds. `--color-parchment` is only a background inside the How It Works modal.
+- **Playfair Display**, weight 700, is the exclusive headline face — hero H1, both board H2s. Never used at body scale.
+- **Geist Mono**, uppercase, letter-spacing ~0.1–0.22em, is the default label voice across nav, table headers, stage bands, timestamps, and footer headings — far more pervasive than a typical "eyebrow-only" mono usage.
+- CTA and card shapes are sharp: `2px` radius on every button that actually ships (`.btn-vote-hero`, `.hero-nav-btn`, `.btn-ledger-*`), `4–8px` on table/card containers. No pill-shaped buttons render on the live site.
+- Elevation is bespoke per component (deep, dark, multi-layer box-shadows tuned per surface) rather than a single shared scale — see **Elevation** below.
+- Gold is the default ornamental metal everywhere except the Regulation Board, which trades it for bronze via `data-board-theme="bronze"`.
 
 ## Colors
 
-### Victorian Ledger Palette (primary brand surface)
-
-- **Parchment** (`{colors.parchment}` — `#FAF6ED`): The primary page surface — warm cream, like aged writing paper. Used as the hero background, how-it-works section, and any ledger-frame surface. Never substitute with pure white on brand-surface sections.
-- **Parchment Dark** (`{colors.parchment-dark}` — `#EDE3C8`): The slightly-deeper parchment tone for footer and secondary section backgrounds.
-- **Forest Green** (`{colors.forest-green}` — `#1B4332`): The primary ink colour. All major headings, the `btn-ledger-primary` background, nav links, and structural text. Evokes the green baize of the House of Commons chamber.
-- **Forest Green 2** (`{colors.forest-green-2}` — `#2D6A4F`): Hover state for forest-green elements — slightly lighter to show interactivity.
-- **Aged Gold** (`{colors.aged-gold}` — `#B8960C`): Decorative only — ledger-ruled lines, filigree borders, ornamental dividers, eyebrow text, bill row borders. Never use for body headings or narrative copy.
-- **Aged Gold Light** (`{colors.aged-gold-light}` — `#D4AF37`): The highlight tone of aged gold — used in the wax seal ring, filigree corner diamonds, and decorative high-lights. More saturated / lighter than `aged-gold`.
-- **Seal Red** (`{colors.seal-red}` — `#8B1A1A`): The wax-seal colour used in the Union Jack motif and defeated bill status badges.
-
-### Neutral Utility Palette
-
-- **Canvas** (`{colors.canvas}` — `#ffffff`): Pure white. Used for card fill backgrounds (semi-transparent over parchment: `rgba(255,255,255,0.5)`), form inputs, and modal surfaces.
-- **Canvas Soft** (`{colors.canvas-soft}` — `#fafafa`): Near-white. Used for hover states inside ledger card rows.
-- **Hairline** (`{colors.hairline}` — `#ebebeb`): 1 px dividers on white/canvas surfaces (form inputs, utility card borders).
-- **Body text warm** (not a token — use inline `color: #4A3C2A`): The warm dark-brown body text used on parchment surfaces. Warmer than `{colors.ink}` to harmonise with the parchment background.
-
-### Text on Parchment
-Body copy on parchment surfaces uses `#4A3C2A` (warm dark brown) rather than `{colors.ink}` (`#171717`) — the cool near-black reads too stark against the warm cream.
-
-### Semantic
-- **Error** (`{colors.error}` — `#ee0000`): Validation red. On parchment, pair with `{colors.seal-red}` for destructive badges to stay within the warm palette.
-- **Warning** (`{colors.warning}` — `#f5a623`): Caution / pending status. Close to aged gold — use `{colors.aged-gold}` for non-semantic decorative amber and `{colors.warning}` only for semantic status indicators.
-- **Link Blue** (`{colors.link}` — `#0070f3`): Inline links on utility surfaces (not on parchment — parchment links should use `{colors.forest-green}` with underline).
-
-### Bill Status Colours
-| Status | Colour | Value |
-|---|---|---|
-| Active | `{colors.aged-gold}` | `#B8960C` |
-| Act (passed) | `{colors.forest-green-2}` | `#2D6A4F` |
-| Defeated | `{colors.seal-red}` | `#8B1A1A` |
-| Withdrawn | `{colors.mute}` | `#888888` |
-
-## Typography
-
-### Font Family
-Three faces carry the system:
-
-1. **Playfair Display** (serif, loaded as `var(--font-playfair)`, Tailwind: `font-display`) — the display headline face. All h1–h3 on marketing surfaces. Weight 700. High-contrast calligraphic strokes evoke historical gazette typography. Letter-spacing slightly negative at display sizes. **Never render at weight 400 or below — it must read as authoritative headline text.**
-2. **Geist** (geometric sans, `var(--font-geist-sans)`, Tailwind: `font-sans`) — body copy, buttons, CTA labels, paragraph text. Weights 400 / 500 are the working set.
-3. **Geist Mono** (monospaced, `var(--font-geist-mono)`, Tailwind: `font-mono`) — all eyebrows, status badges, bill ledger micro-labels, technical captions, footer column headings. Weight 400 / 500. Always uppercase with letter-spacing 0.16–0.22em for the ledger-clerk voice.
-
-### Hierarchy
-
-| Token | Face | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|---|
-| `{typography.display-xl}` | Playfair Display | 48px | 700 | 52px | -1.5px | Hero headline (`h1`). Sentence-case. |
-| `{typography.display-lg}` | Playfair Display | 32px | 700 | 38px | -0.8px | Section headlines (`h2`). |
-| `{typography.display-md}` | Playfair Display | 24px | 700 | 30px | -0.5px | Card / step headings (`h3`). |
-| `{typography.display-sm}` | Playfair Display | 20px | 700 | 26px | -0.3px | Inline micro-headings. |
-| `{typography.body-lg}` | Geist | 18px | 400 | 28px | 0 | Lead paragraphs under section headlines. |
-| `{typography.body-md}` | Geist | 16px | 400 | 24px | 0 | Default body paragraph. |
-| `{typography.body-sm}` | Geist | 14px | 400 | 20px | -0.28px | Secondary body, nav-link text. |
-| `{typography.caption}` | Geist | 12px | 400 | 16px | 0 | Fine print, badge labels. |
-| `{typography.caption-mono}` | Geist Mono | 12px | 400 | 16px | +0.18em | Section eyebrows, ledger row labels — always uppercase. |
-| `{typography.code}` | Geist Mono | 13px | 400 | 20px | 0 | Inline code, bill reference IDs. |
-| `{typography.button-md}` | Geist | 14px | 500 | 20px | +0.02em | Compact CTA labels (`btn-ledger-*-sm`). |
-| `{typography.button-lg}` | Geist | 16px | 500 | 24px | +0.03em | Marketing CTA labels (`btn-ledger-primary`). |
-
-### Principles
-- **Playfair Display is the headline voice without exception.** All h1–h3 on parchment surfaces use `font-display`. Never render section headlines in Geist sans.
-- **Mono is the ledger-clerk voice.** Eyebrows, bill reference numbers, status labels, and footer column headers use Geist Mono, always uppercase with tracking 0.16–0.22em.
-- **Sentence-case headlines.** No all-caps display headings. The Playfair italic is used selectively for emphasis (`<em>on every bill.</em>`).
-- **Weight 700 is the Playfair headline weight.** Do not use weight 400 Playfair Display — it reads as editorial body copy, not authoritative headline text.
-- **Body warmth.** Body copy on parchment uses `#4A3C2A` not `{colors.ink}` (`#171717`) — the warm brown harmonises with parchment; stark black reads as anachronistic on the warm surface.
-
-## Layout
-
-### Spacing System
-- **Base unit**: 4 px. The brand's `--geist-space` token is exactly 4 px and every captured value is a multiple of 4.
-- **Tokens**: `{spacing.xxs}` 4 px · `{spacing.xs}` 8 px · `{spacing.sm}` 12 px · `{spacing.md}` 16 px · `{spacing.lg}` 24 px · `{spacing.xl}` 32 px · `{spacing.2xl}` 40 px · `{spacing.3xl}` 48 px · `{spacing.4xl}` 64 px · `{spacing.5xl}` 96 px · `{spacing.6xl}` 128 px · `{spacing.section}` 192 px.
-- **Section padding**: marketing bands use `{spacing.4xl}` to `{spacing.5xl}` top/bottom. Hero bands stretch to `{spacing.section}` to give the mesh gradient room to breathe.
-- **Card interior padding**: marketing cards sit at `{spacing.lg}` to `{spacing.xl}`; template-grid cards stay tighter at `{spacing.md}` because they sit in a denser grid.
-- **Inline gap**: button rows, nav rows, and chip rows use `{spacing.sm}` to `{spacing.md}` between siblings. The brand's `--geist-gap` is exactly 24 px.
-
-### Grid & Container
-- **Max width**: ~1400 px (`--ds-page-width`); the legacy `--geist-page-width` is 1200 px and still appears on some marketing surfaces. Content centres with horizontal gutters of `{spacing.lg}` 24 px on desktop, `{spacing.md}` 16 px on mobile.
-- **Column patterns**:
-  - Three-feature row: 3-up at desktop, 1-up at mobile (rows like "Web Apps / Composable Commerce / Multi-tenant Platforms").
-  - Tab pill row: 5-up centred row of `tab-ghost` pills.
-  - Template-grid cluster: 5-up at desktop, scaling to 1-up at mobile.
-  - Pricing tier grid: 3-up at desktop with the middle tier polarity-flipped.
-  - Logo strip: ~5 logos wide, single row.
-
-### Whitespace Philosophy
-The mesh gradient does most of the heavy decorative lifting; whitespace separates the bands. Section spacing is generous — `{spacing.4xl}` to `{spacing.5xl}` between bands lets the gradient breathe. Inside a card, the headline/paragraph stack is tight (`{spacing.xs}` 8 px gap), then a wider gap before the CTA cluster. The page reads as engineered — large gaps + tight interior, never the other way around.
-
-### Responsive Strategy
-
-#### Breakpoints
-
-| Name | Width | Key Changes |
-|---|---|---|
-| Mobile | < 600px | Hero stacks; nav collapses to hamburger; 3-up feature grids drop to 1-up; tab pill row enables horizontal scroll. |
-| Tablet | 600–959px | 3-up grids drop to 2-up; nav still horizontal. |
-| Desktop | 960–1199px | Full 3-up grids; pricing 3-up. |
-| Wide | 1200–1399px | Container caps at 1400 px content width. |
-| Ultra-wide | ≥ 1400px | Content stays centred at 1400 px; bands stretch edge-to-edge in colour but content holds the max-width. |
-
-#### Touch Targets
-The `button-primary` pill renders at ~32 px tall in nav and ~48 px tall in marketing contexts. Marketing CTAs comfortably meet WCAG AAA at all breakpoints; nav buttons inflate touch area through `{spacing.xs}` padding on mobile to meet the 44 × 44 px floor.
-
-#### Collapsing Strategy
-- **Nav**: full link row + Ask AI / Log In / Sign Up pills at desktop. Collapses to logo + hamburger at mobile with the menu opening as a full-overlay.
-- **Hero**: mesh gradient stays centred; headline + body stack vertically at all breakpoints (the brand doesn't use a split-hero pattern).
-- **Three-feature row**: 3-up → 2-up → 1-up at the breakpoints above; cards keep their `{rounded.md}` 8 px shape across all viewports.
-- **Pricing card grid**: 3-up at desktop, vertical stack at mobile with `pricing-card-featured` always sitting in the middle.
-- **Template grid**: 5-up → 3-up → 2-up → 1-up. Each `template-card` keeps its 16:9 aspect on the image.
-
-#### Image Behavior
-- **Mesh gradient**: rendered as inline SVG or canvas-painted gradient; scales fluidly with the hero container; never crops, never tiles.
-- **Customer logos**: rendered as monochrome SVGs in the logo strip; consistent 24 px height.
-- **Code editor mockup**: dark `{colors.primary}` rectangle with mono text rendered inside; treated as an image at the layout level.
-- **Template thumbnails**: 16:9 landscape inside `{rounded.md}` card chrome; lazy-loaded; consistent grayscale palette in the placeholder state.
-
-## Elevation & Depth
-
-| Level | Treatment | Use |
-|---|---|---|
-| Level 0 — Flat | No shadow, no border. | Full-bleed hero bands and the polarity-flipped dark sections. |
-| Level 1 — Inset Hairline | `0 0 0 1px #00000014` inset 1 px border. | Default card chrome — the brand's universal "you can see this card" cue. |
-| Level 2 — Subtle Drop | `0px 1px 1px #00000005, 0px 2px 2px #0000000a` plus inset hairline. | Slightly elevated cards (template-grid, marketing-card). |
-| Level 3 — Soft Stack | `0px 2px 2px #0000000a, 0px 8px 8px -8px #0000000a` plus inset hairline. | The "medium" elevation — feature-grid cards. |
-| Level 4 — Float Stack | `0px 2px 2px #0000000a, 0px 8px 16px -4px #0000000a` plus inset hairline. | "Large" elevation — pricing cards, callout panels. |
-| Level 5 — Modal | `0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f` plus inset hairline. | Modal / dialog surfaces and dropdown menus. |
-
-The brand uses STACKED shadows — multiple small offsets layered to fake natural light — never a single 8-px-blur generic drop. Inset hairline rings are always added so the card edge stays crisp.
-
-### Decorative Depth
-- **Mesh gradient as atmospheric depth**: the hero's multi-stop gradient is the brand's only "atmospheric" effect — applied as a flat 2-D backdrop rather than a 3-D illustration.
-- **Polarity-flipped dark band as section-depth**: switching the surface from `{colors.canvas-soft}` to `{colors.primary}` (the deep ink) is the brand's chief depth cue between bands.
-- **Inset-shadow + drop-shadow combo**: the cards' combination of an inset 1 px ring and a multi-stop drop produces a "card sits on the page" effect without ever feeling material-heavy.
-
-## Shapes
-
-### Border Radius Scale
+### Ledger surface & ink
 
 | Token | Value | Use |
 |---|---|---|
-| `{rounded.none}` | 0px | Full-bleed hero / footer bands. |
-| `{rounded.xs}` | 4px | Tightest inline pill — the `nav-cta-signup` 6-px-radius button (mapped to `xs/sm`). |
-| `{rounded.sm}` | 6px | The brand's `--geist-radius` token — base UI radius for in-app buttons, form inputs, dropdown menus. |
-| `{rounded.md}` | 8px | The brand's `--geist-marketing-radius` token — feature cards, template cards. |
-| `{rounded.lg}` | 12px | Slightly larger card chrome (pricing-card variants). |
-| `{rounded.xl}` | 16px | Largest card chrome — when a card hosts a hero image cap. |
-| `{rounded.pill-sm}` | 64px | Tab-ghost pills inside the "AI Apps / Web Apps / Ecommerce / Marketing / Platforms" row. |
-| `{rounded.pill}` | 100px | The marketing CTA pill — `button-primary`, `button-secondary`, "Start Deploying" pill. |
-| `{rounded.full}` | 9999px | Icon-button circular containers, nav-link ghost pills. |
+| `--color-ledger-bg` | `#122019` | Primary dark surface — hero, Bill Board, footer, and default (`html`/`body`) background. |
+| Regulation Board bg | `#1a1612` | The bronze board's own near-black (not a named token — set inline / via `[data-board-theme='bronze']`). |
+| `--color-parchment` | `#FAF6ED` | Headline/body **ink** on dark surfaces; the one **background** it fills is the How It Works modal. |
+| `--color-parchment-dark` | `#EDE3C8` | Reserved for secondary parchment-surface sections (currently only exercised inside the modal system). |
+| `--color-forest-green` | `#1B4332` | Structural accent — modal top border, orphaned light-nav ink (see **Legacy & reserved assets**). |
+| `--color-forest-green-2` | `#2D6A4F` | Hover state for forest-green elements. |
+| `--color-aged-gold` | `#B8960C` | The default ornamental metal — hairline rules, filigree, eyebrow/label text, board chrome accents. |
+| `--color-aged-gold-light` | `#D4AF37` | Higher-key gold — wax-seal rings, "Active" status color, voted-badge accents. |
+| `--color-seal-red` | `#8B1A1A` | Wax-seal base color (hero Union Jack seal SVG only). |
+| Bronze ornament | `#c08a4a` | `--board-ornament` under `data-board-theme="bronze"` — the Regulation Board's gold-equivalent. |
 
-### Photography Geometry
-- **Mesh gradient**: full-bleed 2-D atmospheric backdrop, never cropped to a frame; treated as the page's wallpaper.
-- **Customer logos**: monochrome SVG, consistent 24 px height in a flex row.
-- **Code editor mockup**: 16:10 dark rectangle, `{rounded.md}` corners.
-- **Template thumbnails**: 16:9 landscape inside `{rounded.md}` chrome.
-- **Showcase imagery**: 2:1 or 16:9 inside `{rounded.lg}` to `{rounded.xl}` chrome with a stacked shadow.
+### Bill / regulation status colors
+
+These are the actual values read from `stageLabel`/`billStatus` in `DepartureBoardSection.tsx` — they are **not** the forest-green/seal-red/mute set implied by the old palette-only mapping, so use these exact values for status chips and glows:
+
+| Status | Color | Value |
+|---|---|---|
+| Active (vote open) | gold | `#D4AF37` (`aged-gold-light`) |
+| Royal Assent / Act | emerald | `#10B981` |
+| Defeated | red | `#EF4444` |
+| Withdrawn | grey | `#6B7280` |
+
+### Text on dark surfaces
+
+- Headline text: `#FAF6ED` (parchment) via `.ledger-headline`, not `aged-gold` and not the old `ink` (`#171717`) token.
+- Body/secondary text on dark: parchment at reduced opacity, e.g. `rgba(250,246,237,0.6–0.68)` for footer copy and nav labels, rather than a flat hex.
+- Gold-on-dark label text: `#B8960C`–`#E8C840` range depending on surface (hero nav links use the brighter `#e8c840`; board eyebrows use `#B8960C`).
+
+### Text on parchment (the modal only)
+
+Inside the How It Works modal, body copy uses warm dark brown (`#4A3C2A`) rather than a cool near-black — the only surface where this rule applies, since it's the only place parchment is actually a background.
+
+## Typography
+
+### Font family
+
+Loaded in `frontend/src/app/layout.tsx` via `next/font/google`:
+
+1. **Playfair Display** (`--font-playfair` → Tailwind `font-display`) — headline face only: the hero H1 (`.ledger-headline`) and both board section H2s. Weight 700 exclusively on marketing/landmark surfaces; the modal also sets Playfair inline for its title. Never render body copy in Playfair.
+2. **Geist** (`--font-geist-sans` → `font-sans`) — running prose: footer tagline, modal body paragraphs, read-more copy. The body default (`body { font-family: var(--font-sans) }`).
+3. **Geist Mono** (`--font-geist-mono` → `font-mono`) — the dominant label voice: table column headers, stage-band labels, tally counts, timestamps/dates, nav links (`.ledger-nav-link`, `.hero-nav-link`), footer column headings, status/voted badges. Uppercase, letter-spacing typically `0.1em`–`0.22em`. Treat mono as the default UI-chrome voice on the boards, not a rare accent reserved for short eyebrows.
+
+### Hierarchy
+
+| Token | Face | Size | Line height | Letter spacing | Use |
+|---|---|---|---|---|---|
+| `text-display-xl` | Playfair (via `.ledger-headline`, size set inline per-component with `clamp()`) | ~48px+ (hero uses `clamp(2.4rem, 4.6vw, 4.2rem)`) | tight (1.04–1.1) | negative | Hero H1. |
+| `text-display-lg` | Playfair / `.ledger-headline` | 32px | 40px | −1.28px | Board section H2s. |
+| `text-display-md` | Playfair | 24px | 32px | −0.96px | Card/step headings where used. |
+| `text-body-lg` | Geist | 18px | 28px | 0 | Lead paragraphs (modal). |
+| `text-body-md` | Geist | 16px | 24px | 0 | Default body prose. |
+| `text-body-sm` | Geist | 14px | 20px | −0.28px | Footer links, secondary body. |
+| `text-caption` / mono labels | Geist Mono | 11–14px | tight | +0.1em to +0.22em | Table headers, stage bands, nav links, footer headings, status badges, timestamps. |
+| `text-code` | Geist Mono | 13px | 20px | 0 | Inline code, reference IDs. |
+
+### Principles
+
+- **Playfair is headline-only, and headline-only means exactly two places today**: the hero H1 and the two board H2s (`.ledger-headline`). Don't reach for it elsewhere without a reason.
+- **Mono is the default working voice of the boards** — not an occasional eyebrow. Any new label, timestamp, stage tag, or status chip on a board surface should default to `font-mono`, uppercase, tracked, matching the existing table/nav/footer pattern.
+- **Sentence-case Playfair headlines**, weight 700 only — never 400.
+- Body copy is parchment-tinted (via opacity) on dark surfaces, and warm brown (`#4A3C2A`) only inside the parchment-background modal.
+
+## Layout
+
+### Spacing tokens
+
+Base unit 4px, defined in `globals.css` `@theme`: `xxs` 4px · `xs` 8px · `sm` 12px · `md` 16px · `lg` 24px · `xl` 32px · `2xl` 40px · `3xl` 48px · `4xl` 64px · `5xl` 96px · `6xl` 128px · `section` 192px. These map to `p-*`/`m-*`/`gap-*`/`w-*`/`h-*` utilities per the Tailwind v4 mapping below.
+
+**Actual section padding in production is tighter than the token names suggest** — don't assume every section reaches for `5xl`/`section`:
+- Hero: `py-xl lg:py-3xl` (32px → 48px).
+- Bill/Regulation Board: `pt-2xl lg:pt-3xl pb-3xl lg:pb-4xl` (40px/48px top, 48px/64px bottom).
+- Footer: `py-4xl` (64px).
+
+### Container widths
+
+Container max-width is **not** uniform across sections — size to the section, not a single global value:
+- Hero: `max-w-[1900px]`.
+- Bill Board, Regulation Board, Footer: `max-w-[1400px]`.
+- How It Works modal: `max-w-[460px]`.
+
+### Breakpoints
+
+The real breakpoint system is Tailwind v4's defaults, used sparingly — no custom `--breakpoint-*` tokens are defined in `globals.css`. In practice the landing page is effectively **two-tier**:
+
+| Prefix | Width | Actual usage |
+|---|---|---|
+| (base) | < 640px | Mobile: board table gives way to `.ledger-card` stacked cards; hero stacks. |
+| `sm:` | ≥ 640px | The primary breakpoint used throughout hero, boards, footer. |
+| `lg:` | ≥ 1024px | Secondary breakpoint for padding/grid bumps. |
+| `md:` (768px) | — | Effectively unused on the live landing page — don't assume a tablet-specific tier exists unless you add one deliberately. |
+| bespoke `@media` | 1680px, 1024px, 639px, 600px | Hand-written pixel breakpoints in `globals.css` for board-margin ornament visibility, table→card fallback, and a couple of legacy component rules. Prefer `sm:`/`lg:` for new work; only add a bespoke pixel breakpoint when a Tailwind tier genuinely doesn't fit. |
+
+### Table → card fallback
+
+Both boards render a `.ledger-table` on wider viewports and swap to a `.board-cards` grid of `.ledger-card` items below `640px` — this is the real responsive strategy for tabular data, not a reflow of the table itself.
+
+## Elevation
+
+There is no single adopted elevation scale in production — `globals.css` defines a `shadow-level-1` through `shadow-level-5` utility set, but it is **unused dead code** (zero references outside its own definition). Real components use bespoke, hand-tuned multi-layer shadows sized to their dark surface:
+
+| Component | Shadow | Use |
+|---|---|---|
+| `.ledger-table__wrap` | `0 1px 2px rgba(0,0,0,.3), 0 8px 20px -4px rgba(0,0,0,.45), 0 24px 40px -12px rgba(0,0,0,.4)` | Board table container. |
+| `.ledger-modal-panel` | `0 24px 64px rgba(0,0,0,.55), inset 0 0 0 1px rgba(184,150,12,.1)` | Bill/regulation detail modal. |
+| `.ledger-frame` | `inset 0 0 0 4px rgba(184,150,12,.12), inset 0 0 0 6px rgba(184,150,12,.06), 0 4px 24px rgba(27,67,50,.12), 0 1px 3px rgba(27,67,50,.08)` | Hero gold frame. |
+| `.btn-vote-hero` | `inset 0 0 0 3px rgba(184,150,12,.14), 0 12px 34px rgba(0,0,0,.42)` | Hero CTA. |
+
+When adding a new elevated surface, follow this pattern — a small inset gold/hairline ring plus one or two soft dark drops sized to the surface — rather than reaching for `shadow-level-*`, which nothing currently renders.
+
+## Shapes
+
+### Border radius
+
+Tokens (`globals.css` `@theme`): `none` 0 · `xs` 4px · `sm` 6px · `md` 8px · `lg` 12px · `xl` 16px · `pill-sm` 64px · `pill` 100px · `full` 9999px.
+
+**In production, only the sharp end of this scale ships:**
+- **2px** — every button that actually renders on the site: `.btn-vote-hero`, `.hero-nav-btn`, `.btn-ledger-primary`/`-secondary` (modal CTAs), `.btn-ledger-primary-sm`/`-secondary-sm`. Treat 2px as the CTA radius for this product.
+- **4px** — `.board-card`.
+- **8px** — `.ledger-card` (mobile board card), `.ledger-table__wrap`.
+- **Pill (`100px`) is a defined token but does not currently back any button a visitor can reach** — see **Legacy & reserved assets**. Don't use it for new CTAs; sharp 2px is the brand.
+
+## Ornamentation
+
+- **Filigree corners** (`FiligreeCorner`) — hero only, all four corners of the `.ledger-frame`. Not currently reused on the boards, footer, or modal.
+- **Union Jack wax seal** (`UnionJackSeal`, defined inline in `HeroSection.tsx`) — hero only, rendered once at 82px over the UK nations map. Never render smaller than 80px — the serrated-wax detail degrades below that.
+- **Crown ornament** (`CrownOrnament`) — the one motif reused across surfaces: hero nav logo, footer brand lockup, and the reserved `NavBar`.
+- **Gold/bronze hairline rules** — a single-pixel gradient rule (`transparent → accent 20% → accent 80% → transparent`) tops the footer and separates board sections; color follows the active board's metal (gold by default, bronze under `data-board-theme="bronze"`).
+- **Board margin ornament** (`.board-margin`, `BoardMargin` component) — a vertical rule, diamond dividers, and a spine label filling the flanking gutters beside a board. **Only visible at ≥1680px** — the gutter isn't wide enough below that. Purely decorative, no data dependency.
+- **Two-metal system** — gold (`aged-gold`) is default; the Regulation Board switches every ornamental color (head background, band background, ornament accent, board background) to bronze via `data-board-theme="bronze"`, which overrides `--board-head-bg`, `--board-band-bg`, `--board-ornament`, `--board-bg`. This swap is not cosmetic-only — it's how the two boards stay visually distinguishable while sharing identical structure.
+- **Sound toggle** (`SoundToggleButton`) — a firework/spark-burst animation (`@keyframes sound-firework`, ~620ms ease-out) on activation, gated behind `prefers-reduced-motion`. Variants: `--light` (hero/nav), `--modal`, `--howitworks`.
 
 ## Components
 
 ### Buttons
 
-**`button-primary`** — the canonical 100-px-radius black pill, marketing scale.
-- Background `{colors.primary}`, text `{colors.on-primary}`, label set in `{typography.button-lg}`, padding `0px {spacing.sm}` 12 px, shape `{rounded.pill}` 100 px. Renders ~48 px tall when paired with the marketing flex layout.
+All are sharp `2px` radius. No pill buttons render on the live site (see **Legacy & reserved assets**).
 
-**`button-secondary`** — the white pill paired with the black primary inside marketing bands.
-- Background `{colors.canvas}`, text `{colors.ink}`, same typography + padding as `button-primary`, shape `{rounded.pill}`.
+- **`.btn-vote-hero`** — the hero's primary CTA ("Vote Now"). Forest-green background, parchment text, `1.5px` aged-gold border, inset gold ring + heavy dark drop shadow, uppercase, `clamp()`-scaled type. Carries the `voteGlow`/`voteSheen` shimmer animation (motion-reduced users get a static button).
+- **`.hero-nav-btn`** (`--ghost` / `--solid` variants) — the hero's in-frame nav CTAs (Log In / Sign Up), dark-theme, 2px radius.
+- **`.btn-ledger-primary`** / **`.btn-ledger-secondary`** — forest-green-filled / transparent-with-gold-border CTA pair, used in the How It Works modal.
+- **`.btn-ledger-primary-sm`** / **`.btn-ledger-secondary-sm`** — compact (30px) versions for the reserved light `NavBar`.
 
-**`button-primary-sm`** — the smaller-scale primary pill used inside nav and pricing-card CTAs.
-- Background `{colors.primary}`, text `{colors.on-primary}`, label set in `{typography.button-md}` (14 px / 500), shape `{rounded.pill}`.
+### Ledger table / board cards
 
-**`button-secondary-sm`** — the smaller-scale white pill paired with `button-primary-sm`.
-- Background `{colors.canvas}`, text `{colors.ink}`, same typography + shape as `button-primary-sm`.
+The core content pattern for both the Bill Board and Regulation Board:
 
-**`tab-ghost`** — the centred-row tab pill ("AI Apps / Web Apps / Ecommerce / Marketing / Platforms").
-- Background `{colors.canvas}`, text `{colors.ink}`, label set in `{typography.body-sm}`, padding `0px {spacing.md}`, shape `{rounded.pill-sm}` 64 px.
-
-**`icon-button-circular`** — the circular icon container (often a "?" or arrow inside).
-- Background `{colors.canvas}`, dark icon, 1 px solid hairline border, shape `{rounded.full}`.
-
-**Nav CTAs:**
-
-**`nav-cta-signup`** — the small black "Sign Up" button in the nav row.
-- Background `{colors.primary}`, text `{colors.on-primary}`, label `{typography.body-sm-strong}`, padding `0px {spacing.xs}`, height 28 px, shape `{rounded.sm}` 6 px (the brand's `--geist-radius`).
-
-**`nav-cta-login`** — the white "Log In" button in the nav.
-- Background `{colors.canvas}`, text `{colors.ink}`, same typography / height / shape as `nav-cta-signup`.
-
-**`nav-cta-ask-ai`** — the small "Ask AI" button with a faint border.
-- Background `{colors.canvas}`, text `{colors.ink}`, 1 px solid `{colors.hairline}` border (extracted as `0px solid rgb(235, 235, 235)`), same typography / height / shape.
-
-### Cards & Containers
-
-**`card-marketing`** — the canonical marketing feature card (3-up section cards).
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.lg}` 24 px, shape `{rounded.md}` 8 px (the `--geist-marketing-radius`). Carries Level 3 soft-stack shadow.
-
-**`card-marketing-large`** — the larger marketing card used for "compute model" / "AI Gateway" callouts.
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.xl}`, shape `{rounded.lg}` 12 px. Carries Level 4 float-stack shadow.
-
-**`card-soft`** — the soft-tinted card used inside cluster groups (lighter than canvas-soft).
-- Background `{colors.canvas-soft}`, text `{colors.ink}`, padding `{spacing.lg}`, shape `{rounded.md}`.
-
-**`template-card`** — the deploy-template card in the "Deploy your first app" grid.
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.md}` 16 px, shape `{rounded.md}` 8 px. Hosts a 16:9 thumbnail at the top.
-
-**`code-editor-mockup`** — the dark code-preview surface inside marketing bands.
-- Background `{colors.primary}`, text `{colors.on-primary}`, body in `{typography.code}` (13 px / Geist Mono), padding `{spacing.lg}` 24 px, shape `{rounded.md}` 8 px.
-
-**`pricing-card`** — the default pricing-tier card.
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.xl}` 32 px, shape `{rounded.lg}` 12 px. Inside: tier name in `{typography.display-md}`, price in `{typography.display-xl}`, feature list in `{typography.body-md}` rows, CTA at the bottom.
-
-**`pricing-card-featured`** — the polarity-flipped "Pro" tier card.
-- Background `{colors.primary}`, text `{colors.on-primary}`, same shape + padding as `pricing-card`. CTA inverts to `button-secondary-sm` (white pill on black card).
-
-### Inputs & Forms
-
-**`form-input`** — the canonical text input.
-- Background `{colors.canvas}`, text `{colors.ink}`, 1 px solid `{colors.hairline}` border, body in `{typography.body-sm}` (14 px), padding `0px {spacing.sm}`, height 40 px (the brand's `--geist-form-height`), shape `{rounded.sm}` 6 px.
-
-**`form-input-sm`** — small-height variant (32 px tall) for tight forms.
-- Same as `form-input` but height 32 px (the `--geist-form-small-height`).
-
-**`form-input-lg`** — large-height variant (48 px tall) for hero CTAs.
-- Same as `form-input` but height 48 px (the `--geist-form-large-height`); body in `{typography.body-md}` 16 px.
+- **`.ledger-table`** — one row per bill/regulation (`.ledger-table__row`, 50px tall, hairline top border), horizontally scrollable rather than reflowing on narrow-but-not-mobile widths. Column headers (`thead th`) are mono, uppercase.
+- **`.ledger-card`** (inside `.board-cards`) — the < 640px fallback: 8px radius, translucent parchment fill (`rgba(250,246,237,0.035)`), 1px border in the active board's metal color.
+- **`.board-card`** — 4px radius variant used for stage/kanban-style groupings; gets a lifted gold treatment (`data-voted="true"`) when the visitor has already voted on that item.
+- Status/tally cells (`TallyCell`, `OwnVoteCell`, `TallyHeader`) render the bill-status colors from the **Colors** table above.
+- Theme switch: wrap a board in `data-board-theme="bronze"` to retheme it; omit the attribute for the default gold board.
 
 ### Navigation
 
-**`nav-bar`** — the sticky top nav.
-- Background `{colors.canvas}`, text `{colors.ink}`, height 64 px (the brand's `--header-height`), padding `{spacing.sm} {spacing.lg}`. Layout: logo left, link row centre, "Ask AI / Log In / Sign Up" cluster right.
+- **`HeroFrameNav`** — the real, live homepage nav, folded into the top of the hero's `.ledger-frame` rather than a separate sticky bar. Dark theme: crown logo + wordmark, mono nav links (`#e8c840`), `.hero-nav-btn` auth CTAs, sound toggle, mobile menu.
+- **`NavBar`** (reserved, not currently rendered) — a light, parchment-surfaced sticky bar (`bg-parchment`, forest-green ink, gold hairline border, mono category links) intended for future standalone inner pages (e.g. a dedicated `/bills` route) rather than the homepage. See **Legacy & reserved assets**.
 
-**`nav-link`** — the centred link row inside `nav-bar`.
-- Text `{colors.body}`, set in `{typography.body-sm}`, padding `{spacing.xs} {spacing.sm}`, shape `{rounded.full}` (ghost pill — visible only on hover or active, but the radius is documented).
+### Footer
 
-**`footer`** — the bottom 4-column nav.
-- Background `{colors.canvas}`, text `{colors.body}`, padding `{spacing.4xl} {spacing.lg}`. Eyebrow column labels in `{typography.caption-mono}` (uppercase mono effect); link rows in `{typography.body-sm}`.
+Dark `--color-ledger-bg` surface. Gold hairline top rule. Four-column link grid (`.footer-heading` mono uppercase headings, `.footer-link` parchment-at-opacity links that brighten to `aged-gold-light` on hover). An oversized, low-opacity Playfair wordmark (`.footer-watermark`) sits as a full-width sign-off band beneath the content.
 
-### Signature Components
+### Modals
 
-**`hero-band`** — the white hero with the mesh gradient backdrop.
-- Background `{colors.canvas}` (or `{colors.canvas-soft}` on some surfaces), text `{colors.ink}`, padding `{spacing.4xl} {spacing.lg}`. Inside: a small mono badge above the headline, the headline in `{typography.display-xl}` (sentence-case, period-terminated), a body lead in `{typography.body-lg}`, then a CTA row with `button-primary` + `button-secondary`. The mesh gradient sits behind, scaled to occupy roughly the top half of the band.
+- **How It Works modal** — the one parchment-**background** surface on the site: `--color-parchment` fill with a repeating gold ruled-line pattern and a 3px forest-green top border. Body copy uses the warm-brown ink rule from **Typography**. Title set in Playfair.
+- **`.ledger-modal-panel`** (bill/regulation detail modal) — dark, matches the board's active metal theme via `data-board-theme`.
 
-**`feature-mesh-band`** — the secondary section that hosts a mesh-gradient atmospheric backdrop with feature copy on top.
-- Background `{colors.canvas}`, text `{colors.ink}`, padding `{spacing.5xl} {spacing.lg}`. Section headline in `{typography.display-lg}`; supporting body in `{typography.body-md}`.
+## Legacy & reserved assets
 
-**`showcase-band-light`** — a soft-canvas section ("Deploy your first app in seconds").
-- Background `{colors.canvas-soft}`, text `{colors.ink}`, padding `{spacing.5xl} {spacing.lg}`.
+Not everything defined in `globals.css` or `src/app/components` renders on the live site. Don't copy these as reference for new work without first checking whether they're actually reachable:
 
-**`showcase-band-dark`** — the polarity-flipped dark band ("A compute model for all workloads").
-- Background `{colors.primary}`, text `{colors.on-primary}`, padding `{spacing.5xl} {spacing.lg}`. Section headline in `{typography.display-lg}` (white on black). Often contains a `code-editor-mockup` flush with the band.
+- **`NavBar.tsx`** — the light-parchment nav described above. Not imported anywhere currently; reserved for a future standalone page route.
+- **`StatsSection.tsx`** — unused, not imported anywhere. Also the only file still using the legacy neutral/pill palette (`bg-primary`, `text-on-primary`).
+- **Legacy neutral palette** (`--color-primary` `#171717`, `--color-canvas`, `--color-link` `#0070f3`, etc.) and the pill-button classes (`.btn-primary`, `.btn-secondary`, `.btn-primary-sm`, `.btn-secondary-sm`) — only consumer is the orphaned `StatsSection.tsx`. Don't use these tokens or classes for new ledger UI; they predate the dark-ledger direction.
+- **`shadow-level-1`…`shadow-level-5`** utilities — defined, unused. Follow the bespoke per-component pattern in **Elevation** instead.
+- **`.hero-atmosphere`** mesh-gradient utility — defined, unused on the current hero (which uses the parliament video + scrim instead).
+- **`.kanban-*`**, **`.board-stage-section*`** — a parallel stage-grid/kanban card system defined in CSS; not confirmed wired into the current landing page boards (which render `.ledger-table`). Check current usage before building on these.
 
-**`logo-strip`** — the customer-logo wrapping row near the top of the page.
-- Background `{colors.canvas}`, text `{colors.body}`, padding `{spacing.lg} {spacing.xl}`. Logos rendered as monochrome SVGs at consistent height.
+If you're removing dead code as part of unrelated work, flag it rather than silently deleting — some of these (`NavBar`, the pill classes) look like they're mid-transition rather than abandoned.
 
-**`badge-secondary`** — the small inline metadata pill ("New", "Beta", "Live").
-- Background `{colors.canvas-soft}`, text `{colors.body}`, body in `{typography.caption}`, padding `0px {spacing.xs}`, shape `{rounded.full}`.
-
-**`banner-marketing`** — the "Introducing X" announcement pill at the top of pages.
-- Background `{colors.canvas-soft}`, text `{colors.body}`, body in `{typography.body-sm}`, padding `{spacing.xs} {spacing.sm}`, shape `{rounded.full}`.
-
-**`link-inline`** — body-copy inline links.
-- Text `{colors.link}` (`#0070f3`), body in `{typography.body-md}`, underlined.
-
-### Examples (illustrative)
-
-> Auto-derived kit-mirror demonstration surfaces (`scripts/derive-examples-block.mjs`). Each `ex-*` entry references brand-native primitives so downstream consumers (`/preview-design`, `/generate-kit`) re-skin the same 10 surfaces consistently. `TO_FILL` markers indicate missing primitives — resolve in the LLM judgment pass.
-
-**`ex-pricing-tier`** — Default Pricing tier card. Re-uses feature-card chrome with brand canvas-soft surface.
-- Properties: `backgroundColor`, `textColor`, `borderColor`, `rounded`, `padding`
-
-**`ex-pricing-tier-featured`** — Featured/highlighted tier — polarity-flipped surface (dark fill + light text in light mode, light fill + dark text in dark mode).
-- Properties: `backgroundColor`, `textColor`, `rounded`, `padding`
-
-**`ex-product-selector`** — What's Included summary card — re-purposed for SaaS / B2B verticals (NOT a literal product gallery).
-- Properties: `backgroundColor`, `rounded`, `padding`
-
-**`ex-cart-drawer`** — Subscription summary — re-purposed for SaaS / B2B (line items per add-on, not literal cart).
-- Properties: `backgroundColor`, `rounded`, `padding`, `item-divider`
-
-**`ex-app-shell-row`** — Sidebar nav row inside the App Shell example. Active state uses brand primary as the indicator.
-- Properties: `backgroundColor`, `activeIndicator`, `rounded`, `padding`
-
-**`ex-data-table-cell`** — Default data-table th + td chrome. Header uses mono-caps eyebrow typography; body uses body-sm.
-- Properties: `headerBackground`, `headerTypography`, `bodyTypography`, `cellPadding`, `rowBorder`
-
-**`ex-auth-form-card`** — Sign-in / sign-up card. Re-uses feature-card chrome with text-input primitives inside.
-- Properties: `backgroundColor`, `rounded`, `padding`
-
-**`ex-modal-card`** — Modal dialog surface — same chrome as feature-card with elevated shadow.
-- Properties: `backgroundColor`, `rounded`, `padding`
-
-**`ex-empty-state-card`** — Empty-state illustration frame.
-- Properties: `backgroundColor`, `rounded`, `padding`, `captionTypography`
-
-**`ex-toast`** — Toast notification surface — feature-card shape + medium shadow.
-- Properties: `backgroundColor`, `rounded`, `padding`, `typography`
-
-
-## Do's and Don'ts
+## Do's and don'ts
 
 ### Do
-- Use **Playfair Display** (`font-display`) for every section headline and card heading on parchment surfaces. It is the non-negotiable headline voice.
-- Use `{colors.aged-gold}` (`#B8960C`) exclusively for decoration — borders, dividers, ornamental lines, eyebrow text. Never for narrative headings.
-- Use `{colors.forest-green}` (`#1B4332`) as the primary ink for headings, CTA backgrounds, and structural accents. It is the editorial authority colour.
-- Set every eyebrow, bill status badge, ledger micro-label, and footer column heading in Geist Mono, uppercase, letter-spacing 0.16–0.22em. Mono signals the ledger voice.
-- Use `border-radius: 2px` for all CTA buttons. The sharp-cornered ledger aesthetic is deliberate — no pill shapes on this product.
-- Keep body copy colour warm (`#4A3C2A`) on parchment surfaces. Never use the stark `{colors.ink}` (`#171717`) against `{colors.parchment}`.
-- Cycle section surfaces in `{colors.parchment}` → `{colors.parchment-dark}`. This is the depth cue — light parchment for primary sections, darker parchment for footer and secondary bands.
-- Ornamental elements (filigree corners, diamond dividers, wax seal, crown motif) are part of the brand identity. Include them on landmark surfaces (hero, section breaks, footer).
+- Treat `--color-ledger-bg` (`#122019`) as the default surface for any new landmark section (hero-adjacent, board-adjacent, footer-adjacent). Parchment is ink on these surfaces, not a background.
+- Use **Playfair Display** only for true headline text (H1/H2 on landmark sections) — it is rare by design, not the default.
+- Default new labels, timestamps, table headers, and status chips to **Geist Mono**, uppercase, tracked — it's the working voice of this UI.
+- Use `2px` border-radius on any new CTA button. Use 4–8px on new card/table containers.
+- Use the bill-status color table exactly (`#D4AF37` active, `#10B981` Act, `#EF4444` defeated, `#6B7280` withdrawn) — these are read directly from the board logic, not the decorative palette.
+- When theming a new board-like surface, follow the `data-board-theme="bronze"` pattern (override `--board-head-bg`/`--board-band-bg`/`--board-ornament`/`--board-bg`) rather than hard-coding a third metal.
+- Build new elevated surfaces as an inset gold/hairline ring plus one or two soft dark drop shadows, matching the existing bespoke shadows in **Elevation**.
 
 ### Don't
-- Don't use pill-shaped (100px radius) buttons anywhere — this product uses sharp ledger corners (`border-radius: 2px`).
-- Don't render Geist sans at display/headline scale on marketing surfaces. Playfair Display is the exclusive headline face.
-- Don't use `{colors.aged-gold}` for body text or headings — it is too low-contrast at body size and belongs only to decorative chrome.
-- Don't use mesh gradients or abstract illustration. The decoration system is ornamental (filigree, seals, rules), not painterly.
-- Don't introduce new accent colours. The palette is parchment + forest green + aged gold + seal red. Any new colour must justify itself within this four-tone register.
-- Don't use Geist Mono at body size in running paragraphs. Mono is the ledger-clerk voice only — eyebrows, status labels, reference IDs.
-- Don't render the Union Jack wax seal smaller than 80px — the detail degrades below that size.
-- Don't use dark-mode polarity-flipped black bands. The ledger is always warm parchment; the depth cue is parchment → parchment-dark, not light → near-black.
+- Don't reach for `--color-parchment` as a page **background** outside the How It Works modal — everywhere else it's text color on a dark ground.
+- Don't use pill-shaped (100px radius) buttons — the token exists but nothing that ships uses it; sharp 2px is the brand.
+- Don't build on `NavBar.tsx`, `StatsSection.tsx`, the legacy neutral palette, `shadow-level-*`, or `.hero-atmosphere` as if they were the current standard — they're orphaned or unused (see **Legacy & reserved assets**).
+- Don't render the Union Jack wax seal below 80px.
+- Don't invent a third ornamental metal — gold is default, bronze is the Regulation Board's variant; that's the whole system.
+- Don't assume a `md:` (tablet, 768px) tier is meaningfully styled — the live breakpoint system is effectively `sm:`/`lg:` plus a few bespoke pixel breakpoints.
+
+## Tailwind v4 mapping
+
+Tailwind v4 is CSS-first: tokens live in `frontend/src/app/globals.css` under `@theme` rather than `tailwind.config.js`. Every `@theme` variable generates a matching utility class:
+
+| `@theme` prefix | Generated utilities | Example |
+|---|---|---|
+| `--color-*` | `bg-*` `text-*` `border-*` `ring-*` `fill-*` | `--color-forest-green` → `text-forest-green`, `bg-forest-green` |
+| `--spacing-*` | `p-*` `m-*` `gap-*` `w-*` `h-*` `inset-*` | `--spacing-lg` → `p-lg`, `gap-lg` |
+| `--radius-*` | `rounded-*` | `--radius-md` → `rounded-md` |
+| `--text-*` | `text-*` (bundles font-size + line-height + letter-spacing) | `--text-display-xl` → `text-display-xl` |
+| `--font-*` | `font-*` | `--font-display` → `font-display` |
+
+Because color/spacing/radius/text tokens live in a standard `@theme` block (not `@theme inline`), they're also emitted as CSS custom properties — use `var(--color-aged-gold)` freely in inline styles and custom CSS, which is how most of the ledger-specific chrome above is actually written (component classes in `@layer components`, not Tailwind utility strings). The font variables (`--font-sans`, `--font-mono`, `--font-display`) live in a separate `@theme inline` block because they point to Next.js font variables (`var(--font-geist-sans)` etc.) that must stay as references, not be inlined.
+
+### Custom CSS classes reference
+
+`globals.css` defines the component-level classes documented above under `@layer components`/`@layer utilities`. Check this file — and the **Components** and **Legacy & reserved assets** sections above — before adding a new button or link class; a close match usually already exists.
+
+All external links must include `target="_blank"` and `rel="noopener noreferrer"`.
